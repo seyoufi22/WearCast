@@ -12,9 +12,4 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Common\Enums\" />
-      <Folder Include="Features\" />
-    </ItemGroup>
-
 </Project>
