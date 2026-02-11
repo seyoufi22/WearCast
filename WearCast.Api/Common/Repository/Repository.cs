@@ -1,4 +1,4 @@
-namespace WearCast.Api.Domain.Repository;
+namespace WearCast.Api.Common.Repository;
 
 public class Repository : IRepository
 {

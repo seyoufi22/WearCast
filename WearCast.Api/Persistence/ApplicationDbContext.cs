@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace WearCast.Api.Domain;
+namespace WearCast.Api.Persistence;
 
-public class DBContext : DbContext
+public class ApplicationDbContext : DbContext
 {
-    public DBContext(DbContextOptions<DBContext> options):base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options):base(options)
     {
         
     }
