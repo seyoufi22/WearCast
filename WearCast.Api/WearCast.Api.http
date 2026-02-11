@@ -1,0 +1,6 @@
+@WearCast.Api_HostAddress = http://localhost:5245
+
+GET {{WearCast.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

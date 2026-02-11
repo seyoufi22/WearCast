@@ -1,26 +1,21 @@
-using WearCast.Api;
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDependencies(builder.Configuration);
-
 // Add services to the container.
-
+builder.Services.AddControllers();
 
 // Swagger
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
-app.UseExceptionHandler();
 
 app.Run();
