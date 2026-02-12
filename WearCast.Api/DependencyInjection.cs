@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 using System.Reflection;
 using System.Text;
+
 
 
 
@@ -25,7 +25,8 @@ namespace WearCast.Api
 
             services
                 .AddSwaggerServices()
-                .AddFluentValidationConfig();
+                .AddFluentValidationConfig()
+                .AddMediatRConfig();
 
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
@@ -41,7 +42,7 @@ namespace WearCast.Api
         private static IServiceCollection AddFluentValidationConfig(this IServiceCollection services)
         {
             services
-               .AddFluentValidationAutoValidation()
+               //.AddFluentValidationAutoValidation()
                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return services;
@@ -100,5 +101,22 @@ namespace WearCast.Api
             return services;
         }
 
+        private static IServiceCollection AddMediatRConfig(this IServiceCollection services)
+        {
+            services.AddMediatR(cfg =>
+            {
+                // Tell MediatR where to find your Handlers
+                cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+            });
+
+            services.AddTransient(
+                typeof(IPipelineBehavior<,>),
+                typeof(ValidationHandler<,>)
+            );
+
+            return services;
+        }
+
     }
 }
+
