@@ -7,7 +7,6 @@ using System.Text;
 
 
 
-
 namespace WearCast.Api
 {
     public static class DependencyInjection
@@ -18,6 +17,11 @@ namespace WearCast.Api
             services.AddControllers();
 
             services.AddAuthConfig(configuration);
+
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
             services
                 .AddSwaggerServices()
@@ -49,8 +53,8 @@ namespace WearCast.Api
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            // services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            //services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
 
