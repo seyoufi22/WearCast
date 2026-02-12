@@ -28,6 +28,7 @@ namespace WearCast.Api
                 .AddFluentValidationConfig()
                 .AddMediatRConfig();
 
+            services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
 
