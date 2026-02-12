@@ -1,4 +1,4 @@
-﻿namespace SurveyBasket.Abstractions
+﻿namespace WearCast.Api.Abstractions
 {
     public static class ResultExtentions
     {

@@ -8,5 +8,10 @@ global using Microsoft.Extensions.Options;
 global using Microsoft.AspNetCore.Identity;
 
 
+global  using WearCast.Api.Entities;
+global using WearCast.Api.Persistence;
+global using WearCast.Api.Errors;
+global using WearCast.Api.Authentication;
+
 
 
