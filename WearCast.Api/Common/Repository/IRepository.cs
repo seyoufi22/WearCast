@@ -4,10 +4,10 @@ namespace WearCast.Api.Common.Repository;
 
 public interface IRepository<T>
 {
-    Task<List<T>> GetAllAsync();
-    Task<T> GetByIdAsync(Expression<Func<T, bool>> filter, bool useTracing = true);
-    Task<T> GetByNameAsync(Expression<Func<T, bool>> filter);
-    Task<T> CreateAsync(T dbRecord);
-    Task<T> UpdateAsync(T dbRecord);
-    Task<bool> DeleteAsync(T dbRecord);
+    public Task<List<T>> GetAllAsync();
+    public Task<T> GetAsync(Expression<Func<T, bool>>filter,  bool useNoTracking = false);
+    public Task<T> CreateAsync(T dbRecord);
+    public Task<T> UpdateAsync(T dbRecord);
+    public Task HardDeleteAsync(T dbRecord);
+    public Task SoftDeleteAsync(Guid  entityId);
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 using System.Reflection;
@@ -31,7 +32,8 @@ namespace WearCast.Api
             services
                 .AddSwaggerServices()
                 .AddFluentValidationConfig()
-                .AddMediatRConfig();
+                .AddMediatRConfig()
+                .AddAutoMapperConfig();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -119,6 +121,15 @@ namespace WearCast.Api
                 typeof(IPipelineBehavior<,>),
                 typeof(ValidationHandler<,>)
             );
+
+            return services;
+        }
+        private static IServiceCollection AddAutoMapperConfig(this IServiceCollection services)
+        {
+            services.AddAutoMapper(config =>
+            {
+                config.AddMaps(typeof(Program).Assembly);
+            });
 
             return services;
         }

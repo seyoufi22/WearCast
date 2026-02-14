@@ -4,7 +4,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Queries
 {
     public class GetAllCategory
     {
-        public record CategoryResponse(int Id, string Name);
+        public record CategoryResponse(Guid Id, string Name);
         public record GetCategoriesQuery : IRequest<List<CategoryResponse>>;
         public class GetCategoriesHandler : IRequestHandler<GetCategoriesQuery, List<CategoryResponse>>
         {
@@ -20,7 +20,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Queries
 
                 var categories = await _categoryRepo.GetAllAsync();
 
-                return categories.Select(c => new CategoryResponse(c.Id, c.Name)).ToList();
+                return categories.Select(c => new CategoryResponse(c.ID, c.Name)).ToList();
             }
         }
     }
