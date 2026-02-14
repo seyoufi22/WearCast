@@ -8,9 +8,9 @@ namespace WearCast.Api.Persistence;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
 {
-    
-    // DB Sets will go here
 
+    // DB Sets will go here
+    public DbSet<Category> Categories { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

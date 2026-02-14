@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using System.Reflection;
 using System.Text;
+using WearCast.Api.Common.Repository;
+using WearCast.Api.Persistence.Services;
 
 
 
@@ -22,6 +24,9 @@ namespace WearCast.Api
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
+            services.AddScoped<ImageService>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             services
                 .AddSwaggerServices()

@@ -29,4 +29,12 @@
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\CategoryFeatures\Commends\CreateCategory\" />
+      <Folder Include="Features\CategoryFeatures\Commends\DeleteCategory\" />
+      <Folder Include="Features\CategoryFeatures\Commends\UpdateCategory\" />
+      <Folder Include="Features\CategoryFeatures\Queries\GetCategoryDetails\" />
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>
