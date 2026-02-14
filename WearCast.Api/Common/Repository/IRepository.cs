@@ -9,5 +9,5 @@ public interface IRepository<T>
     public Task<T> CreateAsync(T dbRecord);
     public Task<T> UpdateAsync(T dbRecord);
     public Task HardDeleteAsync(T dbRecord);
-    public Task SoftDeleteAsync(Guid  entityId);
+    public Task SoftDeleteAsync(int entityId);
 }
