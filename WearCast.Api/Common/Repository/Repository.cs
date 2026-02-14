@@ -45,11 +45,10 @@ public class Repository<T> : IRepository<T> where T : BaseModel, new()
         return dbRecord;
     }
     
-    public async Task SoftDeleteAsync(Guid entityId)
+    public async Task SoftDeleteAsync(int entityId)
     {
-        T entity = await GetAsync(e => e.ID == entityId);
+        T entity = await GetAsync(e => e.Id == entityId);
         entity.IsDeleted = true;
-        entity.UpdatedDate = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
 }
