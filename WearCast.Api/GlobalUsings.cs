@@ -13,6 +13,8 @@ global using WearCast.Api.Entities;
 global using WearCast.Api.Errors;
 global using WearCast.Api.Persistence;
 global using WearCast.Api.Common.Handlers;
+global using WearCast.Api.Abstractions;
+global using SurveyBasket.Errors;
 
 
 
