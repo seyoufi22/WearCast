@@ -11,7 +11,8 @@ namespace WearCast.Api.Features.AuthenticationManagement.ResendConfirmEmail
         public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmEmailRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
-            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+
+            return result.ToResponse();
         }
     }
 }

@@ -11,7 +11,7 @@
         {
             var result = await _mediator.Send(request,  cancellationToken);
 
-            return result.IsSuccess ? Ok() : result.ToProblem(); 
+            return result.ToResponse();
         }
     }
 }
