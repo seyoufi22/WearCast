@@ -6,6 +6,7 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Options;
 global using AutoMapper;
+global using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 global using WearCast.Api.Authentication;

@@ -20,6 +20,9 @@
         public static readonly Error DublicatedEmail =
             new("User.DublicatedEmail", "Another user with the same email is already exists",StatusCodes.Status409Conflict);
 
+        public static readonly Error DublicatedPhoneNumber =
+            new("User.DublicatedPhoneNumber", "Another user with the same phone number is already exists", StatusCodes.Status409Conflict);
+
         public static readonly Error EmailNotConfirmed =
             new("User.EmailNotConfirmed", "Email is not confirmed",StatusCodes.Status401Unauthorized);
 

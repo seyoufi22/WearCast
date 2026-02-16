@@ -4,6 +4,8 @@
     {
         public LoginRequestValidator() 
         {
+            RuleLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .EmailAddress();
