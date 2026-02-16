@@ -14,11 +14,29 @@ namespace WearCast.Api.Common.Email
             { "{{name}}", $"{user.FirstName} {user.LastName}" },
             { "{{code}}", code }
            }
-       );
+        );
 
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 user.Email!,
                 "🔐 WearCast App: Email Confirmation",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
+        public async Task SendResetPasswordEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody("ForgetPassword",
+                templateModel: new Dictionary<string, string>
+                {
+            { "{{name}}", $"{user.FirstName} {user.LastName}" },
+            { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                user.Email!,
+                "🔐 WearCast App: Reset Password",
                 emailBody
             ));
 
