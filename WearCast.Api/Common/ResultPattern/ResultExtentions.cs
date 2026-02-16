@@ -1,27 +1,64 @@
 ﻿namespace WearCast.Api.Abstractions
 {
-    public static class ResultExtentions
+    public static class ResultExtensions
     {
-        public static ObjectResult ToProblem(this Result result)
+        // Generic Version (Result<T>)
+        public static ObjectResult ToResponse<T>(this Result<T> result)
         {
             if (result.IsSuccess)
-                throw new InvalidOperationException("Cannot convert success result to a problem");
-
-            var problem = Results.Problem(statusCode: result.Error.StatusCode);
-            var problemDetails = problem.GetType().GetProperty(nameof(ProblemDetails))!.GetValue(problem) as ProblemDetails;
-
-            problemDetails!.Extensions = new Dictionary<string, object?>
             {
+                return new OkObjectResult(new
                 {
-                    "errors" , new[]
-                    {
-                        result.Error.Code,
-                        result.Error.Description
-                    }
+                    isSuccess = true,
+                    hasData = true,
+                    data = result.Value
+                });
+            }
+
+            var status = result.Error.StatusCode ?? 400;
+
+            return new ObjectResult(new
+            {
+                isSuccess = false,
+                statusCode = status,
+                error = new
+                {
+                    result.Error.Code,
+                    description = result.Error.Description
                 }
+            })
+            {
+                StatusCode = status
             };
-           
-            return new ObjectResult(problemDetails);
+        }
+
+        // Non-generic version (Result)
+        public static ObjectResult ToResponse(this Result result)
+        {
+            if (result.IsSuccess)
+            {
+                return new OkObjectResult(new
+                {
+                    isSuccess = true,
+                    hasData = false
+                });
+            }
+
+            var status = result.Error.StatusCode ?? 400;
+
+            return new ObjectResult(new
+            {
+                isSuccess = false,
+                statusCode = status,
+                error = new
+                {
+                    result.Error.Code,
+                    description = result.Error.Description
+                }
+            })
+            {
+                StatusCode = status
+            };
         }
     }
 }
