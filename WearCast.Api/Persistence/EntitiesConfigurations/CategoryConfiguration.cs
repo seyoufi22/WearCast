@@ -1,10 +1,10 @@
 ﻿namespace WearCast.Api.Persistence.EntitiesConfigurations
 {
-    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    public class CategoryConfiguration : BaseModelConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder.HasKey(c => c.ID);
+            base.Configure(builder);
 
             builder.Property(c => c.Name)
                 .IsRequired()

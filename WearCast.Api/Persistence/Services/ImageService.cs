@@ -13,7 +13,11 @@
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("No file uploaded.");
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" };
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
+            if (string.IsNullOrEmpty(ext) || !allowedExtensions.Contains(ext))
+                return $"Invalid file type. Allowed types: {string.Join(", ", allowedExtensions)}";
             var rootPath = _environment.WebRootPath;
             if (string.IsNullOrEmpty(rootPath))
             {
@@ -26,7 +30,6 @@
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
 
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
@@ -36,7 +39,31 @@
                 await file.CopyToAsync(stream);
             }
 
-            return $"https://wearcast.runasp.net/uploads/{uniqueFileName}";
+            return $"https://localhost:7250/uploads/{uniqueFileName}";
+        }
+        public async Task<bool> DeleteFileAsync(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl))
+                throw new ArgumentException("File URL is required.");
+
+            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
+
+            var rootPath = _environment.WebRootPath;
+            if (string.IsNullOrEmpty(rootPath))
+            {
+                throw new DirectoryNotFoundException("wwwroot folder is missing in the API project.");
+            }
+
+            var filePath = Path.Combine(rootPath, "uploads", fileName);
+
+            if (!File.Exists(filePath))
+            {
+                return false; 
+            }
+
+            await Task.Run(() => File.Delete(filePath));
+
+            return true; 
         }
     }
 }
