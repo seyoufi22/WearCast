@@ -41,7 +41,7 @@ namespace WearCast.Api
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
 
-
+            services.AddHttpContextAccessor();
 
             services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
