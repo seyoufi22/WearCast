@@ -30,4 +30,11 @@
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\Customer\DeleteCustomer\" />
+      <Folder Include="Features\Customer\GetAllCustomers\" />
+      <Folder Include="Features\Customer\GetCustomerById\" />
+      <Folder Include="Features\Customer\UpdateCustomer\" />
+    </ItemGroup>
+
 </Project>

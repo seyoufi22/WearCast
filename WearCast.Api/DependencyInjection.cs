@@ -22,6 +22,8 @@ namespace WearCast.Api
 
             services.AddAuthConfig(configuration);
 
+            services.AddHttpContextAccessor();
+
             var connectionString = configuration.GetConnectionString("DefaultConnection") ??
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -34,6 +36,7 @@ namespace WearCast.Api
                 .AddAutoMapperConfig()
                 .AddBackgroundJobsConfig(configuration);
 
+            services.AddScoped(typeof(IRepository<>), typeof(Common.Repository.Repository<>));
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<EmailHelper>();
 

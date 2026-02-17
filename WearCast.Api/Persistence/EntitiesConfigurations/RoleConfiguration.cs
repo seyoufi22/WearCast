@@ -5,9 +5,26 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations
     {
         public void Configure(EntityTypeBuilder<ApplicationRole> builder)
         {
-            //builder.HasIndex(x => x.Title).IsUnique();
-            //builder.Property(x => x.Title).HasMaxLength(100);
-            //builder.Property(x => x.Summary).HasMaxLength(1500);
+            builder.HasData([
+                new ApplicationRole
+                {
+                    Id = DefaultRoles.AdminRoleId,
+                    Name = DefaultRoles.Admin,
+                    NormalizedName = DefaultRoles.Admin.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.AdminRoleConcurrencyStamp,
+                    IsDefault = false,
+                    IsDeleted = false
+                },
+                new ApplicationRole
+                {
+                    Id = DefaultRoles.CustomerRoleId,
+                    Name = DefaultRoles.Customer,
+                    NormalizedName = DefaultRoles.Customer.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.CustomerRoleConcurrencyStamp,
+                    IsDefault = true,
+                    IsDeleted = false
+                }
+            ]);
         }
     }
 }

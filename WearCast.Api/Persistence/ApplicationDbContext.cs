@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     // DB Sets will go here
+    public DbSet<Customer> Customers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,13 +31,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries<BaseModel>();
+        var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
 
         foreach (var entityEntry in entries)
         {
-            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId()!;
             if (entityEntry.State == EntityState.Added)
             {
-                entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+                if (!string.IsNullOrEmpty(currentUserId))
+                    entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
             }
             else if (entityEntry.State == EntityState.Modified)
             {

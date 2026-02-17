@@ -6,7 +6,7 @@ namespace WearCast.Api.Entities;
 public class BaseModel
 {
     public int Id { get; set; }
-    public string CreatedById { get; set; } = string.Empty;
+    public string? CreatedById { get; set; }
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     public string? UpdatedById { get; set; }
     public DateTime? UpdatedOn { get; set; }
@@ -14,7 +14,7 @@ public class BaseModel
     public bool IsActive { get; set; } = true;
 
 
-    public ApplicationUser CreatedBy { get; set; } = default!;
+    public ApplicationUser? CreatedBy { get; set; }
     public ApplicationUser? UpdatedBy { get; set; }
 
 }
