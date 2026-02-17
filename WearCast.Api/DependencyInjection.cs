@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 using System.Reflection;
 using System.Text;
+
 using WearCast.Api.Common.Repository;
 using WearCast.Api.Persistence.Services;
+
+using WearCast.Api.Common.Email;
+
 
 
 
@@ -33,11 +39,19 @@ namespace WearCast.Api
                 .AddSwaggerServices()
                 .AddFluentValidationConfig()
                 .AddMediatRConfig()
-                .AddAutoMapperConfig();
+                .AddAutoMapperConfig()
+                .AddBackgroundJobsConfig(configuration);
+
+            services.AddScoped<IEmailSender, EmailService>();
+            services.AddScoped<EmailHelper>();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
+
+
+
+            services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
             return services;
         }
@@ -130,6 +144,18 @@ namespace WearCast.Api
             {
                 config.AddMaps(typeof(Program).Assembly);
             });
+
+            return services;
+        }
+        private static IServiceCollection AddBackgroundJobsConfig(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHangfire(config => config
+              .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+              .UseSimpleAssemblyNameTypeSerializer()
+              .UseRecommendedSerializerSettings()
+              .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+
+            services.AddHangfireServer();
 
             return services;
         }

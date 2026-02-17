@@ -22,10 +22,10 @@ namespace WearCast.Api.Features.CategoryFeatures
             return Ok(result);
         }
         [HttpGet]
-        [Route("{id:guid}", Name = "GetCategoryById")]
+        [Route("{id:int}", Name = "GetCategoryById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GetCategoryDetails.CategoryResponse>> GetById(Guid id)
+        public async Task<ActionResult<GetCategoryDetails.CategoryResponse>> GetById(int id)
         {
             var result = await _sender.Send(new GetCategoryDetails.GetCategoryByIdQuery(id));
 
@@ -35,12 +35,12 @@ namespace WearCast.Api.Features.CategoryFeatures
             return Ok(result);
         }
         [HttpDelete]
-        [Route("{id:guid}", Name = "DeleteCategory")]
+        [Route("{id:int}", Name = "DeleteCategory")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(int id)
         {
             bool result = await _sender.Send(new DeleteCategory.DeleteCategoryCommand(id));
 
@@ -60,7 +60,7 @@ namespace WearCast.Api.Features.CategoryFeatures
             if(category.ImageUrl.StartsWith("Invalid"))
                 return BadRequest(category.ImageUrl);
             
-            return CreatedAtRoute("GetCategoryById", new { id = category.ID }, category);
+            return CreatedAtRoute("GetCategoryById", new { id = category.Id }, category);
         }
         [HttpPut]
         [Consumes("multipart/form-data")]

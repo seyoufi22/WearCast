@@ -10,7 +10,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Commends
         public class UpdateCategoryCommand : IRequest<string>
         {
             [Required]
-            public Guid Id { get; set; }
+            public int Id { get; set; }
 
             [Required]
             public string Name { get; set; }
@@ -31,7 +31,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Commends
 
             public async Task<string> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
             {
-                var category = await _categoryRepo.GetAsync(c => c.ID == request.Id);
+                var category = await _categoryRepo.GetAsync(c => c.Id == request.Id);
 
                 if (category == null)
                     return $"Category with ID {request.Id} not found";

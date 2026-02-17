@@ -5,7 +5,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Commends
 {
     public class DeleteCategory
     {
-        public record DeleteCategoryCommand(Guid Id) : IRequest<bool>;
+        public record DeleteCategoryCommand(int Id) : IRequest<bool>;
 
         public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, bool>
         {
@@ -20,7 +20,7 @@ namespace WearCast.Api.Features.CategoryFeatures.Commends
 
             public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
             {
-                var category = await _categoryRepo.GetAsync(c => c.ID == request.Id);
+                var category = await _categoryRepo.GetAsync(c => c.Id == request.Id);
 
                 if (category == null)
                 {

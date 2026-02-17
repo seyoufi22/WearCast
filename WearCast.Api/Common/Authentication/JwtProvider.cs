@@ -38,21 +38,24 @@ namespace WearCast.Api.Authentication
         }
         public string? ValidateToken(string token)
         {
-            var TokenHandler = new JwtSecurityTokenHandler();
+            var tokenHandler = new JwtSecurityTokenHandler();
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
+
             try
-            {       
-                TokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     IssuerSigningKey = symmetricSecurityKey,
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = false 
                 }, out SecurityToken validatedToken);
-                var jwtToken = (JwtSecurityToken)validatedToken;
-                
-                return jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
+
+                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
+
+                return userIdClaim?.Value;
             }
             catch
             {
