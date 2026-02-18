@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WearCast.Api.Common.Email;
-
+using Microsoft.OpenApi;
 
 
 
@@ -50,7 +50,40 @@ namespace WearCast.Api
         private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
         {
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            services.AddOpenApi();
+            services.AddOpenApi(options =>
+            {
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Info = new OpenApiInfo
+                    {
+                        Title = "WearCast API",
+                        Version = "v1",
+                        Description = "API for WearCast application"
+                    };
+
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                    document.Components.SecuritySchemes.Add("Bearer", new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "Enter your JWT token to access this API",
+                    });
+
+                    document.Security ??= new List<OpenApiSecurityRequirement>();
+                    document.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecuritySchemeReference("Bearer", document),
+                            new List<string>()
+                        }
+                    });
+
+                    return Task.CompletedTask;
+                });
+            });
             return services;
         }
         private static IServiceCollection AddFluentValidationConfig(this IServiceCollection services)
