@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Common.Email
 {

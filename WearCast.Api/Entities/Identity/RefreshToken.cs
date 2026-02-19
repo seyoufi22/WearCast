@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Entities
+﻿namespace WearCast.Api.Entities.Identity
 {
     [Owned]
     public class RefreshToken

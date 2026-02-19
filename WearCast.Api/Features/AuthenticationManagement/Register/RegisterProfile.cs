@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.AuthenticationManagement.Register
+﻿using WearCast.Api.Entities.Identity;
+
+namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
     public class RegisterProfile : Profile
     {

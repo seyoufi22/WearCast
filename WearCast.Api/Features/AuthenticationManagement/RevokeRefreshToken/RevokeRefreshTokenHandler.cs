@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
-using WearCast.Api.Entities;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Features.AuthenticationManagement.RevokeRefreshToken
 {

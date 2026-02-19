@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WearCast.Api.Common.Email;
+using WearCast.Api.Entities.Identity;
 
 
 

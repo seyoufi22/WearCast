@@ -1,6 +1,7 @@
 ﻿
 using System.Security.Cryptography;
-using RefreshTokenEntity = WearCast.Api.Entities.RefreshToken;
+using WearCast.Api.Entities.Identity;
+using RefreshTokenEntity = WearCast.Api.Entities.Identity.RefreshToken;
 
 namespace WearCast.Api.Features.AuthenticationManagement.Login
 {

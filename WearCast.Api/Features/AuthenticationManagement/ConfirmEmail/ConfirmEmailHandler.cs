@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Features.AuthenticationManagement.ConfirmEmail
 {

@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Authentication
 {
