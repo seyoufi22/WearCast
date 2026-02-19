@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Persistence.Services
+﻿namespace WearCast.Api.Common.Services
 {
     public class ImageService
     {

@@ -1,5 +1,5 @@
 ﻿using WearCast.Api.Common.Repository;
-using WearCast.Api.Persistence.Services;
+using WearCast.Api.Common.Services;
 using static WearCast.Api.Features.CategoryFeatures.Commends.DeleteCategory;
 
 namespace WearCast.Api.Features.CategoryFeatures.Handler

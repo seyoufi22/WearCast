@@ -1,17 +1,12 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
-
-using WearCast.Api.Common.Repository;
-using WearCast.Api.Persistence.Services;
-
 using WearCast.Api.Common.Email;
-using Microsoft.OpenApi;
+using WearCast.Api.Common.Repository;
+using WearCast.Api.Common.Services;
 
 
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WearCast.Api.Common.Repository;
-using WearCast.Api.Persistence.Services;
+using WearCast.Api.Common.Services;
 
 namespace WearCast.Api.Features.CategoryFeatures.Commends
 {
