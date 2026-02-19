@@ -10,8 +10,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    // DB Sets will go here
-    public DbSet<Customer> customers { get; set; }
+    public DbSet<Customer> Customers { get; set; }
     public DbSet<Seller> Sellers { get; set; }
     public DbSet<Factory> Factories { get; set; }
     public DbSet<ShippingCompany> ShippingCompanies { get; set; }

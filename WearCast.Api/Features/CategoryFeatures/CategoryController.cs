@@ -15,7 +15,6 @@ namespace WearCast.Api.Features.CategoryFeatures
         }
         [HttpGet]
         [Route("All", Name = "GetAllCategories")]
-        [HasPermission(Permissions.GetCategorys)]
         public async Task<ActionResult<List<GetAllCategory.CategoryResponse>>> GetAll()
         {
             var result = await _sender.Send(new GetAllCategory.GetCategoriesQuery());
