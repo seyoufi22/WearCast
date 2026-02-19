@@ -36,9 +36,9 @@ namespace WearCast.Api.Features.CategoryFeatures
 
             return Ok(result);
         }
+        [Authorize]
         [HttpDelete]
         [Route("{id:int}", Name = "DeleteCategory")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -53,23 +53,22 @@ namespace WearCast.Api.Features.CategoryFeatures
 
             return NoContent();
         }
-        [HttpPost]
-        [Consumes("multipart/form-data")]
         [Authorize]
+        [HttpPost]
+        [Route("AddCategory")]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromForm] CreateCategory.CreateCategoryCommand command)
         {
             var category = await _sender.Send(command);
 
-            if (category.ImageUrl.StartsWith("Invalid"))
-                return BadRequest(category.ImageUrl);
-
             return CreatedAtRoute("GetCategoryById", new { id = category.Id }, category);
         }
-        [HttpPut]
-        [Consumes("multipart/form-data")]
         [Authorize]
+        [HttpPut]
+        [Route("UpdateCategory")]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
