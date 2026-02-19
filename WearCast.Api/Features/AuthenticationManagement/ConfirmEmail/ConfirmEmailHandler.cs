@@ -1,9 +1,5 @@
 ﻿
 
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
-
 namespace WearCast.Api.Features.AuthenticationManagement.ConfirmEmail
 {
     public class ConfirmEmailHandler(
@@ -32,7 +28,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.ConfirmEmail
             await _userManager.UpdateAsync(user);
 
             return Result.Success();
-         
+
         }
     }
 }

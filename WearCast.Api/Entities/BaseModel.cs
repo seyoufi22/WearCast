@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Entities;
 

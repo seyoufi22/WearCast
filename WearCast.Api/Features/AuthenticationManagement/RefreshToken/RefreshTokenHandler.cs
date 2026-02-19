@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
-using WearCast.Api.Entities;
-using RefreshTokenEntity = WearCast.Api.Entities.RefreshToken;
+using WearCast.Api.Entities.Identity;
+using RefreshTokenEntity = WearCast.Api.Entities.Identity.RefreshToken;
 
 namespace WearCast.Api.Features.AuthenticationManagement.RefreshToken
 {

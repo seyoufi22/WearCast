@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.AccountManagement.ChangePassword
+﻿using WearCast.Api.Entities.Identity;
+
+namespace WearCast.Api.Features.AccountManagement.ChangePassword
 {
     public class ChangePasswordHandler(
         IHttpContextAccessor httpContextAccessor,

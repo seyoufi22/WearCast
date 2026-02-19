@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 
 using WearCast.Api.Common.Email;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Features.AuthenticationManagement.Register
 {

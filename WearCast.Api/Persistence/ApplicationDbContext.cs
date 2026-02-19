@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Reflection;
-using WearCast.Api.Common.Extensions;
+using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Persistence;
 
@@ -13,6 +12,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     // DB Sets will go here
+    public DbSet<Customer> customers { get; set; }
+    public DbSet<Seller> Sellers { get; set; }
+    public DbSet<Factory> Factories { get; set; }
+    public DbSet<ShippingCompany> ShippingCompanies { get; set; }
+    public DbSet<Driver> Drivers { get; set; }
 
     // DB Sets will go here
     public DbSet<Category> Categories { get; set; }

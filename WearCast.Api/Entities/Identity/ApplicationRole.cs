@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Entities
+﻿namespace WearCast.Api.Entities.Identity
 {
     public class ApplicationRole : IdentityRole
     {
