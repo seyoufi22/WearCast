@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using WearCast.Api.Features.CategoryFeatures.Commends;
+﻿using WearCast.Api.Features.CategoryFeatures.Commends;
 using WearCast.Api.Features.CategoryFeatures.Queries;
 
 namespace WearCast.Api.Features.CategoryFeatures
@@ -16,6 +15,7 @@ namespace WearCast.Api.Features.CategoryFeatures
         }
         [HttpGet]
         [Route("All", Name = "GetAllCategories")]
+        [HasPermission(Permissions.GetCategorys)]
         public async Task<ActionResult<List<GetAllCategory.CategoryResponse>>> GetAll()
         {
             var result = await _sender.Send(new GetAllCategory.GetCategoriesQuery());
@@ -36,7 +36,7 @@ namespace WearCast.Api.Features.CategoryFeatures
 
             return Ok(result);
         }
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("{id:int}", Name = "DeleteCategory")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -45,7 +45,7 @@ namespace WearCast.Api.Features.CategoryFeatures
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id <= 0) return BadRequest("Invalid category ID."); 
+            if (id <= 0) return BadRequest("Invalid category ID.");
             bool result = await _sender.Send(new DeleteCategory.DeleteCategoryCommand(id));
 
             if (!result)
@@ -74,7 +74,7 @@ namespace WearCast.Api.Features.CategoryFeatures
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update([FromForm] UpdateCategory.UpdateCategoryCommand command)
         {
-            if(command.Id <=0)
+            if (command.Id <= 0)
                 return BadRequest("Invalid category ID.");
             string result = await _sender.Send(command);
 

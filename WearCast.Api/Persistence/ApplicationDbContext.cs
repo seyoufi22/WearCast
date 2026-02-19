@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Reflection;
-using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Persistence;
 
@@ -17,8 +16,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Factory> Factories { get; set; }
     public DbSet<ShippingCompany> ShippingCompanies { get; set; }
     public DbSet<Driver> Drivers { get; set; }
-
-    // DB Sets will go here
     public DbSet<Category> Categories { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

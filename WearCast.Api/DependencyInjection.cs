@@ -105,8 +105,8 @@ namespace WearCast.Api
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            // services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            //services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
 

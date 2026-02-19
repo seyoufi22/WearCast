@@ -10,6 +10,7 @@ global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Options;
 global using WearCast.Api.Abstractions;
 global using WearCast.Api.Authentication;
+global using WearCast.Api.Authentication.Filters;
 global using WearCast.Api.Common.Consts;
 global using WearCast.Api.Common.Extensions;
 global using WearCast.Api.Common.Handlers;
