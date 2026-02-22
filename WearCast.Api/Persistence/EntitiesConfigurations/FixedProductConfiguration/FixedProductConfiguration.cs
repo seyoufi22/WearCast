@@ -2,7 +2,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.FixedProductConfigurat
 
 public class FixedProductConfiguration : BaseModelConfiguration<Entities.FixedProduct.FixedProduct>
 {
-    public void Configure(EntityTypeBuilder<Entities.FixedProduct.FixedProduct> builder)
+    public override void Configure(EntityTypeBuilder<Entities.FixedProduct.FixedProduct> builder)
     {
         base.Configure(builder);
 

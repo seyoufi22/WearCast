@@ -4,7 +4,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.FixedProductConfigurat
 
 public class FixedProductSizeDetailsConfiguration : BaseModelConfiguration<FixedProductSizeDetails>
 {
-    public void Configure(EntityTypeBuilder<FixedProductSizeDetails> builder)
+    public override void Configure(EntityTypeBuilder<FixedProductSizeDetails> builder)
     {
         base.Configure(builder);
 

@@ -1,4 +1,4 @@
-namespace WearCast.Api.Common.Enum;
+namespace WearCast.Api.Common.Enums;
 
 public enum TargetAudience
 {

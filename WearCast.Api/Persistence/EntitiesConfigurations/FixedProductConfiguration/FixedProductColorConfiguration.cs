@@ -4,7 +4,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.FixedProductConfigurat
 
 public class FixedProductColorConfiguration : BaseModelConfiguration<FixedProductColor>
 {
-    public void Configure(EntityTypeBuilder<FixedProductColor> builder)
+    public override void Configure(EntityTypeBuilder<FixedProductColor> builder)
     {
         base.Configure(builder);
 
