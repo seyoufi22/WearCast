@@ -25,9 +25,13 @@ public class Repository<T> : IRepository<T> where T : BaseModel, new()
         await  _context.SaveChangesAsync();
     }
     
-    public async Task<List<T>> GetAllAsync()
+    public async Task<List<T>> GetAllAsync(bool withDeleted = false)
     {
-        return await _dbSet.ToListAsync();
+        if (withDeleted)
+        {
+            return await _dbSet.ToListAsync();
+        }
+        return await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
     }
     
     public async Task<T> GetAsync(Expression<Func<T, bool>>filter,  bool useNoTracking = false)
