@@ -52,10 +52,6 @@
                 .NotNull().WithMessage("Store logo is required.")
                 .Must(file => file.Length > 0).WithMessage("Uploaded file is empty.");
 
-            RuleFor(x => x.Country)
-                .NotEmpty().WithMessage("Country is required.")
-                .MaximumLength(50).WithMessage("Country name must not exceed 50 characters.");
-
             RuleFor(x => x.State)
                 .NotEmpty().WithMessage("State is required.")
                 .MaximumLength(50).WithMessage("State name must not exceed 50 characters.");

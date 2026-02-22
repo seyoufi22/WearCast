@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
-    public record RegisterResponse(
+    public record RegisterCustomerResponse(
         string UserId
         );
 }

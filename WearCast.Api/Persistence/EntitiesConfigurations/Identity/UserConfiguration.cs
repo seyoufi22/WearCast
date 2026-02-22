@@ -7,11 +7,6 @@
 
             builder.OwnsOne(x => x.Address, address =>
             {
-                address.Property(a => a.Country)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("Country");
-
                 address.Property(a => a.State)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -33,12 +28,12 @@
                     .HasColumnName("BuildingNumber");
 
                 address.HasData(
-                    new { ApplicationUserId = DefaultUsers.SuperAdminId, Country = "Egypt", State = "Cairo", City = "Nasr City", Street = "Makram Ebeid", BuildingNumber = "10" },
-                    new { ApplicationUserId = DefaultUsers.CustomerId, Country = "Egypt", State = "Alexandria", City = "Smouha", Street = "Victor Emmanuel", BuildingNumber = "15" },
-                    new { ApplicationUserId = DefaultUsers.SellerId, Country = "Egypt", State = "Giza", City = "Dokki", Street = "Tahrir St", BuildingNumber = "20" },
-                    new { ApplicationUserId = DefaultUsers.FactoryId, Country = "Egypt", State = "Sharqia", City = "10th of Ramadan", Street = "Industrial Zone", BuildingNumber = "50" },
-                    new { ApplicationUserId = DefaultUsers.ShippingCompanyId, Country = "Egypt", State = "Cairo", City = "Maadi", Street = "Road 9", BuildingNumber = "5" },
-                    new { ApplicationUserId = DefaultUsers.DriverId, Country = "Egypt", State = "Cairo", City = "Heliopolis", Street = "El Hegaz", BuildingNumber = "30" }
+                    new { ApplicationUserId = DefaultUsers.SuperAdminId, State = "Cairo", City = "Nasr City", Street = "Makram Ebeid", BuildingNumber = "10" },
+                    new { ApplicationUserId = DefaultUsers.CustomerId, State = "Alexandria", City = "Smouha", Street = "Victor Emmanuel", BuildingNumber = "15" },
+                    new { ApplicationUserId = DefaultUsers.SellerId, State = "Giza", City = "Dokki", Street = "Tahrir St", BuildingNumber = "20" },
+                    new { ApplicationUserId = DefaultUsers.FactoryId, State = "Sharqia", City = "10th of Ramadan", Street = "Industrial Zone", BuildingNumber = "50" },
+                    new { ApplicationUserId = DefaultUsers.ShippingCompanyId, State = "Cairo", City = "Maadi", Street = "Road 9", BuildingNumber = "5" },
+                    new { ApplicationUserId = DefaultUsers.DriverId, State = "Cairo", City = "Heliopolis", Street = "El Hegaz", BuildingNumber = "30" }
                 );
             });
 

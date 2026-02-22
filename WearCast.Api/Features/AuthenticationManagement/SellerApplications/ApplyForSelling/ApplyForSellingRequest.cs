@@ -14,7 +14,6 @@
         string Description,
         IFormFile Logo,
 
-        string Country,
         string State,
         string City,
         string Street,

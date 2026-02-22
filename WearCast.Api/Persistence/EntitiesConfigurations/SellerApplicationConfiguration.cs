@@ -16,20 +16,20 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations
                 .IsRequired()
                 .HasMaxLength(50);
 
-            // 1. إعداد الإيميل (Unique)
+
             builder.Property(x => x.Email)
                 .IsRequired()
                 .HasMaxLength(256);
 
             builder.HasIndex(x => x.Email)
                 .IsUnique()
-                .HasFilter("[Status] != 3"); // رقم 3 يمثل حالة Rejected في الداتا بيز
-            // 2. إعداد رقم الهاتف (Unique وطوله 11 رقم مصري)
+                .HasFilter("[Status] != 3");
+
             builder.Property(x => x.PhoneNumber)
                 .IsRequired()
-                .HasMaxLength(11); // أرقام الموبايل في مصر 11 رقم بالضبط
+                .HasMaxLength(11);
 
-            // 2. إعداد رقم الهاتف (Unique فقط لو الطلب مش مرفوض)
+
             builder.HasIndex(x => x.PhoneNumber)
                    .IsUnique()
                    .HasFilter("[Status] != 3");
@@ -59,11 +59,6 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations
 
             builder.OwnsOne(x => x.StoreAddress, address =>
             {
-                address.Property(a => a.Country)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("Country");
-
                 address.Property(a => a.State)
                     .IsRequired()
                     .HasMaxLength(50)

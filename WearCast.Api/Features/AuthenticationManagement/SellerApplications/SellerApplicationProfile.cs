@@ -14,14 +14,12 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.LogoUrl, opt => opt.Ignore())
 
-                .ForPath(dest => dest.StoreAddress.Country, opt => opt.MapFrom(src => src.Country))
                 .ForPath(dest => dest.StoreAddress.State, opt => opt.MapFrom(src => src.State))
                 .ForPath(dest => dest.StoreAddress.City, opt => opt.MapFrom(src => src.City))
                 .ForPath(dest => dest.StoreAddress.Street, opt => opt.MapFrom(src => src.Street))
                 .ForPath(dest => dest.StoreAddress.BuildingNumber, opt => opt.MapFrom(src => src.BuildingNumber));
 
             CreateMap<SellerApplication, SellerApplicationResponse>()
-                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.StoreAddress.Country))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.StoreAddress.State))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.StoreAddress.City))
                 .ForMember(dest => dest.Street, opt => opt.MapFrom(src => src.StoreAddress.Street))

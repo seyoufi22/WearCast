@@ -2,9 +2,9 @@
 
 namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
-    public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+    public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustomerRequest>
     {
-        public RegisterRequestValidator() 
+        public RegisterCustomerRequestValidator() 
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 

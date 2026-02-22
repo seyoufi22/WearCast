@@ -5,29 +5,29 @@ using WearCast.Api.Entities.Identity;
 
 namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
-    public class RegisterHandler(
+    public class RegisterCustomerHandler(
         UserManager<ApplicationUser>userManager,
-        ILogger<RegisterHandler> logger,
+        ILogger<RegisterCustomerHandler> logger,
         IMapper mapper,
         EmailHelper emailHelper
-        ) : IRequestHandler<RegisterRequest, Result<RegisterResponse>>
+        ) : IRequestHandler<RegisterCustomerRequest, Result<RegisterCustomerResponse>>
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly ILogger<RegisterHandler> _logger = logger;
+        private readonly ILogger<RegisterCustomerHandler> _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly EmailHelper _emailHelper = emailHelper;
 
-        public async Task<Result<RegisterResponse>> Handle(RegisterRequest request, CancellationToken cancellationToken)
+        public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerRequest request, CancellationToken cancellationToken)
         {
             var emailIsExists = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
 
             if (emailIsExists)
-                return Result.Failure<RegisterResponse>(UserErrors.DublicatedEmail);
+                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
 
             var phoneNumberIsExists = await _userManager.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken);
 
             if (phoneNumberIsExists)
-                return Result.Failure<RegisterResponse>(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
 
             var user = _mapper.Map<ApplicationUser>(request);
 
@@ -45,12 +45,12 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
                 await _emailHelper.SendConfirmationEmail(user, code);
 
-                return Result.Success(new RegisterResponse(user.Id));
+                return Result.Success(new RegisterCustomerResponse(user.Id));
             }
 
             var error = result.Errors.First();
 
-            return Result.Failure<RegisterResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+            return Result.Failure<RegisterCustomerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
         }
     }
 }

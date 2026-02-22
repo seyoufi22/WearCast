@@ -2,11 +2,11 @@
 
 namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
-    public class RegisterProfile : Profile
+    public class RegisterCustomerProfile : Profile
     {
-        public RegisterProfile() 
+        public RegisterCustomerProfile() 
         {
-            CreateMap<RegisterRequest, ApplicationUser>()
+            CreateMap<RegisterCustomerRequest, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
         }
     }

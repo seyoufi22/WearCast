@@ -1,10 +1,10 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
-    public record RegisterRequest(
+    public record RegisterCustomerRequest(
         string Email,
         string Password,
         string FirstName,
         string LastName,
         string PhoneNumber
-        ): IRequest<Result<RegisterResponse>>;
+        ): IRequest<Result<RegisterCustomerResponse>>;
 }
