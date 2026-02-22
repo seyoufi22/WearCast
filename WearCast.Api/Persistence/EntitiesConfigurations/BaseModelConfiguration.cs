@@ -3,7 +3,7 @@
     public class BaseModelConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
         where TEntity : BaseModel
     {
-        public void Configure(EntityTypeBuilder<TEntity> builder)
+        public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {
 
         }

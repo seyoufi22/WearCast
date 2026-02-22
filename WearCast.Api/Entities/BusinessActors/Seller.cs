@@ -14,7 +14,6 @@
 
         public string LogoUrl { get; set; } = string.Empty;
 
-
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
     }

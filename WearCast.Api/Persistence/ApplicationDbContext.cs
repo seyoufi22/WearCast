@@ -10,14 +10,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    // DB Sets will go here
-    public DbSet<Customer> customers { get; set; }
+    public DbSet<Customer> Customers { get; set; }
     public DbSet<Seller> Sellers { get; set; }
     public DbSet<Factory> Factories { get; set; }
     public DbSet<ShippingCompany> ShippingCompanies { get; set; }
     public DbSet<Driver> Drivers { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<SellerApplication> SellerApplications { get; set; }
+
+    public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductSizeDetails> FixedProductSizeDetails { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
