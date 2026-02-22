@@ -9,8 +9,7 @@ public class FixedProductSizeConfiguration : IEntityTypeConfiguration<FixedProdu
         builder.HasKey(s => new { s.ProductColorId, s.Size });
 
         builder.Property(s => s.Size)
-            .IsRequired()
-            .HasMaxLength(10);
+            .IsRequired();
 
         builder.HasOne(s => s.ProductColor)
             .WithMany(c => c.Sizes)

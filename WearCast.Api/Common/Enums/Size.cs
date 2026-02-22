@@ -1,6 +1,15 @@
-﻿namespace WearCast.Api.Common.Enums
+﻿namespace WearCast.Api.Common.Enums;
+
+public enum Size
 {
-    public class Class
-    {
-    }
+    _2XS,
+    XS,
+    S,
+    M,
+    L,
+    XL,
+    _2XL,
+    _3XL,
+    _4XL,
+    _5XL
 }

@@ -9,8 +9,7 @@ public class FixedProductSizeDetailsConfiguration : BaseModelConfiguration<Fixed
         base.Configure(builder);
 
         builder.Property(d => d.Size)
-            .IsRequired()
-            .HasMaxLength(10);
+            .IsRequired();
 
         builder.HasOne(d => d.Product)
             .WithMany(p => p.SizeDetails)
