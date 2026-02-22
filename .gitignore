@@ -7,3 +7,4 @@ riderModule.iml
 /.vs
 *.user
 **/Migrations/
+WearCast.Api/wwwroot/

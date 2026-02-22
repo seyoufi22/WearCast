@@ -3,12 +3,15 @@
     public class ImageService
     {
         private readonly IWebHostEnvironment _environment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ImageService(IWebHostEnvironment environment)
+        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png" };
+
+        public ImageService(IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
             _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
         }
-        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png" };
 
         public (bool IsValid, string ErrorMessage) Validate(IFormFile file)
         {
@@ -22,13 +25,12 @@
 
             return (true, string.Empty);
         }
+
         public async Task<string> UploadAsync(IFormFile file)
         {
-            var rootPath = _environment.WebRootPath;
-            if (string.IsNullOrEmpty(rootPath))
-                throw new DirectoryNotFoundException("wwwroot folder is missing.");
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            var uploadsFolder = Path.Combine(webRootPath, "uploads");
 
-            var uploadsFolder = Path.Combine(rootPath, "uploads");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
@@ -39,20 +41,21 @@
             using var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            return $"https://localhost:7250/uploads/{uniqueFileName}";
+            var request = _httpContextAccessor.HttpContext!.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            return $"{baseUrl}/uploads/{uniqueFileName}";
         }
+
         public async Task<bool> DeleteAsync(string fileUrl)
         {
             if (string.IsNullOrEmpty(fileUrl))
                 throw new ArgumentException("File URL is required.");
 
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+
             var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
-            var rootPath = _environment.WebRootPath;
-
-            if (string.IsNullOrEmpty(rootPath))
-                throw new DirectoryNotFoundException("wwwroot folder is missing.");
-
-            var filePath = Path.Combine(rootPath, "uploads", fileName);
+            var filePath = Path.Combine(webRootPath, "uploads", fileName);
 
             if (!File.Exists(filePath)) return false;
 

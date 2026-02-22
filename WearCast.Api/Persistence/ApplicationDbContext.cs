@@ -17,6 +17,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ShippingCompany> ShippingCompanies { get; set; }
     public DbSet<Driver> Drivers { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<SellerApplication> SellerApplications { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

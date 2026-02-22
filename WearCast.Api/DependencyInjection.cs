@@ -49,6 +49,8 @@ namespace WearCast.Api
 
             services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
+            services.AddScoped<IPasswordHasher<SellerApplication>, PasswordHasher<SellerApplication>>();
+
             return services;
         }
         private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
