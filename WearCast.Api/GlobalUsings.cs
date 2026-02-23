@@ -16,6 +16,7 @@ global using WearCast.Api.Common.Email;
 global using WearCast.Api.Common.Enums;
 global using WearCast.Api.Common.Extensions;
 global using WearCast.Api.Common.Handlers;
+global using WearCast.Api.Common.Repository;
 global using WearCast.Api.Common.Services;
 global using WearCast.Api.Common.ValueObjects;
 global using WearCast.Api.Entities;

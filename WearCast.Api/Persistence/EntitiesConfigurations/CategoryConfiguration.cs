@@ -10,8 +10,12 @@
                 .IsRequired()
                 .HasMaxLength(50);
 
+            builder.HasIndex(c => c.Name)
+                .IsUnique();
+
             builder.Property(c => c.ImageUrl)
-                .IsRequired();
+                .IsRequired()
+                .HasMaxLength(255);
         }
     }
 }
