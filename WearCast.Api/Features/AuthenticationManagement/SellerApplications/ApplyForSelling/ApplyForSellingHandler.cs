@@ -1,7 +1,4 @@
-﻿
-using System.Security.Cryptography;
-using WearCast.Api.Common.Email;
-using WearCast.Api.Common.Services;
+﻿using System.Security.Cryptography;
 
 namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.ApplyForSelling
 {
@@ -65,10 +62,14 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
                     existingApp.LogoUrl = logoResult.Value;
                     existingApp.PasswordHash = _passwordHasher.HashPassword(existingApp, request.Password);
 
-                    await GenerateAndSendConfirmationCodeAsync(existingApp);
+                    var confirmCode = GenerateConfirmationCode(existingApp);
 
                     _context.SellerApplications.Update(existingApp);
+
                     await _context.SaveChangesAsync(cancellationToken);
+
+                    await _emailHelper.SendConfirmationEmailForSellerApplication(existingApp, confirmCode);
+
                     return Result.Success();
                 }
             }
@@ -77,25 +78,27 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
 
             newApp.LogoUrl = logoResult.Value;
             newApp.PasswordHash = _passwordHasher.HashPassword(newApp, request.Password);
+            newApp.CreatedOn = DateTime.UtcNow;
 
-            await GenerateAndSendConfirmationCodeAsync(newApp);
-
-            newApp.CreatedOn = DateTime.Now;
+            var confirmationCode = GenerateConfirmationCode(newApp);
 
             await _context.SellerApplications.AddAsync(newApp, cancellationToken);
+
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success();
+            await _emailHelper.SendConfirmationEmailForSellerApplication(newApp, confirmationCode);
 
+            return Result.Success();
         }
-        private async Task GenerateAndSendConfirmationCodeAsync(SellerApplication application)
+
+        private string GenerateConfirmationCode(SellerApplication application)
         {
             var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             application.EmailConfirmationCode = code;
             application.EmailConfirmationCodeExpiration = DateTime.UtcNow.AddMinutes(60);
 
-            await _emailHelper.SendConfirmationEmailForSellerApplication(application, code);
+            return code;
         }
         private async Task<Result<string>> ValidateAndUploadLogoAsync(IFormFile logo)
         {
