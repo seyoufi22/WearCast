@@ -1,5 +1,7 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.GetAllCategory;
-public class GetAllCategoryHandler : IRequestHandler<GetCategoriesQuery, List<CategoryResponse>>
+﻿using WearCast.Api.Features.CategoryFeatures.GetAllCategory.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.GetAllCategory;
+public class GetAllCategoryHandler : IRequestHandler<GetAllCategoryRequestDto, List<GetAllCategoryResponseDto>>
 {
     private readonly IRepository<Category> _categoryRepo;
 
@@ -8,12 +10,12 @@ public class GetAllCategoryHandler : IRequestHandler<GetCategoriesQuery, List<Ca
         _categoryRepo = categoryRepo;
     }
 
-    public async Task<List<CategoryResponse>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetAllCategoryResponseDto>> Handle(GetAllCategoryRequestDto request, CancellationToken cancellationToken)
     {
         var categories = await _categoryRepo.GetAllAsync();
 
         return categories
-            .Select(c => new CategoryResponse(c.Id, c.Name))
+            .Select(c => new GetAllCategoryResponseDto(c.Id, c.Name))
             .ToList();
     }
 }

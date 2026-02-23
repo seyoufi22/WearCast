@@ -1,6 +1,8 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
+﻿using WearCast.Api.Features.CategoryFeatures.GetCategoryById.DTOs;
 
-public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, CategoryResponse>
+namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
+
+public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdRequestDto, CategoryResponse>
 {
     private readonly IRepository<Category> _categoryRepo;
 
@@ -9,7 +11,7 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, Cate
         _categoryRepo = categoryRepo;
     }
 
-    public async Task<CategoryResponse> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+    public async Task<CategoryResponse> Handle(GetCategoryByIdRequestDto request, CancellationToken cancellationToken)
     {
         var category = await _categoryRepo.GetAsync(c => c.Id == request.Id);
 

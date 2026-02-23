@@ -1,8 +1,8 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.CreateCategory;
+﻿namespace WearCast.Api.Features.CategoryFeatures.CreateCategory.DTOs;
 
-public record CreateCategoryCommand(string Name, IFormFile? Image) : IRequest<CategoryDto>;
+public record CreateCategoryRequestDto(string Name, IFormFile? Image) : IRequest<CategoryDto>;
 
-public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
+public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryRequestDto>
 {
     private readonly IRepository<Category> _categoryRepo;
     private readonly ImageService _imageService;

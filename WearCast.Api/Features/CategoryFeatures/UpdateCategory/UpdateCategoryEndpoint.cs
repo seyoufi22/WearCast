@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
+﻿using WearCast.Api.Features.CategoryFeatures.UpdateCategory.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
 
 [Tags("Category")]
 [Route("api/Category")]
@@ -12,7 +14,7 @@ public class UpdateCategoryEndPoint(ISender sender) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> Update(int id, [FromForm] UpdateCategoryRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateCategoryCommand(id, request.Name, request.Image));
+        var result = await sender.Send(new UpdateCategoryRequestDto(id, request.Name, request.Image));
         if (!result)
             return NotFound();
         return NoContent();

@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
+﻿using WearCast.Api.Features.CategoryFeatures.GetCategoryById.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
 
 [Tags("Category")]
 [Route("api/Category")]
@@ -15,7 +17,7 @@ public class GetCategoryByIdEndPoint(ISender sender) : ControllerBase
         if (id <= 0)
             return BadRequest("Invalid category ID.");
 
-        var result = await _sender.Send(new GetCategoryByIdQuery(id), cancellationToken);
+        var result = await _sender.Send(new GetCategoryByIdRequestDto(id), cancellationToken);
 
         if (result == null)
             return NotFound();

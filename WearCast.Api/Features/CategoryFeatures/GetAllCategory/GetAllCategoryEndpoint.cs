@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.GetAllCategory;
+﻿using WearCast.Api.Features.CategoryFeatures.GetAllCategory.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.GetAllCategory;
 
 [Tags("Category")]
 [Route("api/Category")]
@@ -8,9 +10,9 @@ public class GetAllCategoryEndPoint(ISender sender) : ControllerBase
     private readonly ISender _sender = sender;
 
     [HttpGet("GetAllCategories", Name = "GetAllCategories")]
-    public async Task<ActionResult<List<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<GetAllCategoryResponseDto>>> GetAll(CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new GetCategoriesQuery(), cancellationToken);
+        var result = await _sender.Send(new GetAllCategoryRequestDto(), cancellationToken);
 
         return Ok(result);
     }

@@ -1,8 +1,8 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
+﻿namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory.DTOs;
 
-public record UpdateCategoryCommand(int Id, string Name, IFormFile? Image) : IRequest<bool>;
+public record UpdateCategoryRequestDto(int Id, string Name, IFormFile? Image) : IRequest<bool>;
 
-public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
+public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryRequestDto>
 {
     private readonly IRepository<Category> _categoryRepo;
     private readonly ImageService _imageService;
@@ -30,7 +30,7 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
             });
     }
 
-    private async Task<bool> BeUniqueName(UpdateCategoryCommand command, string name, CancellationToken token)
+    private async Task<bool> BeUniqueName(UpdateCategoryRequestDto command, string name, CancellationToken token)
     {
         var existing = await _categoryRepo.GetAsync(c => c.Name.ToLower() == name.ToLower() && c.Id != command.Id);
         return existing == null;

@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.DeleteCategory;
+﻿using WearCast.Api.Features.CategoryFeatures.DeleteCategory.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.DeleteCategory;
 
 [Tags("Category")]
 [Route("api/Category")]
@@ -12,7 +14,7 @@ public class DeleteCategoryEndPoint(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new DeleteCategoryCommand(id), cancellationToken);
+        var result = await sender.Send(new DeleteCategoryRequestDto(id), cancellationToken);
         if (!result)
             return NotFound();
         return NoContent();

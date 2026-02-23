@@ -1,9 +1,11 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
+﻿using WearCast.Api.Features.CategoryFeatures.UpdateCategory.DTOs;
+
+namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
 
 public class UpdateCategoryHandler(IRepository<Category> categoryRepo, ImageService imageService)
-    : IRequestHandler<UpdateCategoryCommand, bool>
+    : IRequestHandler<UpdateCategoryRequestDto, bool>
 {
-    public async Task<bool> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(UpdateCategoryRequestDto request, CancellationToken cancellationToken)
     {
         var category = await categoryRepo.GetAsync(c => c.Id == request.Id);
         if (category == null)

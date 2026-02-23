@@ -1,9 +1,9 @@
-﻿using WearCast.Api.Features.CategoryFeatures.CreateCategory;
+﻿using WearCast.Api.Features.CategoryFeatures.CreateCategory.DTOs;
 
 public class CreateCategoryHandler(IRepository<Category> categoryRepo, ImageService imageService)
-    : IRequestHandler<CreateCategoryCommand, CategoryDto>
+    : IRequestHandler<CreateCategoryRequestDto, CategoryDto>
 {
-    public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<CategoryDto> Handle(CreateCategoryRequestDto request, CancellationToken cancellationToken)
     {
 
         string url = await imageService.UploadAsync(request.Image!);
