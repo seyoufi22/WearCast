@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.RevokeRefreshToken
 {
-    [Route("auth")]
+    [Route("api/auth")]
     [ApiController]
     public class RevokeRefreshTokenEndPoint(IMediator mediator) : ControllerBase
     {
@@ -9,7 +9,7 @@
         [HttpPost("revoke-refresh-token")]
         public async Task<IActionResult> Revoke([FromBody] RevokeRefreshTokenRequest request, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(request,  cancellationToken);
+            var result = await _mediator.Send(request, cancellationToken);
 
             return result.ToResponse();
         }

@@ -1,7 +1,7 @@
 ﻿
 namespace WearCast.Api.Features.AuthenticationManagement.ResendConfirmEmail
 {
-    [Route("auth")]
+    [Route("api/auth")]
     [ApiController]
     public class ResendConfirmEmailEndPoint(IMediator mediator) : ControllerBase
     {

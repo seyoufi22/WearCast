@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.ResetPassword
 {
-    [Route("auth")]
+    [Route("api/auth")]
     [ApiController]
     public class ResetPasswordEndPoint(IMediator mediator) : ControllerBase
     {

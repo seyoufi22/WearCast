@@ -1,10 +1,8 @@
-﻿using WearCast.Api.Common.Consts;
-
-namespace WearCast.Api.Features.AuthenticationManagement.Register
+﻿namespace WearCast.Api.Features.AuthenticationManagement.Register
 {
     public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustomerRequest>
     {
-        public RegisterCustomerRequestValidator() 
+        public RegisterCustomerRequestValidator()
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 
@@ -16,6 +14,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
                 .NotEmpty()
                 .Matches(RegexPatterns.Password)
                 .WithMessage("Password should be at least 8 digits and should contains Lowercase, NonAlphanumeric and Uppercase");
+
+            RuleFor(x => x.ConfirmPassword)
+               .NotEmpty().WithMessage("Password confirmation is required.")
+               .Equal(x => x.Password).WithMessage("Password and confirmation password do not match.");
+
 
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty()
@@ -29,6 +32,26 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
             RuleFor(x => x.LastName)
                 .NotEmpty()
                 .Length(3, 100);
+
+            RuleFor(x => x.State)
+                .NotEmpty();
+
+            RuleFor(x => x.City)
+                .NotEmpty();
+
+            RuleFor(x => x.Street)
+                .NotEmpty();
+
+            RuleFor(x => x.BuildingNumber)
+                .NotEmpty();
+
+            When(x => x.ProfileImage != null, () =>
+            {
+                RuleFor(x => x.ProfileImage!.Length)
+                    .LessThanOrEqualTo(2 * 1024 * 1024)
+                    .WithMessage("Image size must be less than 2 MB.");
+            });
+
         }
     }
 }
