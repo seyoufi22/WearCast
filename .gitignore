@@ -7,4 +7,3 @@ riderModule.iml
 /.vs
 *.user
 **/Migrations/
-**/wwwroot
