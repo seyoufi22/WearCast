@@ -60,6 +60,29 @@ namespace WearCast.Api
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi(options =>
             {
+                options.AddSchemaTransformer((schema, context, cancellationToken) =>
+                {
+                    var type = context.JsonTypeInfo.Type;
+                    if (type == typeof(int) || type == typeof(int?) || 
+                        type == typeof(decimal) || type == typeof(decimal?) ||
+                        type == typeof(double) || type == typeof(double?) ||
+                        type == typeof(long) || type == typeof(long?))
+                    {
+                        schema.Pattern = null;
+                        
+                        // Force type to integer/number for Swagger UI compatibility
+                        if (type == typeof(int) || type == typeof(int?) || type == typeof(long) || type == typeof(long?))
+                        {
+                            schema.Type = Microsoft.OpenApi.JsonSchemaType.Integer;
+                        }
+                        else
+                        {
+                            schema.Type = Microsoft.OpenApi.JsonSchemaType.Number;
+                        }
+                    }
+                    return Task.CompletedTask;
+                });
+
                 options.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
                     document.Info = new OpenApiInfo

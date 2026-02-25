@@ -10,5 +10,5 @@ public class FixedProduct : BaseModel
 
     public Category Category { get; set; }
     public ICollection<FixedProductColor> Colors { get; set; }
-    public ICollection<FixedProductSizeDetails> SizeDetails { get; set; }
+    public ICollection<ProductSizeDetail> SizeDetails { get; set; } = new List<ProductSizeDetail>();
 }
