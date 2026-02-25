@@ -28,5 +28,18 @@ public class FixedProductConfiguration : BaseModelConfiguration<Entities.FixedPr
             .HasForeignKey(p => p.CategoryId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.OwnsMany(p => p.SizeDetails, a =>
+        {
+            a.ToJson();
+            
+            a.Property(sd => sd.Size)
+                .IsRequired()
+                .HasConversion<string>();
+
+            a.Property(sd => sd.A).HasColumnType("decimal(18,2)");
+            a.Property(sd => sd.B).HasColumnType("decimal(18,2)");
+            a.Property(sd => sd.C).HasColumnType("decimal(18,2)");
+        });
     }
 }

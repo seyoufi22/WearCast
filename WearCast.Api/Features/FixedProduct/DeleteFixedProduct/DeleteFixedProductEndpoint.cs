@@ -3,7 +3,7 @@ using WearCast.Api.Features.FixedProduct.DeleteFixedProduct.DTOs;
 namespace WearCast.Api.Features.FixedProduct.DeleteFixedProduct;
 
 [ApiController]
-[Route("api/DeleteFixedProduct")]
+[Route("api/FixedProduct/Delete")]
 [Tags("FixedProduct")]
 public class DeleteFixedProductEndpoint : ControllerBase
 {

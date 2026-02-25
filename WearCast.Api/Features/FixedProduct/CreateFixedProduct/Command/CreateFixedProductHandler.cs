@@ -5,6 +5,7 @@ using WearCast.Api.Features.FixedProduct.Errors;
 using Microsoft.AspNetCore.Identity;
 using WearCast.Api.Entities.Identity;
 using WearCast.Api.Entities;
+using WearCast.Api.Entities.FixedProduct;
 
 namespace WearCast.Api.Features.FixedProduct.CreateProduct.Command;
 
@@ -51,7 +52,14 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
             Price = request.Price,
             Description = request.Description,
             TargetAudience = request.TargetAudience,
-            CreatedById = request.CreatedById
+            CreatedById = request.CreatedById,
+            SizeDetails = request.SizeDetails.Select(sd => new ProductSizeDetail
+            {
+                Size = sd.Size,
+                A = sd.A,
+                B = sd.B,
+                C = sd.C
+            }).ToList()
         };
         
         await _productRepo.CreateAsync(product);
