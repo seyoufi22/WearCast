@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.ForgetPassword
 {
-    [Route("auth")]
+    [Route("api/auth")]
     [ApiController]
     public class ForgetPasswordEndPoint(IMediator mediator) : ControllerBase
     {

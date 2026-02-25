@@ -2,5 +2,5 @@
 {
     public record ResendConfirmEmailRequest(
         string Email
-        ) : IRequest<Result<ResendConfirmEmailResponse>>;
+        ) : IRequest<Result<ResendSellerConfirmEmailResponse>>;
 }

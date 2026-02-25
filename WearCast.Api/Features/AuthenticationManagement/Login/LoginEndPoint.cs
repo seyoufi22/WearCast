@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.Login
 {
-    [Route("auth")]
+    [Route("api/auth")]
     [ApiController]
     public class LoginEndPoint(IMediator mediator) : ControllerBase
     {

@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.Identity;
-
-namespace WearCast.Api.Entities.BusinessActors
+﻿namespace WearCast.Api.Entities.BusinessActors
 {
     public class Factory
     {
