@@ -1,16 +1,27 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Reflection;
 
 namespace WearCast.Api.Persistence;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
     : IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
 {
-    
-    // DB Sets will go here
 
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
+    public DbSet<Customer> Customers { get; set; }
+    public DbSet<Seller> Sellers { get; set; }
+    public DbSet<Factory> Factories { get; set; }
+    public DbSet<ShippingCompany> ShippingCompanies { get; set; }
+    public DbSet<Driver> Drivers { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<SellerApplication> SellerApplications { get; set; }
+
+    public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -24,5 +35,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         optionsBuilder.ConfigureWarnings(w =>
             w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = ChangeTracker.Entries<BaseModel>();
+
+        foreach (var entityEntry in entries)
+        {
+            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId()!;
+            if (entityEntry.State == EntityState.Added)
+            {
+                entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+            }
+            else if (entityEntry.State == EntityState.Modified)
+            {
+                entityEntry.Property(x => x.UpdatedById).CurrentValue = currentUserId;
+                entityEntry.Property(x => x.UpdatedOn).CurrentValue = DateTime.UtcNow;
+            }
+        }
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

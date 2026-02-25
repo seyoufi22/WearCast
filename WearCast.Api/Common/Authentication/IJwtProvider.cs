@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Authentication
+﻿using WearCast.Api.Entities.Identity;
+
+namespace WearCast.Api.Authentication
 {
     public interface IJwtProvider
     {

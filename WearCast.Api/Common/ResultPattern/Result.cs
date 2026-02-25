@@ -27,7 +27,7 @@
         {
             _value = value!;
         }
-        public TValue value => IsSuccess
+        public TValue Value => IsSuccess
             ? _value
             : throw new InvalidOperationException("Failure results cannot have value");
     }

@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+            .header h1 {
+                color: #dc3545;
+            }
+
+        .content {
+            padding: 20px 0;
+        }
+
+        .reason-box {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Update on Your Seller Application ⚠️</h1>
+        </div>
+        <div class="content">
+            <p>Hello <strong>{{name}}</strong>,</p>
+            <p>Thank you for your interest in joining <strong>WearCast</strong> as a seller. We have carefully reviewed your application, but we regret to inform you that it has not been approved at this time.</p>
+
+            <div class="reason-box">
+                <strong>Reason for Rejection:</strong><br>
+                {{reason}}
+            </div>
+
+            <p>You may review your submitted details, make the necessary corrections, and apply again. If you have any questions, feel free to contact our support team.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>The WearCast Support Team</p>
+        </div>
+    </div>
+</body>
+</html>
