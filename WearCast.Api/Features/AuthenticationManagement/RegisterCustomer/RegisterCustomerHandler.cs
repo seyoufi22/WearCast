@@ -31,18 +31,9 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
             if (phoneNumberIsExists)
                 return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
 
-            string? profileImageUrl = null;
-            if (request.ProfileImage != null)
-            {
-                var (isValid, errorMessage) = _imageService.Validate(request.ProfileImage);
-                if (!isValid)
-                {
-                    return Result.Failure<RegisterCustomerResponse>(new Error("Image.Invalid", errorMessage, StatusCodes.Status400BadRequest));
-                }
 
-                profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
-            }
 
+            var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
 
             var user = _mapper.Map<ApplicationUser>(request);
 

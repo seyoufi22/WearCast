@@ -4,9 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
-using WearCast.Api.Common.Email;
-using WearCast.Api.Common.Repository;
-using WearCast.Api.Common.Services;
 
 
 
@@ -101,6 +98,8 @@ namespace WearCast.Api
             services
                //.AddFluentValidationAutoValidation()
                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+            ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 
             return services;
         }

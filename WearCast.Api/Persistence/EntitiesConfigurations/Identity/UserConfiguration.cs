@@ -4,28 +4,31 @@
     {
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
+            builder.Property(x => x.FirstName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(x => x.LastName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(x => x.IsDisabled)
+                .HasDefaultValue(false);
+
+            builder.Property(x => x.PhoneNumber)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .IsRequired(true);
+
+            builder.HasIndex(x => x.Email).IsUnique();
+            builder.HasIndex(x => x.NormalizedEmail).IsUnique();
 
             builder.OwnsOne(x => x.Address, address =>
             {
-                address.Property(a => a.State)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("State");
-
-                address.Property(a => a.City)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("City");
-
-                address.Property(a => a.Street)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .HasColumnName("Street");
-
-                address.Property(a => a.BuildingNumber)
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnName("BuildingNumber");
+                address.Property(a => a.State).IsRequired().HasMaxLength(50).HasColumnName("State");
+                address.Property(a => a.City).IsRequired().HasMaxLength(50).HasColumnName("City");
+                address.Property(a => a.Street).IsRequired().HasMaxLength(200).HasColumnName("Street");
+                address.Property(a => a.BuildingNumber).IsRequired().HasMaxLength(20).HasColumnName("BuildingNumber");
 
                 address.HasData(
                     new { ApplicationUserId = DefaultUsers.SuperAdminId, State = "Cairo", City = "Nasr City", Street = "Makram Ebeid", BuildingNumber = "10" },
@@ -37,23 +40,12 @@
                 );
             });
 
-
-            builder
-               .OwnsMany(x => x.RefreshTokens)
-               .ToTable("RefreshTokens")
-               .WithOwner()
-               .HasForeignKey("UserId");
-
-            builder.Property(x => x.FirstName).HasMaxLength(100);
-            builder.Property(x => x.LastName).HasMaxLength(100);
-
-            builder.HasIndex(x => x.Email).IsUnique();
-            builder.HasIndex(x => x.NormalizedEmail).IsUnique();
-
-            //SeedingData
+            builder.OwnsMany(x => x.RefreshTokens)
+                .ToTable("RefreshTokens")
+                .WithOwner()
+                .HasForeignKey("UserId");
 
             var passwordHasher = new PasswordHasher<ApplicationUser>();
-
 
             var seedUsers = new List<ApplicationUser>
             {
@@ -66,6 +58,8 @@
                     NormalizedUserName = DefaultUsers.SuperAdminEmail.ToUpper(),
                     Email = DefaultUsers.SuperAdminEmail,
                     NormalizedEmail = DefaultUsers.SuperAdminEmail.ToUpper(),
+                    PhoneNumber = "01000000001",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.SuperAdminSecurityStamp,
                     ConcurrencyStamp = DefaultUsers.SuperAdminConcurrencyStamp,
                     EmailConfirmed = true,
@@ -81,6 +75,8 @@
                     NormalizedUserName = DefaultUsers.CustomerEmail.ToUpper(),
                     Email = DefaultUsers.CustomerEmail,
                     NormalizedEmail = DefaultUsers.CustomerEmail.ToUpper(),
+                    PhoneNumber = "01000000002",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.CustomerSecurityStamp,
                     ConcurrencyStamp = DefaultUsers.CustomerConcurrencyStamp,
                     EmailConfirmed = true,
@@ -96,6 +92,8 @@
                     NormalizedUserName = DefaultUsers.SellerEmail.ToUpper(),
                     Email = DefaultUsers.SellerEmail,
                     NormalizedEmail = DefaultUsers.SellerEmail.ToUpper(),
+                    PhoneNumber = "01000000003",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.SellerSecurityStamp,
                     ConcurrencyStamp = DefaultUsers.SellerConcurrencyStamp,
                     EmailConfirmed = true,
@@ -111,6 +109,8 @@
                     NormalizedUserName = DefaultUsers.FactoryEmail.ToUpper(),
                     Email = DefaultUsers.FactoryEmail,
                     NormalizedEmail = DefaultUsers.FactoryEmail.ToUpper(),
+                    PhoneNumber = "01000000004",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.FactorySecurityStamp,
                     ConcurrencyStamp = DefaultUsers.FactoryConcurrencyStamp,
                     EmailConfirmed = true,
@@ -126,6 +126,8 @@
                     NormalizedUserName = DefaultUsers.ShippingCompanyEmail.ToUpper(),
                     Email = DefaultUsers.ShippingCompanyEmail,
                     NormalizedEmail = DefaultUsers.ShippingCompanyEmail.ToUpper(),
+                    PhoneNumber = "01000000005",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.ShippingCompanySecurityStamp,
                     ConcurrencyStamp = DefaultUsers.ShippingCompanyConcurrencyStamp,
                     EmailConfirmed = true,
@@ -141,13 +143,14 @@
                     NormalizedUserName = DefaultUsers.DriverEmail.ToUpper(),
                     Email = DefaultUsers.DriverEmail,
                     NormalizedEmail = DefaultUsers.DriverEmail.ToUpper(),
+                    PhoneNumber = "01000000006",
+                    PhoneNumberConfirmed = true,
                     SecurityStamp = DefaultUsers.DriverSecurityStamp,
                     ConcurrencyStamp = DefaultUsers.DriverConcurrencyStamp,
                     EmailConfirmed = true,
                     PasswordHash = passwordHasher.HashPassword(null!, DefaultUsers.DriverPassword),
                     Address = null!
                 }
-
             };
 
             builder.HasData(seedUsers);

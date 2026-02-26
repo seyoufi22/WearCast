@@ -1,15 +1,16 @@
-﻿namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.ApplyForSelling
+﻿namespace WearCast.Api.Features.Drivers.CreateDriver
 {
-    public class ApplyForSellingRequestValidator : AbstractValidator<ApplyForSellingRequest>
+    public class CreateDriverRequestValidator : AbstractValidator<CreateDriverRequest>
     {
-        public ApplyForSellingRequestValidator()
+        public CreateDriverRequestValidator()
         {
+
             RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Invalid email format.")
-                .MaximumLength(256).WithMessage("Email must not exceed 256 characters.");
+                 .NotEmpty().WithMessage("Email is required.")
+                 .EmailAddress().WithMessage("Invalid email format.")
+                 .MaximumLength(256).WithMessage("Email must not exceed 256 characters.");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.")
@@ -50,28 +51,29 @@
                 .MaximumLength(20).WithMessage("Building number must not exceed 20 characters.");
 
 
-            RuleFor(x => x.SellerName)
-                .NotEmpty().WithMessage("Brand name is required.")
-                .MaximumLength(100).WithMessage("Brand name must not exceed 100 characters.");
+            RuleFor(x => x.NationalId)
+                .NotEmpty()
+                .Length(14)
+                .Matches("^[0-9]*$").WithMessage("National ID must contain digits only.");
 
-            RuleFor(x => x.CommercialRegisterNumber)
-                .NotEmpty().WithMessage("Commercial register number is required.")
-                .Matches(RegexPatterns.CommercialRegisterNumber)
-                .WithMessage("Commercial register number must consist of 6 to 20 digits only.");
 
-            RuleFor(x => x.TaxIdNumber)
-                .NotEmpty().WithMessage("Tax ID number is required.")
-                .Matches(RegexPatterns.TaxIdNumber)
-                .WithMessage("Tax ID number must consist of exactly 9 digits.");
+            RuleFor(x => x.VehicleType)
+                .IsInEnum().WithMessage("Invalid vehicle type selected.");
 
-            RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Description is required.")
-                .Length(20, 500).WithMessage("Description must be between 20 and 500 characters.");
+            RuleFor(x => x.VehiclePlateNumber)
+                .NotEmpty()
+                .WithMessage("Vehicle plate number is required.")
+                .When(x => x.VehicleType != DeliveryVehicleType.Bicycle)
+                .MaximumLength(20)
+                .WithMessage("Plate number must not exceed 20 characters.");
 
-            RuleFor(x => x.Logo)
+            RuleFor(x => x.VehiclePlateNumber)
+                .MaximumLength(20).WithMessage("Plate number must not exceed 20 characters.")
+                .When(x => !string.IsNullOrEmpty(x.VehiclePlateNumber));
+
+            RuleFor(x => x.ProfileImage)
                 .NotNull()
                 .IsValidImage();
-
         }
     }
 }
