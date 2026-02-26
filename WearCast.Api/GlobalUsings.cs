@@ -24,7 +24,4 @@ global using WearCast.Api.Entities.BusinessActors;
 global using WearCast.Api.Entities.Identity;
 global using WearCast.Api.Errors;
 global using WearCast.Api.Persistence;
-
-
-
-
+global using WearCast.Api.Entities.Shipping;
