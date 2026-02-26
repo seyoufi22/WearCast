@@ -1,24 +1,23 @@
 using WearCast.Api.Common.Enums;
 using FluentValidation;
 using WearCast.Api.Abstractions;
+using WearCast.Api.Entities.FixedProduct;
 
-namespace WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
+namespace WearCast.Api.Features.FixedProduct.UpdateFixedProduct.DTOs;
 
-public record CreateFixedProductRequestDto : IRequest<Result<CreateFixedProductResponseDto>>
+public record UpdateFixedProductRequestDto : IRequest<Result<UpdateFixedProductResponseDto>>
 {
+    public int Id { get; set; }
+    
     public int CategoryId { get; init; }
     public string Name { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
     public TargetAudience TargetAudience { get; init; }
-
-    public List<CreateProductSizeDetailDto> SizeDetails { get; init; } = new();
-
-    [System.Text.Json.Serialization.JsonIgnore]
-    public string CreatedById { get; set; } = string.Empty;
+    public List<UpdateProductSizeDetailDto> SizeDetails { get; init; } = new();
 }
 
-public record CreateProductSizeDetailDto
+public record UpdateProductSizeDetailDto
 {
     public Size Size { get; init; }
     public decimal? A { get; init; }
@@ -26,9 +25,11 @@ public record CreateProductSizeDetailDto
     public decimal? C { get; init; }
 }
 
-public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductRequestDto>
+public record UpdateFixedProductResponseDto(int Id, string Name);
+
+public class UpdateFixedProductValidator : AbstractValidator<UpdateFixedProductRequestDto>
 {
-    public CreateFixedProductValidator()
+    public UpdateFixedProductValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Product name is required.")
