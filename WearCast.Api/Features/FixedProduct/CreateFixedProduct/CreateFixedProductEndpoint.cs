@@ -4,7 +4,7 @@ using WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
 namespace WearCast.Api.Features.FixedProduct.CreateProduct;
 
 [ApiController]
-[Route("api/createFixedProduct")]
+[Route("api/FixedProduct/Create")]
 [Tags("FixedProduct")]
 public class CreateFixedProductEndpoint : ControllerBase
 {
