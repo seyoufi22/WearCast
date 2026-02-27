@@ -21,17 +21,18 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
         public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerRequest request, CancellationToken cancellationToken)
         {
-            var emailIsExists = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+            var existingUser = await _userManager.Users
+                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
+                 .Select(x => new { x.Email, x.PhoneNumber })
+                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (emailIsExists)
-                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
+            if (existingUser != null)
+            {
+                if (existingUser.Email == request.Email)
+                    return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
 
-            var phoneNumberIsExists = await _userManager.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken);
-
-            if (phoneNumberIsExists)
                 return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
-
-
+            }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
 
@@ -69,11 +70,10 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
                     return Result.Failure<RegisterCustomerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var customer = new Customer
-                {
-                    UserId = user.Id,
-                    ProfileImageUrl = profileImageUrl
-                };
+                var customer = _mapper.Map<Customer>(request);
+
+                customer.UserId = user.Id;
+                customer.ProfileImageUrl = profileImageUrl;
 
                 await _context.Customers.AddAsync(customer, cancellationToken);
 

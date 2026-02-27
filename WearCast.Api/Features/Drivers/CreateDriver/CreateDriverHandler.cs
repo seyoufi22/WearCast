@@ -16,15 +16,26 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
         public async Task<Result> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
-            var phoneNumberIsExists = await _context.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken);
+            var existingUser = await _userManager.Users
+                .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
+                .Select(x => new { x.Email, x.PhoneNumber })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (phoneNumberIsExists)
+            if (existingUser != null)
+            {
+                if (existingUser.Email == request.Email)
+                    return Result.Failure(UserErrors.DublicatedEmail);
+
                 return Result.Failure(UserErrors.DublicatedPhoneNumber);
+            }
 
-            var nationalIdIsExists = await _context.Drivers.AnyAsync(x => x.NationalId == request.NationalId, cancellationToken);
+            var nationalIdExists = await _context.Drivers
+                .AnyAsync(x => x.NationalId == request.NationalId, cancellationToken);
 
-            if (nationalIdIsExists)
+            if (nationalIdExists)
+            {
                 return Result.Failure(DriverErrors.DublicatedNationalId);
+            }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
 
@@ -58,14 +69,11 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var driver = new Driver
-                {
-                    ProfileImageUrl = profileImageUrl,
-                    NationalId = request.NationalId,
-                    VehicleType = request.VehicleType,
-                    VehiclePlateNumber = request.VehiclePlateNumber,
-                    UserId = user.Id
-                };
+                var driver = _mapper.Map<Driver>(request);
+
+                driver.ProfileImageUrl = profileImageUrl;
+                driver.UserId = user.Id;
+
 
                 await _context.Drivers.AddAsync(driver, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);

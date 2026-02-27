@@ -8,6 +8,8 @@
 
         public string ProfileImageUrl { get; set; } = string.Empty;
 
+        public Address Address { get; set; } = new Address();
+
         public string NationalId { get; set; } = string.Empty;
         public DeliveryVehicleType VehicleType { get; set; }
         public string? VehiclePlateNumber { get; set; }

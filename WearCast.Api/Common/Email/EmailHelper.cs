@@ -42,18 +42,19 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
-        public async Task SendConfirmationEmailForSellerApplication(SellerApplication app, string code)
+        public async Task SendConfirmationEmailForSellerManager(SellerApplication app, string code)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmationForSellerApplication",
-           templateModel: new Dictionary<string, string>
-           {
-            { "{{name}}", app.SellerName },
+            var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmationForSellerManager",
+                templateModel: new Dictionary<string, string>
+                {
+            { "{{managerName}}", app.ManagerFirstName },
+            { "{{sellerName}}", app.SellerName },
             { "{{code}}", code }
-           }
-        );
+                }
+            );
 
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
-                app.Email!,
+                app.ManagerEmail!,
                 "🔐 WearCast App: Email Confirmation",
                 emailBody
             ));
@@ -65,31 +66,32 @@ namespace WearCast.Api.Common.Email
             var emailBody = EmailBodyBuilder.GenerateEmailBody("SellerApplicationApproved",
                 templateModel: new Dictionary<string, string>
                 {
-                    { "{{name}}", app.SellerName }
+            { "{{managerName}}", app.ManagerFirstName },
+            { "{{sellerName}}", app.SellerName }
                 }
             );
 
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
-                app.Email!,
-                "🎉 WearCast: Your Seller Application is Approved!",
+                app.ManagerEmail!,
+                "🎉 Congratulations! Your WearCast Seller Application is Approved",
                 emailBody
             ));
 
             await Task.CompletedTask;
         }
-
         public async Task SendSellerApplicationRejectedEmail(SellerApplication app)
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody("SellerApplicationRejected",
                 templateModel: new Dictionary<string, string>
                 {
-                    { "{{name}}", app.SellerName },
-                    { "{{reason}}", app.RejectionReason ?? "No specific reason was provided." }
+            { "{{managerName}}", app.ManagerFirstName },
+            { "{{sellerName}}", app.SellerName },
+            { "{{reason}}", app.RejectionReason ?? "No specific reason was provided. Please contact support for more details." }
                 }
             );
 
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
-                app.Email!,
+                app.ManagerEmail!,
                 "⚠️ WearCast: Update on Your Seller Application",
                 emailBody
             ));

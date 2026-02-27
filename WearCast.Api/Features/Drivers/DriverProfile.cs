@@ -7,8 +7,9 @@ namespace WearCast.Api.Features.Drivers
         public DriverProfile()
         {
             CreateMap<CreateDriverRequest, ApplicationUser>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
+            CreateMap<CreateDriverRequest, Driver>()
                 .ForPath(dest => dest.Address.State, opt => opt.MapFrom(src => src.State))
                 .ForPath(dest => dest.Address.City, opt => opt.MapFrom(src => src.City))
                 .ForPath(dest => dest.Address.Street, opt => opt.MapFrom(src => src.Street))
