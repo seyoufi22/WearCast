@@ -34,6 +34,13 @@ public class Repository<T> : IRepository<T> where T : BaseModel, new()
         return await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
     }
     
+    public IQueryable<T> Get(bool withDeleted = false)
+    {
+        if (withDeleted)
+            return _dbSet.AsQueryable();
+        return _dbSet.Where(e => !e.IsDeleted).AsQueryable();
+    }
+    
     public async Task<T> GetAsync(Expression<Func<T, bool>>filter,  bool useNoTracking = false)
     {
         if (!useNoTracking)
