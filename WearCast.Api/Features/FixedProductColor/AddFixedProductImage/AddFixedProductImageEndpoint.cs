@@ -21,6 +21,6 @@ public class AddFixedProductImageEndpoint(IMediator mediator) : ControllerBase
             return Ok(new { Message = "Image uploaded successfully."});
         }
 
-        return BadRequest("Failed to add image. Invalid file or ProductColor does not exist.");
+        return BadRequest("Failed to add image. ProductColor does not exist.");
     }
 }

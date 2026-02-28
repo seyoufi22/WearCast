@@ -13,7 +13,7 @@ public class AdjustFixedProductSizeEndpointForSeller : ControllerBase
     {
         _mediator = mediator;
     }
-    [Authorize(Roles = "Seller")] // مسموح فقط للبائع
+    [Authorize] 
     [HttpPost("SellerAdjustStock")]
     public async Task<IActionResult> SellerAdjust([FromBody] AdjustFixedProductSizeRequestDto request)
     {

@@ -12,8 +12,18 @@ public record CreateFixedProductRequestDto : IRequest<Result<CreateFixedProductR
     public string Description { get; init; } = string.Empty;
     public TargetAudience TargetAudience { get; init; }
 
+    public List<CreateProductSizeDetailDto> SizeDetails { get; init; } = new();
+
     [System.Text.Json.Serialization.JsonIgnore]
     public string CreatedById { get; set; } = string.Empty;
+}
+
+public record CreateProductSizeDetailDto
+{
+    public Size Size { get; init; }
+    public decimal? A { get; init; }
+    public decimal? B { get; init; }
+    public decimal? C { get; init; }
 }
 
 public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductRequestDto>

@@ -39,10 +39,6 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
             if (phoneConflictInApps)
                 return Result.Failure(SellerApplicationErrors.PhoneInUse);
 
-            var logoResult = await ValidateAndUploadLogoAsync(request.Logo);
-            if (logoResult.IsFailure)
-                return Result.Failure(logoResult.Error);
-
             var existingApp = await _context.SellerApplications
                 .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
 
@@ -59,7 +55,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
                     _mapper.Map(request, existingApp);
                     existingApp.Status = Status.Pending;
                     existingApp.RejectionReason = null;
-                    existingApp.LogoUrl = logoResult.Value;
+                    existingApp.LogoUrl = await _imageService.UploadAsync(request.Logo);
                     existingApp.PasswordHash = _passwordHasher.HashPassword(existingApp, request.Password);
 
                     var confirmCode = GenerateConfirmationCode(existingApp);
@@ -76,7 +72,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
 
             var newApp = _mapper.Map<SellerApplication>(request);
 
-            newApp.LogoUrl = logoResult.Value;
+            newApp.LogoUrl = await _imageService.UploadAsync(request.Logo);
             newApp.PasswordHash = _passwordHasher.HashPassword(newApp, request.Password);
             newApp.CreatedOn = DateTime.UtcNow;
 
@@ -99,17 +95,6 @@ namespace WearCast.Api.Features.AuthenticationManagement.SellerApplications.Appl
             application.EmailConfirmationCodeExpiration = DateTime.UtcNow.AddMinutes(60);
 
             return code;
-        }
-        private async Task<Result<string>> ValidateAndUploadLogoAsync(IFormFile logo)
-        {
-            var imageValidation = _imageService.Validate(logo);
-            if (!imageValidation.IsValid)
-            {
-                return Result.Failure<string>(new Error("Image.Invalid", imageValidation.ErrorMessage, StatusCodes.Status400BadRequest));
-            }
-
-            var uploadedLogoUrl = await _imageService.UploadAsync(logo);
-            return Result.Success(uploadedLogoUrl);
         }
     }
 }

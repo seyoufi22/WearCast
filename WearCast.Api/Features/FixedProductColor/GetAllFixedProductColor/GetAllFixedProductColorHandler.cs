@@ -12,14 +12,16 @@ public class GetAllFixedProductColorHandler : IRequestHandler<GetAllFixedProduct
 
     public async Task<List<GetAllFixedProductColorResponseDto>> Handle(GetAllFixedProductColorRequestDto request, CancellationToken cancellationToken)
     {
-        // استخدام الميثود الجينيريك الجديدة مع فلتر الـ ProductId
-        var colors = await _colorRepo.GetListAsync(c => c.ProductId == request.ProductId);
-
-        return colors
+        var query = _colorRepo.Get()
+            .Where(c => c.ProductId == request.ProductId)
+            .AsNoTracking();
+        var result = await query
             .Select(c => new GetAllFixedProductColorResponseDto(
                 c.Id,
                 c.ColorName,
-                c.ColorCode))
-            .ToList();
+                c.ColorCode
+            ))
+            .ToListAsync(cancellationToken);
+        return result;
     }
 }

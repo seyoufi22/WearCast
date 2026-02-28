@@ -13,11 +13,17 @@ public class GetFixedProductColorByIdHandler : IRequestHandler<GetFixedProductCo
 
     public async Task<GetFixedProductColorByIdResponseDto> Handle(GetFixedProductColorByIdRequestDto request, CancellationToken cancellationToken)
     {
-        var color = await _colorRepo.GetAsync(c => c.Id == request.ColorId,
-            include: q => q.Include(c => c.Sizes)
-                   .Include(c => c.Images));
-        if (color == null)
+        var query = _colorRepo.Get()
+            .Where(c => c.Id == request.ColorId)
+            .Include(c => c.Sizes)
+            .Include(c => c.Images)
+            .AsNoTracking();
+
+        var colorEntity = await query.FirstOrDefaultAsync(cancellationToken);
+        
+        if (colorEntity == null)
             return null;
-        return _mapper.Map<GetFixedProductColorByIdResponseDto>(color);
+
+        return _mapper.Map<GetFixedProductColorByIdResponseDto>(colorEntity);
     }
 }
