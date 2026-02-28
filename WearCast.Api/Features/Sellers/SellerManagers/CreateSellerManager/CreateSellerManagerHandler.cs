@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.Sellers.SellerManagers.CreateSellerManager
+﻿using System.Security.Cryptography;
+
+namespace WearCast.Api.Features.Sellers.SellerManagers.CreateSellerManager
 {
     public class CreateSellerManagerHandler(
         ApplicationDbContext context,
@@ -43,11 +45,16 @@
                 return Result.Failure(SellerManagerErrors.PhoneInUse);
             }
 
+            var user = _mapper.Map<ApplicationUser>(request);
+
+            var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            user.EmailConfirmationCode = code;
+            user.EmailConfirmationCodeExpiration = DateTime.UtcNow.AddMinutes(60);
+
             await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                var user = _mapper.Map<ApplicationUser>(request);
 
                 var createUserResult = await _userManager.CreateAsync(user, request.Password);
                 if (!createUserResult.Succeeded)

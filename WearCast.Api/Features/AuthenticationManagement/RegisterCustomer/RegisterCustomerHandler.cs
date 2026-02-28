@@ -28,7 +28,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
             if (existingUser != null)
             {
-                if (existingUser.Email == request.Email)
+                if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
                     return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
 
                 return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
@@ -97,11 +97,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
             try
             {
-                await emailHelper.SendConfirmationEmail(user, code);
+                await _emailHelper.SendConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Customer registered but failed to send confirmation email to {Email}", request.Email);
+                _logger.LogWarning(ex, "Customer registered but failed to send confirmation email to {Email}", request.Email);
             }
 
             return Result.Success(new RegisterCustomerResponse(user.Id));

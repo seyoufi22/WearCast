@@ -1,48 +1,40 @@
 ﻿using System.Security.Cryptography;
 using WearCast.Api.Features.AuthenticationManagement;
 
-namespace WearCast.Api.Features.Drivers.CreateDriver
+namespace WearCast.Api.Features.Factories.CreateFactory
 {
-    public class CreateDriverHandler(
+    public class CreateFactoryHandler(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         ImageService imageService,
         IMapper mapper,
         EmailHelper emailHelper,
-        ILogger<Driver> logger
-        ) : IRequestHandler<CreateDriverRequest, Result>
+        ILogger<CreateFactoryHandler> logger
+        ) : IRequestHandler<CreateFactoryRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly ImageService _imageService = imageService;
         private readonly IMapper _mapper = mapper;
         private readonly EmailHelper _emailHelper = emailHelper;
-        private readonly ILogger<Driver> _logger = logger;
+        private readonly ILogger<CreateFactoryHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CreateFactoryRequest request, CancellationToken cancellationToken)
         {
             var existingUser = await _userManager.Users
-                .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
-                .Select(x => new { x.Email, x.PhoneNumber })
+                .Where(u => u.Email == request.FactoryManagerEmail || u.PhoneNumber == request.FactoryPhoneNumber)
+                .Select(u => new { u.Email, u.PhoneNumber })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (existingUser != null)
             {
-                if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                if (existingUser.Email.Equals(request.FactoryManagerEmail?.Trim(), StringComparison.OrdinalIgnoreCase))
                     return Result.Failure(UserErrors.DublicatedEmail);
 
                 return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
-            var nationalIdExists = await _context.Drivers
-                .AnyAsync(x => x.NationalId == request.NationalId, cancellationToken);
-
-            if (nationalIdExists)
-            {
-                return Result.Failure(DriverErrors.DublicatedNationalId);
-            }
-
-            var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
+            var factoryLogoUrl = await _imageService.UploadAsync(request.FactoryLogo);
 
             var user = _mapper.Map<ApplicationUser>(request);
 
@@ -51,40 +43,38 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
             user.EmailConfirmationCodeExpiration = DateTime.UtcNow.AddMinutes(60);
 
             await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-
             try
             {
-                var createUserResult = await _userManager.CreateAsync(user, request.Password);
-
+                var createUserResult = await _userManager.CreateAsync(user, request.FactoryManagerPassword);
                 if (!createUserResult.Succeeded)
                 {
+                    await _imageService.DeleteAsync(factoryLogoUrl);
                     var error = createUserResult.Errors.First();
-
-                    await _imageService.DeleteAsync(profileImageUrl);
-
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Driver);
-
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Factory);
                 if (!roleResult.Succeeded)
                 {
-                    var error = roleResult.Errors.First();
-
-                    await _imageService.DeleteAsync(profileImageUrl);
-
+                    await _imageService.DeleteAsync(factoryLogoUrl);
                     await transaction.RollbackAsync(cancellationToken);
-
+                    var error = roleResult.Errors.First();
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var driver = _mapper.Map<Driver>(request);
+                var factory = _mapper.Map<Factory>(request);
+                factory.LogoUrl = factoryLogoUrl;
 
-                driver.ProfileImageUrl = profileImageUrl;
-                driver.UserId = user.Id;
+                await _context.Factories.AddAsync(factory, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
+                var factoryManager = new FactoryManager
+                {
+                    UserId = user.Id,
+                    FactoryId = factory.Id
+                };
 
-                await _context.Drivers.AddAsync(driver, cancellationToken);
+                await _context.FactoryManagers.AddAsync(factoryManager, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
@@ -92,20 +82,20 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
+                await _imageService.DeleteAsync(factoryLogoUrl);
 
+                _logger.LogError(ex, "Failed to create factory for email {Email}", request.FactoryManagerEmail);
 
-                await _imageService.DeleteAsync(profileImageUrl);
-
-
-                return Result.Failure(new Error("Creating.Failed", "An error occurred while Creating the driver.", StatusCodes.Status500InternalServerError));
+                return Result.Failure(new Error("Creation.Failed", "An error occurred while Creating the Factory.", StatusCodes.Status500InternalServerError));
             }
+
             try
             {
                 await _emailHelper.SendConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Driver registered but failed to send confirmation email to {Email}", request.Email);
+                _logger.LogWarning(ex, "Factory created but failed to send email to {Email}", request.FactoryManagerEmail);
             }
 
             return Result.Success();

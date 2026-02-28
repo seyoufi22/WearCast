@@ -4,13 +4,15 @@
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         IMapper mapper,
-        EmailHelper emailHelper
+        EmailHelper emailHelper,
+        ILogger<ApproveSellerApplicationHandler> logger
         ) : IRequestHandler<ApproveSellerApplicationRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IMapper _mapper = mapper;
         private readonly EmailHelper _emailHelper = emailHelper;
+        private readonly ILogger<ApproveSellerApplicationHandler> _logger = logger;
 
         public async Task<Result> Handle(ApproveSellerApplicationRequest request, CancellationToken cancellationToken)
         {
@@ -33,7 +35,7 @@
 
             if (identityConflict != null)
             {
-                if (identityConflict.Email == application.ManagerEmail)
+                if (identityConflict.Email.Equals(application.ManagerEmail?.Trim(), StringComparison.OrdinalIgnoreCase))
                     return Result.Failure(SellerManagerErrors.EmailInUse);
 
                 return Result.Failure(SellerManagerErrors.PhoneInUse);
@@ -52,10 +54,10 @@
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Seller);
                 if (!roleResult.Succeeded)
                 {
+                    await transaction.RollbackAsync(cancellationToken);
                     var error = roleResult.Errors.First();
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
@@ -75,18 +77,28 @@
                 _context.SellerApplications.Update(application);
 
                 await _context.SaveChangesAsync(cancellationToken);
+
                 await transaction.CommitAsync(cancellationToken);
-
-                await _emailHelper.SendSellerApplicationApprovedEmail(application);
-
-                return Result.Success();
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
 
+                _logger.LogError(ex, "Failed to approve seller application for {Email}", request.Email);
+
                 return Result.Failure(SellerApplicationErrors.ApproveFailed);
             }
+
+            try
+            {
+                await _emailHelper.SendSellerApplicationApprovedEmail(application);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Application approved but failed to send email to {Email}", request.Email);
+            }
+
+            return Result.Success();
         }
     }
 }

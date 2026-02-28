@@ -52,7 +52,6 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
 
             if (existingApp != null)
             {
-                // أضفنا Trim() عشان نطير أي مسافات من اليمين أو الشمال جاية من الريكويست
                 if (existingApp.ManagerEmail.Equals(request.SellerManagerEmail?.Trim(), StringComparison.OrdinalIgnoreCase))
                     return Result.Failure(SellerApplicationErrors.ApplicationPending);
 
@@ -71,12 +70,7 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
                 if (existingApp.CommercialRegisterNumber.Equals(request.SellerCommercialRegisterNumber?.Trim(), StringComparison.OrdinalIgnoreCase))
                     return Result.Failure(SellerErrors.CommercialRegisterInUse);
 
-                // خلينا الـ Tax ID ليه شرط صريح 
-                if (existingApp.TaxIdNumber.Equals(request.SellerTaxIdNumber?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(SellerErrors.TaxIdInUse);
-
-                // Fallback عشان لو حصلت أي مشكلة مسافات غريبة الـ C# مقدرتش تقفشها
-                return Result.Failure(new Error("Application.DataConflict", "One of the provided unique fields is already in use.", StatusCodes.Status400BadRequest));
+                return Result.Failure(SellerErrors.TaxIdInUse);
             }
 
 

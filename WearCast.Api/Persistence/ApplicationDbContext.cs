@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Seller> Sellers { get; set; }
     public DbSet<SellerManager> SellerManagers { get; set; }
     public DbSet<Factory> Factories { get; set; }
+    public DbSet<FactoryManager> FactoryManagers { get; set; }
     public DbSet<ShippingCompany> ShippingCompanies { get; set; }
     public DbSet<Driver> Drivers { get; set; }
     public DbSet<Category> Categories { get; set; }
