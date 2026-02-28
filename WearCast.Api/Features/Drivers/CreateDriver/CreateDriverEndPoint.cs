@@ -4,7 +4,8 @@
     [ApiController]
     public class CreateDriverEndPoint(IMediator mediator) : ControllerBase
     {
-        [HttpPost("create")]
+        [HttpPost("create")]   
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] CreateDriverRequest request, CancellationToken cancellationToken)
         {
             var result = await mediator.Send(request, cancellationToken);

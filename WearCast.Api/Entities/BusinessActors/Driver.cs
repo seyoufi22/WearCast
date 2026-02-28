@@ -15,7 +15,6 @@ namespace WearCast.Api.Entities.BusinessActors
 
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
-        public bool IsAvailable { get; set; } = true;
         public List<Shipment> Shipments { get; set; } = new List<Shipment>();
         public int ShippingCompanyId { get; set; }
         public ShippingCompany ShippingCompany { get; set; } = default!;
