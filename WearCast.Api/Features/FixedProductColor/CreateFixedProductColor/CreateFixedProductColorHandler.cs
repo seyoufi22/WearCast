@@ -31,11 +31,11 @@ public class CreateFixedProductColorHandler : IRequestHandler<CreateFixedProduct
             }).ToList();
         }
 
-        var mappedSizes = request.Sizes?.Select(s => new Entities.FixedProduct.FixedProductSize
+        var mappedSizes = request.Sizes.Select(s => new Entities.FixedProduct.FixedProductSize
         {
-            Size = s.Size, 
+            Size = s.Size,
             Quantity = s.Quantity
-        }).ToList() ?? new List<Entities.FixedProduct.FixedProductSize>();
+        }).ToList();
 
         var color = new Entities.FixedProduct.FixedProductColor
         {

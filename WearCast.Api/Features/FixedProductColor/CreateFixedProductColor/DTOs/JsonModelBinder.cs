@@ -20,27 +20,45 @@ public class JsonModelBinder : IModelBinder
 
         bindingContext.ModelState.SetModelValue(bindingContext.ModelName, valueProviderResult);
 
-        var value = valueProviderResult.FirstValue;
+        // If the valueProviderResult contains multiple items (like when adding multiple objects in Swagger),
+        // we need to combine them into a JSON array string before deserializing.
+        var values = valueProviderResult.Values.ToArray();
+        string jsonToParse;
 
-        // Check if the value is null or empty
-        if (string.IsNullOrEmpty(value))
+        if (values.Length == 1 && (values[0]!.TrimStart().StartsWith("[") || !bindingContext.ModelType.IsGenericType))
+        {
+            // It's already a JSON array or a single object binding
+            jsonToParse = values[0]!;
+        }
+        else
+        {
+            // We have multiple individual JSON objects (from Swagger "Add item") or 
+            // a single JSON object that needs to be bound to a List<T>.
+            // Wrap them in a JSON array.
+            jsonToParse = $"[{string.Join(",", values)}]";
+        }
+
+        if (string.IsNullOrWhiteSpace(jsonToParse))
         {
             return Task.CompletedTask;
         }
 
         try
         {
-            // Deserialize the JSON string to the target type
-            var result = JsonSerializer.Deserialize(value, bindingContext.ModelType, new JsonSerializerOptions
+            var options = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
-            });
+                PropertyNameCaseInsensitive = true,
+                Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
+            };
+
+            // Deserialize the JSON string to the target type
+            var result = JsonSerializer.Deserialize(jsonToParse, bindingContext.ModelType, options);
 
             bindingContext.Result = ModelBindingResult.Success(result);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            bindingContext.ModelState.TryAddModelError(bindingContext.ModelName, "Invalid JSON format");
+            bindingContext.ModelState.TryAddModelError(bindingContext.ModelName, $"Invalid JSON format: {ex.Message}");
         }
 
         return Task.CompletedTask;

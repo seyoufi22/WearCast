@@ -15,7 +15,6 @@ public class GetFixedProductColorByIdHandler : IRequestHandler<GetFixedProductCo
     {
         var query = _colorRepo.Get()
             .Where(c => c.Id == request.ColorId)
-            .Include(c => c.Sizes)
             .Include(c => c.Images)
             .AsNoTracking();
 

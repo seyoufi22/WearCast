@@ -1,4 +1,7 @@
-﻿namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
 
 public record CreateFixedProductColorRequestDto(
     int ProductId,
@@ -6,23 +9,59 @@ public record CreateFixedProductColorRequestDto(
     string ColorCode,
     IFormFile Image,
     List<IFormFile>? AdditionalImages,
-    [ModelBinder(BinderType = typeof(JsonModelBinder))]
-    List<CreateSizeDto> Sizes 
+    [ModelBinder(BinderType = typeof(JsonModelBinder))] List<CreateSizeDto> Sizes
 ) : IRequest<int>;
 
-public record CreateSizeDto(Size Size, int Quantity);
+public class CreateSizeDto
+{
+    [JsonPropertyName("size")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Size Size { get; set; }
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+}
 
 public class CreateFixedProductColorValidator : AbstractValidator<CreateFixedProductColorRequestDto>
 {
-    private readonly ImageService _imageService;
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
-    public CreateFixedProductColorValidator(ImageService imageService)
+    private readonly ImageService _imageService;
+    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
+    private readonly IRepository<Entities.FixedProduct.FixedProductColor> _colorRepo;
+
+    public CreateFixedProductColorValidator(
+        ImageService imageService,
+        IRepository<Entities.FixedProduct.FixedProduct> productRepo,
+        IRepository<Entities.FixedProduct.FixedProductColor> colorRepo)
     {
         _imageService = imageService;
+        _productRepo = productRepo;
+        _colorRepo = colorRepo;
 
-        RuleFor(x => x.ProductId).GreaterThan(0);
+        RuleFor(x => x.ProductId)
+            .GreaterThan(0)
+            .MustAsync(async (id, cancellation) => 
+            {
+                var product = await _productRepo.GetAsync(e => e.Id == id);
+                return product != null;
+            })
+            .WithMessage("Product not found.");
+
         RuleFor(x => x.ColorName).NotEmpty();
-        RuleFor(x => x.ColorCode).NotEmpty();
+        
+        RuleFor(x => x.ColorCode)
+            .NotEmpty()
+            .MustAsync(async (dto, code, cancellation) =>
+            {
+                var existingColor = await _colorRepo.GetAsync(c => c.ProductId == dto.ProductId && c.ColorCode == code);
+                return existingColor == null;
+            })
+            .WithMessage("A color with this Hex Code already exists for this product.");
 
         RuleFor(x => x.Image)
             .NotNull().WithMessage("Image is required.")
@@ -34,11 +73,10 @@ public class CreateFixedProductColorValidator : AbstractValidator<CreateFixedPro
             .WithMessage((x, img) => _imageService.Validate(img).ErrorMessage);
 
         RuleFor(x => x.Sizes)
-            .NotEmpty().WithMessage("At least one size is required.")
-            .Must(sizes => sizes != null && sizes.Any()).WithMessage("Sizes cannot be empty.");
-
-        RuleForEach(x => x.Sizes).ChildRules(size => {
-            size.RuleFor(s => s.Quantity).GreaterThan(0).WithMessage("Quantity must be greater than 0");
-        });
+            .NotEmpty().WithMessage("Sizes are required.")
+            .Must(sizes => sizes != null && sizes.All(s => s.Quantity > 0))
+            .WithMessage("Quantity must be greater than 0 for all sizes.")
+            .Must(sizes => sizes == null || sizes.Select(s => s.Size).Distinct().Count() == sizes.Count)
+            .WithMessage("Sizes must be unique. You cannot add the same size multiple times.");
     }
 }
