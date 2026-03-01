@@ -1,8 +1,8 @@
-﻿namespace WearCast.Api.Features.Factories.CreateFactory
+﻿namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
 {
-    public class CreateFactoryRequestValidator : AbstractValidator<CreateFactoryRequest>
+    public class CreateShippingCompanyRequestValidator : AbstractValidator<CreateShippingCompanyRequest>
     {
-        public CreateFactoryRequestValidator()
+        public CreateShippingCompanyRequestValidator()
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 
@@ -36,42 +36,42 @@
 
             // 
 
-            RuleFor(x => x.FactoryName)
-                .NotEmpty().WithMessage("Factory name is required.")
-                .MaximumLength(100).WithMessage("Factory name must not exceed 100 characters.");
+            RuleFor(x => x.CompanyName)
+                .NotEmpty().WithMessage("ShippingCompany name is required.")
+                .MaximumLength(100).WithMessage("ShippingCompany name must not exceed 100 characters.");
 
-            RuleFor(x => x.FactoryEmail)
-                .NotEmpty().WithMessage("Factory Email is required.")
+            RuleFor(x => x.CompanyEmail)
+                .NotEmpty().WithMessage("ShippingCompany Email is required.")
                 .EmailAddress().WithMessage("Invalid email format.")
                 .MaximumLength(256);
 
-            RuleFor(x => x.FactoryPhoneNumber)
+            RuleFor(x => x.CompanyPhoneNumber)
                 .NotEmpty()
                 .Matches(RegexPatterns.EgyptianPhoneNumber)
                 .WithMessage("Invalid Egyptian phone number format.");
 
-            RuleFor(x => x.FactoryCommercialRegisterNumber)
+            RuleFor(x => x.CompanyCommercialRegisterNumber)
                 .NotEmpty().WithMessage("Commercial register number is required.")
                 .Matches(RegexPatterns.CommercialRegisterNumber)
                 .WithMessage("Commercial register number must consist of 6 to 20 digits only.");
 
-            RuleFor(x => x.FactoryTaxIdNumber)
+            RuleFor(x => x.CompanyTaxIdNumber)
                 .NotEmpty().WithMessage("Tax ID number is required.")
                 .Matches(RegexPatterns.TaxIdNumber)
                 .WithMessage("Tax ID number must consist of exactly 9 digits.");
 
-            RuleFor(x => x.FactoryDescription)
+            RuleFor(x => x.CompanyDescription)
                 .NotEmpty().WithMessage("Description is required.")
                 .Length(20, 500).WithMessage("Description must be between 20 and 500 characters.");
 
-            RuleFor(x => x.FactoryLogo)
+            RuleFor(x => x.CompanyLogo)
                 .NotNull()
                 .IsValidImage();
 
-            RuleFor(x => x.FactoryState).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.FactoryCity).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.FactoryStreet).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.FactoryBuildingNumber).NotEmpty().MaximumLength(20);
+            RuleFor(x => x.CompanyState).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.CompanyCity).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.CompanyStreet).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.CompanyBuildingNumber).NotEmpty().MaximumLength(20);
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿namespace WearCast.Api.Features.Factories.CreateFactory
 {
     public record CreateFactoryRequest(
-        string FactoryManagerEmail,
-        string FactoryManagerFirstName,
-        string FactoryManagerLastName,
-        string FactoryManagerPhoneNumber,
-        string FactoryManagerPassword,
-        string FactoryManagerConfirmPassword,
+        string ManagerEmail,
+        string ManagerFirstName,
+        string ManagerLastName,
+        string ManagerPhoneNumber,
+        string ManagerPassword,
+        string ManagerConfirmPassword,
 
         string FactoryName,
         string FactoryEmail,

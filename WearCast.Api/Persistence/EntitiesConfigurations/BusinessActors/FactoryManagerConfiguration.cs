@@ -4,13 +4,13 @@
     {
         public void Configure(EntityTypeBuilder<FactoryManager> builder)
         {
-            builder.HasOne(sm => sm.ApplicationUser)
+            builder.HasOne(fm => fm.ApplicationUser)
                   .WithMany()
-                  .HasForeignKey(sm => sm.UserId)
+                  .HasForeignKey(fm => fm.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(fm => fm.Factory)
-                   .WithMany(s => s.Managers)
+                   .WithMany(f => f.Managers)
                    .HasForeignKey(fm => fm.FactoryId)
                    .OnDelete(DeleteBehavior.Cascade);
         }

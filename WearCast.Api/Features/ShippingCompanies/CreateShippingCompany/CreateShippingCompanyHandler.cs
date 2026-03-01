@@ -1,27 +1,27 @@
 ﻿using System.Security.Cryptography;
 using WearCast.Api.Features.AuthenticationManagement;
 
-namespace WearCast.Api.Features.Factories.CreateFactory
+namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
 {
-    public class CreateFactoryHandler(
+    public class CreateShippingCompanyHandler(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        ImageService imageService,
         IMapper mapper,
+        ImageService imageService,
         EmailHelper emailHelper,
-        ILogger<CreateFactoryHandler> logger
-        ) : IRequestHandler<CreateFactoryRequest, Result>
+        ILogger<CreateShippingCompanyHandler> logger
+        ) : IRequestHandler<CreateShippingCompanyRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly ImageService _imageService = imageService;
         private readonly IMapper _mapper = mapper;
+        private readonly ImageService _imageService = imageService;
         private readonly EmailHelper _emailHelper = emailHelper;
-        private readonly ILogger<CreateFactoryHandler> _logger = logger;
+        private readonly ILogger<CreateShippingCompanyHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateFactoryRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CreateShippingCompanyRequest request, CancellationToken cancellationToken)
         {
-            var existingUser = await _userManager.Users
+            var existingUser = await _context.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -34,7 +34,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                 return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
-            var factoryLogoUrl = await _imageService.UploadAsync(request.FactoryLogo);
+            var companyLogoUrl = await _imageService.UploadAsync(request.CompanyLogo);
 
             var user = _mapper.Map<ApplicationUser>(request);
 
@@ -48,54 +48,55 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                 var createUserResult = await _userManager.CreateAsync(user, request.ManagerPassword);
                 if (!createUserResult.Succeeded)
                 {
-                    await _imageService.DeleteAsync(factoryLogoUrl);
+                    await _imageService.DeleteAsync(companyLogoUrl);
+
                     var error = createUserResult.Errors.First();
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Factory);
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompany);
                 if (!roleResult.Succeeded)
                 {
-                    await _imageService.DeleteAsync(factoryLogoUrl);
+                    await _imageService.DeleteAsync(companyLogoUrl);
+
                     await transaction.RollbackAsync(cancellationToken);
+
                     var error = roleResult.Errors.First();
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var factory = _mapper.Map<Factory>(request);
-                factory.LogoUrl = factoryLogoUrl;
+                var shippingCompany = _mapper.Map<ShippingCompany>(request);
+                shippingCompany.LogoUrl = companyLogoUrl;
 
-                await _context.Factories.AddAsync(factory, cancellationToken);
+                await _context.ShippingCompanies.AddAsync(shippingCompany, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                var factoryManager = new FactoryManager
+                var shippingCompanyManager = new ShippingCompanyManager
                 {
                     UserId = user.Id,
-                    FactoryId = factory.Id
+                    ShippingCompanyId = shippingCompany.Id
                 };
 
-                await _context.FactoryManagers.AddAsync(factoryManager, cancellationToken);
+                await _context.ShippingCompanyManagers.AddAsync(shippingCompanyManager, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
             {
+                await _imageService.DeleteAsync(companyLogoUrl);
+
                 await transaction.RollbackAsync(cancellationToken);
-                await _imageService.DeleteAsync(factoryLogoUrl);
 
-                _logger.LogError(ex, "Failed to create factory for email {Email}", request.ManagerEmail);
-
-                return Result.Failure(new Error("Creation.Failed", "An error occurred while Creating the Factory.", StatusCodes.Status500InternalServerError));
+                return Result.Failure(new Error("Creation.Failed", "An error occurred while Creating the Shipping Company.", StatusCodes.Status500InternalServerError));
             }
-
             try
             {
                 await _emailHelper.SendConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Factory created but failed to send email to {Email}", request.ManagerEmail);
+                _logger.LogWarning(ex, "Shipping Company created but failed to send email to {Email}", request.ManagerEmail);
             }
 
             return Result.Success();

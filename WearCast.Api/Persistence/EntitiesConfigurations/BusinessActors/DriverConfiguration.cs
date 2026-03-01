@@ -11,6 +11,11 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
                  .IsRequired()
                  .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(d => d.ShippingCompany)
+                   .WithMany(sh => sh.Drivers)
+                   .HasForeignKey(d => d.ShippingCompanyId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
             builder.Property(x => x.NationalId)
                 .IsRequired()
                 .HasMaxLength(14)

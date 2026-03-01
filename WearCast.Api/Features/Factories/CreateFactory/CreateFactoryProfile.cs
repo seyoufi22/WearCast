@@ -22,11 +22,11 @@
                 .ForMember(dest => dest.Managers, opt => opt.Ignore());
 
             CreateMap<CreateFactoryRequest, ApplicationUser>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.FactoryManagerEmail))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.FactoryManagerEmail))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FactoryManagerFirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.FactoryManagerLastName))
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.FactoryManagerPhoneNumber))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ManagerEmail))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.ManagerEmail))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.ManagerFirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.ManagerLastName))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.ManagerPhoneNumber))
 
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());

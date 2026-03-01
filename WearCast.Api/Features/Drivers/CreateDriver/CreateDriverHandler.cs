@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using WearCast.Api.Features.AuthenticationManagement;
+using WearCast.Api.Features.ShippingCompanies;
 
 namespace WearCast.Api.Features.Drivers.CreateDriver
 {
@@ -21,6 +22,10 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
         public async Task<Result> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
+            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == request.ShippingCompanyId, cancellationToken);
+            if (!companyExists)
+                return Result.Failure(ShippingCompanyErrors.CompanyNotFound);
+
             var existingUser = await _userManager.Users
                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
                 .Select(x => new { x.Email, x.PhoneNumber })

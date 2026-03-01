@@ -16,5 +16,9 @@
 
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
+
+        public int ShippingCompanyId { get; set; }
+
+        public ShippingCompany? ShippingCompany { get; set; }
     }
 }
