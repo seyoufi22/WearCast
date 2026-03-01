@@ -62,13 +62,13 @@ namespace WearCast.Api
                 options.AddSchemaTransformer((schema, context, cancellationToken) =>
                 {
                     var type = context.JsonTypeInfo.Type;
-                    if (type == typeof(int) || type == typeof(int?) || 
+                    if (type == typeof(int) || type == typeof(int?) ||
                         type == typeof(decimal) || type == typeof(decimal?) ||
                         type == typeof(double) || type == typeof(double?) ||
                         type == typeof(long) || type == typeof(long?))
                     {
                         schema.Pattern = null;
-                        
+
                         // Force type to integer/number for Swagger UI compatibility
                         if (type == typeof(int) || type == typeof(int?) || type == typeof(long) || type == typeof(long?))
                         {

@@ -17,6 +17,8 @@
         string State,
         string City,
         string Street,
-        string BuildingNumber
+        string BuildingNumber,
+
+        int ShippingCompanyId
         ) : IRequest<Result>;
 }
