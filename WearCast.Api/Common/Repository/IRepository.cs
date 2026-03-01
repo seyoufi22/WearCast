@@ -10,4 +10,5 @@ public interface IRepository<T>
     public Task<T> UpdateAsync(T dbRecord);
     public Task HardDeleteAsync(T dbRecord);
     public Task SoftDeleteAsync(int entityId);
+    public IQueryable<T> Get(bool withDeleted = false);
 }
