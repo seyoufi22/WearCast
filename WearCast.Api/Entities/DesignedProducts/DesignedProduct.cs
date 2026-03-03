@@ -10,6 +10,10 @@
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }
 
+        public int CategoryId { get; set; }
+        public Category? Category { get; set; }
+
         public ICollection<DesignedProductColor> Colors { get; set; } = [];
+        public ICollection<DesignedProductSizeDetails> SizeDetails { get; set; } = [];
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Reflection;
-using WearCast.Api.Entities.DesignedProducts;
 
 namespace WearCast.Api.Persistence;
 
@@ -34,6 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<DesignAssetCategory> DesignAssetCategories { get; set; }
     public DbSet<CustomerDesign> CustomerDesigns { get; set; }
     public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
+    public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

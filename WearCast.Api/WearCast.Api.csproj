@@ -33,6 +33,10 @@
 
     <ItemGroup>
       <Folder Include="Features\DesignedProductManagement\FactoryProducts\" />
+      <Folder Include="Features\DesignedProductManagement\FactoryProductColors\" />
+      <Folder Include="Features\DesignedProductManagement\FactoryProductImages\" />
+      <Folder Include="Features\DesignedProductManagement\FactoryAssets\" />
+      <Folder Include="Features\DesignedProductManagement\CustomerCatalogAndWorkspace\" />
       <Folder Include="wwwroot\" />
       <Folder Include="wwwroot\uploads\" />
     </ItemGroup>

@@ -22,6 +22,7 @@ global using WearCast.Api.Common.Validators;
 global using WearCast.Api.Common.ValueObjects;
 global using WearCast.Api.Entities;
 global using WearCast.Api.Entities.BusinessActors;
+global using WearCast.Api.Entities.DesignedProducts;
 global using WearCast.Api.Entities.Identity;
 global using WearCast.Api.Errors;
 global using WearCast.Api.Persistence;
