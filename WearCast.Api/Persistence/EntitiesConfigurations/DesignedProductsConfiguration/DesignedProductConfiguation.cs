@@ -1,11 +1,13 @@
-﻿using WearCast.Api.Entities.DesignedProduct;
+﻿using WearCast.Api.Entities.DesignedProducts;
 
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductConfiguration
+namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignedProductConfiguation : BaseModelConfiguration<DesignedProduct>
     {
         public override void Configure(EntityTypeBuilder<DesignedProduct> builder)
         {
+            base.Configure(builder);
+
             builder.Property(x => x.Name)
                   .IsRequired()
                   .HasMaxLength(200);

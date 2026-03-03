@@ -9,5 +9,7 @@
         public int Price { get; set; }
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }
+
+        public ICollection<DesignedProductColor> Colors { get; set; } = [];
     }
 }

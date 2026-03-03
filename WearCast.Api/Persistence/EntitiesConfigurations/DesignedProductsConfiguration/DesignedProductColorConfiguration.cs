@@ -6,6 +6,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
     {
         public override void Configure(EntityTypeBuilder<DesignedProductColor> builder)
         {
+            base.Configure(builder);
+
             builder.Property(x => x.Name)
                        .IsRequired()
                        .HasMaxLength(100);

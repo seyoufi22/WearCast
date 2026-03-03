@@ -6,6 +6,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
     {
         public override void Configure(EntityTypeBuilder<DesignedProductImage> builder)
         {
+            base.Configure(builder);
+
             builder.Property(x => x.ImageUrl)
                    .IsRequired();
 
@@ -20,4 +22,4 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
         }
     }
 }
-}
+
