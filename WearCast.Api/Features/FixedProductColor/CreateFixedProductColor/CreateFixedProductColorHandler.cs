@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
-
 namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor;
 
 public class CreateFixedProductColorHandler : IRequestHandler<CreateFixedProductColorRequestDto, int>
@@ -20,7 +19,7 @@ public class CreateFixedProductColorHandler : IRequestHandler<CreateFixedProduct
         var imageUrl = await _imageService.UploadAsync(request.Image);
 
         var additionalImages = new List<Entities.FixedProduct.FixedProductImage>();
-        if (request.AdditionalImages != null && request.AdditionalImages.Any())
+        if (request.AdditionalImages?.Any() == true)
         {
             var uploadTasks = request.AdditionalImages.Select(img => _imageService.UploadAsync(img));
             var urls = await Task.WhenAll(uploadTasks);
@@ -40,14 +39,15 @@ public class CreateFixedProductColorHandler : IRequestHandler<CreateFixedProduct
         var color = new Entities.FixedProduct.FixedProductColor
         {
             ProductId = request.ProductId,
-            ColorName = request.ColorName,
-            ColorCode = request.ColorCode,
+            ColorName = request.ColorName.Trim(), 
+            ColorCode = request.ColorCode.Trim().ToUpper(), 
             ImageUrl = imageUrl,
             Images = additionalImages,
             Sizes = mappedSizes
         };
 
         var result = await _colorRepo.CreateAsync(color);
+
         return result.Id;
     }
 }

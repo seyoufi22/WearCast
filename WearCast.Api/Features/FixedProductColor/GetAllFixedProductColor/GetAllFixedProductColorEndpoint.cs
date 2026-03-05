@@ -8,7 +8,7 @@ public class GetAllFixedProductColorEndPoint(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
 
-    [HttpGet("GetAllProductColorByProductId/{Id:int}")]
+    [HttpGet("GetAllColorByProductId/{Id:int}")]
     public async Task<ActionResult<List<GetAllFixedProductColorResponseDto>>> GetAll(
          int Id,
         CancellationToken cancellationToken)
