@@ -5,8 +5,6 @@
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
 
-        public Address Address { get; set; } = new Address();
-
         public string? EmailConfirmationCode { get; set; }
         public DateTime? EmailConfirmationCodeExpiration { get; set; }
 
