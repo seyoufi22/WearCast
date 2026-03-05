@@ -1,13 +1,13 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.CreateCategory.DTOs;
+﻿namespace WearCast.Api.Features.Category.CreateCategory.DTOs;
 
-public record CreateCategoryRequestDto(string Name, IFormFile? Image) : IRequest<CategoryDto>;
+public record CreateCategoryRequestDto(string Name, IFormFile? Image) : IRequest<CreateCategoryResponseDto>;
 
 public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryRequestDto>
 {
-    private readonly IRepository<Category> _categoryRepo;
+    private readonly IRepository<Entities.Category> _categoryRepo;
     private readonly ImageService _imageService;
 
-    public CreateCategoryCommandValidator(IRepository<Category> categoryRepo, ImageService imageService)
+    public CreateCategoryCommandValidator(IRepository<Entities.Category> categoryRepo, ImageService imageService)
     {
         _categoryRepo = categoryRepo;
         _imageService = imageService;

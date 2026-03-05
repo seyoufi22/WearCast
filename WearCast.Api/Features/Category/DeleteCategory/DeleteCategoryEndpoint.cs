@@ -1,6 +1,6 @@
-﻿using WearCast.Api.Features.CategoryFeatures.DeleteCategory.DTOs;
+﻿using WearCast.Api.Features.Category.DeleteCategory.DTOs;
 
-namespace WearCast.Api.Features.CategoryFeatures.DeleteCategory;
+namespace WearCast.Api.Features.Category.DeleteCategory;
 
 [Tags("Category")]
 [Route("api/Category")]

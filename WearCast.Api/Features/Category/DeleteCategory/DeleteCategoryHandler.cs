@@ -1,8 +1,8 @@
-﻿using WearCast.Api.Features.CategoryFeatures.DeleteCategory.DTOs;
+﻿using WearCast.Api.Features.Category.DeleteCategory.DTOs;
 
-namespace WearCast.Api.Features.CategoryFeatures.DeleteCategory;
+namespace WearCast.Api.Features.Category.DeleteCategory;
 
-public class DeleteCategoryHandler(IRepository<Category> categoryRepo)
+public class DeleteCategoryHandler(IRepository<Entities.Category> categoryRepo)
     : IRequestHandler<DeleteCategoryRequestDto, bool>
 {
     public async Task<bool> Handle(DeleteCategoryRequestDto request, CancellationToken cancellationToken)

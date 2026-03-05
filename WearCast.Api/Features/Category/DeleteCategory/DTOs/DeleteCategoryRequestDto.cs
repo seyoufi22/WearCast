@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.DeleteCategory.DTOs;
+﻿namespace WearCast.Api.Features.Category.DeleteCategory.DTOs;
 
 public record DeleteCategoryRequestDto(int Id) : IRequest<bool>;
 

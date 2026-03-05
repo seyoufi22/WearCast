@@ -1,13 +1,13 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory.DTOs;
+﻿namespace WearCast.Api.Features.Category.UpdateCategory.DTOs;
 
 public record UpdateCategoryRequestDto(int Id, string Name, IFormFile? Image) : IRequest<bool>;
 
 public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryRequestDto>
 {
-    private readonly IRepository<Category> _categoryRepo;
+    private readonly IRepository<Entities.Category> _categoryRepo;
     private readonly ImageService _imageService;
 
-    public UpdateCategoryCommandValidator(IRepository<Category> categoryRepo, ImageService imageService)
+    public UpdateCategoryCommandValidator(IRepository<Entities.Category> categoryRepo, ImageService imageService)
     {
         _categoryRepo = categoryRepo;
         _imageService = imageService;

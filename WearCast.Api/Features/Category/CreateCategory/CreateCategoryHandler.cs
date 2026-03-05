@@ -1,9 +1,9 @@
-﻿using WearCast.Api.Features.CategoryFeatures.CreateCategory.DTOs;
+﻿using WearCast.Api.Features.Category.CreateCategory.DTOs;
 
 public class CreateCategoryHandler(IRepository<Category> categoryRepo, ImageService imageService)
-    : IRequestHandler<CreateCategoryRequestDto, CategoryDto>
+    : IRequestHandler<CreateCategoryRequestDto, CreateCategoryResponseDto>
 {
-    public async Task<CategoryDto> Handle(CreateCategoryRequestDto request, CancellationToken cancellationToken)
+    public async Task<CreateCategoryResponseDto> Handle(CreateCategoryRequestDto request, CancellationToken cancellationToken)
     {
 
         string url = await imageService.UploadAsync(request.Image!);
@@ -15,7 +15,7 @@ public class CreateCategoryHandler(IRepository<Category> categoryRepo, ImageServ
             existing.IsDeleted = false;
             existing.ImageUrl = url;
             await categoryRepo.UpdateAsync(existing);
-            return new CategoryDto(existing.Id, existing.Name, existing.ImageUrl);
+            return new CreateCategoryResponseDto(existing.Id, existing.Name, existing.ImageUrl);
         }
         var category = new Category
         {
@@ -24,8 +24,7 @@ public class CreateCategoryHandler(IRepository<Category> categoryRepo, ImageServ
         };
 
         await categoryRepo.CreateAsync(category);
-        return new CategoryDto(category.Id, category.Name, category.ImageUrl);
+        return new CreateCategoryResponseDto(category.Id, category.Name, category.ImageUrl);
     }
 }
 
-public record CategoryDto(int Id, string Name, string ImageUrl);

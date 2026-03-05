@@ -1,12 +1,12 @@
-﻿using WearCast.Api.Features.CategoryFeatures.GetCategoryById.DTOs;
+﻿using WearCast.Api.Features.Category.GetCategoryById.DTOs;
 
-namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
+namespace WearCast.Api.Features.Category.GetCategoryById;
 
 public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdRequestDto, CategoryResponse>
 {
-    private readonly IRepository<Category> _categoryRepo;
+    private readonly IRepository<Entities.Category> _categoryRepo;
 
-    public GetCategoryByIdHandler(IRepository<Category> categoryRepo)
+    public GetCategoryByIdHandler(IRepository<Entities.Category> categoryRepo)
     {
         _categoryRepo = categoryRepo;
     }

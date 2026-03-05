@@ -1,3 +1,3 @@
-﻿namespace WearCast.Api.Features.CategoryFeatures.GetAllCategory.DTOs;
+﻿namespace WearCast.Api.Features.Category.GetAllCategory.DTOs;
 
 public record GetAllCategoryRequestDto : IRequest<List<GetAllCategoryResponseDto>>;

@@ -1,6 +1,6 @@
-﻿using WearCast.Api.Features.CategoryFeatures.UpdateCategory.DTOs;
+﻿using WearCast.Api.Features.Category.UpdateCategory.DTOs;
 
-namespace WearCast.Api.Features.CategoryFeatures.UpdateCategory;
+namespace WearCast.Api.Features.Category.UpdateCategory;
 
 [Tags("Category")]
 [Route("api/Category")]

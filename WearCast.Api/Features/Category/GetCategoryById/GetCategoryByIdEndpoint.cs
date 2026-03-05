@@ -1,6 +1,6 @@
-﻿using WearCast.Api.Features.CategoryFeatures.GetCategoryById.DTOs;
+﻿using WearCast.Api.Features.Category.GetCategoryById.DTOs;
 
-namespace WearCast.Api.Features.CategoryFeatures.GetCategoryById;
+namespace WearCast.Api.Features.Category.GetCategoryById;
 
 [Tags("Category")]
 [Route("api/Category")]
