@@ -10,11 +10,11 @@ namespace WearCast.Api.Features.FixedProduct.UpdateFixedProduct.Command;
 public class UpdateFixedProductHandler : IRequestHandler<UpdateFixedProductRequestDto, Result<UpdateFixedProductResponseDto>>
 {
     private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
-    private readonly IRepository<Category> _categoryRepo;
+    private readonly IRepository<Entities.Category> _categoryRepo;
 
     public UpdateFixedProductHandler(
         IRepository<Entities.FixedProduct.FixedProduct> productRepo,
-        IRepository<Category> categoryRepo)
+        IRepository<Entities.Category> categoryRepo)
     {
         _productRepo = productRepo;
         _categoryRepo = categoryRepo;

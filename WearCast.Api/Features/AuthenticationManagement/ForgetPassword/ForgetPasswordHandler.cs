@@ -1,13 +1,9 @@
-﻿
-using Microsoft.AspNetCore.Identity;
-using System.Security.Cryptography;
-using WearCast.Api.Common.Email;
-using WearCast.Api.Entities.Identity;
+﻿using System.Security.Cryptography;
 
 namespace WearCast.Api.Features.AuthenticationManagement.ForgetPassword
 {
     public class ForgetPasswordHandler(
-        UserManager<ApplicationUser>userManager,
+        UserManager<ApplicationUser> userManager,
         EmailHelper emailHelper,
         ILogger<ForgetPasswordHandler> logger
         ) : IRequestHandler<ForgetPasswordRequest, Result<ForgetPasswordResponse>>
@@ -19,12 +15,12 @@ namespace WearCast.Api.Features.AuthenticationManagement.ForgetPassword
         public async Task<Result<ForgetPasswordResponse>> Handle(ForgetPasswordRequest request, CancellationToken cancellationToken)
         {
             if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
-                return Result.Success<ForgetPasswordResponse>(null!); 
+                return Result.Success<ForgetPasswordResponse>(null!);
 
             if (!user.EmailConfirmed)
                 return Result.Failure<ForgetPasswordResponse>(UserErrors.EmailNotConfirmed);
 
-            
+
             var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             user.ResetPasswordCode = code;

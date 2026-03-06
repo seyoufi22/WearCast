@@ -24,5 +24,14 @@ public class FixedProductColorConfiguration : BaseModelConfiguration<FixedProduc
             .HasForeignKey(c => c.ProductId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.OwnsMany(c => c.Sizes, a =>
+        {
+            a.ToJson();
+
+            a.Property(s => s.Size)
+                .IsRequired()
+                .HasConversion<string>();
+        });
     }
 }

@@ -74,6 +74,9 @@
             RuleFor(x => x.ProfileImage)
                 .NotNull()
                 .IsValidImage();
+
+            RuleFor(x => x.ShippingCompanyId)
+               .NotEmpty().WithMessage("Shipping Company Id is required.");
         }
     }
 }

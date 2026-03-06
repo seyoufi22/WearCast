@@ -9,5 +9,5 @@ public class FixedProductColor : BaseModel
 
     public FixedProduct Product { get; set; }
     public ICollection<FixedProductImage> Images { get; set; }
-    public ICollection<FixedProductSize> Sizes { get; set; }
+    public ICollection<FixedProductSize> Sizes { get; set; }= new List<FixedProductSize>();
 }

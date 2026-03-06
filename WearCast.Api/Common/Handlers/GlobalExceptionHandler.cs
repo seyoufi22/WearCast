@@ -13,8 +13,15 @@ namespace WearCast.Api.Errors
             {
                 Status = StatusCodes.Status500InternalServerError,
                 Title = "Internal Server Error",
-                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"
+                Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
+                Detail = exception.Message,
             };
+            problemDetails.Extensions["StackTrace"] = exception.StackTrace;
+
+            if (exception.InnerException != null)
+            {
+                problemDetails.Extensions["InnerException"] = exception.InnerException.Message;
+            }
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 

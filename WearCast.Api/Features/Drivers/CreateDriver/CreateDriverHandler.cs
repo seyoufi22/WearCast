@@ -1,4 +1,6 @@
-﻿using WearCast.Api.Features.AuthenticationManagement;
+﻿using System.Security.Cryptography;
+using WearCast.Api.Features.AuthenticationManagement;
+using WearCast.Api.Features.ShippingCompanies;
 
 namespace WearCast.Api.Features.Drivers.CreateDriver
 {
@@ -6,29 +8,52 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         ImageService imageService,
-        IMapper mapper
+        IMapper mapper,
+        EmailHelper emailHelper,
+        ILogger<Driver> logger
         ) : IRequestHandler<CreateDriverRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly ImageService _imageService = imageService;
         private readonly IMapper _mapper = mapper;
+        private readonly EmailHelper _emailHelper = emailHelper;
+        private readonly ILogger<Driver> _logger = logger;
 
         public async Task<Result> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
-            var phoneNumberIsExists = await _context.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken);
+            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == request.ShippingCompanyId, cancellationToken);
+            if (!companyExists)
+                return Result.Failure(ShippingCompanyErrors.CompanyNotFound);
 
-            if (phoneNumberIsExists)
+            var existingUser = await _userManager.Users
+                .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
+                .Select(x => new { x.Email, x.PhoneNumber })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (existingUser != null)
+            {
+                if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return Result.Failure(UserErrors.DublicatedEmail);
+
                 return Result.Failure(UserErrors.DublicatedPhoneNumber);
+            }
 
-            var nationalIdIsExists = await _context.Drivers.AnyAsync(x => x.NationalId == request.NationalId, cancellationToken);
+            var nationalIdExists = await _context.Drivers
+                .AnyAsync(x => x.NationalId == request.NationalId, cancellationToken);
 
-            if (nationalIdIsExists)
+            if (nationalIdExists)
+            {
                 return Result.Failure(DriverErrors.DublicatedNationalId);
+            }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
 
             var user = _mapper.Map<ApplicationUser>(request);
+
+            var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            user.EmailConfirmationCode = code;
+            user.EmailConfirmationCodeExpiration = DateTime.UtcNow.AddMinutes(60);
 
             await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
@@ -58,20 +83,16 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var driver = new Driver
-                {
-                    ProfileImageUrl = profileImageUrl,
-                    NationalId = request.NationalId,
-                    VehicleType = request.VehicleType,
-                    VehiclePlateNumber = request.VehiclePlateNumber,
-                    UserId = user.Id
-                };
+                var driver = _mapper.Map<Driver>(request);
+
+                driver.ProfileImageUrl = profileImageUrl;
+                driver.UserId = user.Id;
+
 
                 await _context.Drivers.AddAsync(driver, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
 
-                return Result.Success();
+                await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -83,6 +104,16 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
                 return Result.Failure(new Error("Creating.Failed", "An error occurred while Creating the driver.", StatusCodes.Status500InternalServerError));
             }
+            try
+            {
+                await _emailHelper.SendConfirmationEmail(user, code);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Driver registered but failed to send confirmation email to {Email}", request.Email);
+            }
+
+            return Result.Success();
         }
     }
 }

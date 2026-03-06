@@ -5,15 +5,14 @@
         public RegisterCustomerProfile()
         {
             CreateMap<RegisterCustomerRequest, ApplicationUser>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => new Address
-                {
-                    State = src.State,
-                    City = src.City,
-                    Street = src.Street,
-                    BuildingNumber = src.BuildingNumber
-                }));
+            CreateMap<RegisterCustomerRequest, Customer>()
+                .ForPath(dest => dest.Address.State, opt => opt.MapFrom(src => src.State))
+                .ForPath(dest => dest.Address.City, opt => opt.MapFrom(src => src.City))
+                .ForPath(dest => dest.Address.Street, opt => opt.MapFrom(src => src.Street))
+                .ForPath(dest => dest.Address.BuildingNumber, opt => opt.MapFrom(src => src.BuildingNumber));
+
         }
     }
 }
