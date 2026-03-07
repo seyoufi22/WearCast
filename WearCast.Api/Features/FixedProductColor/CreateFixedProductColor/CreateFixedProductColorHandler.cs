@@ -34,7 +34,7 @@ public class CreateFixedProductColorHandler : IRequestHandler<CreateFixedProduct
         {
             Size = s.Size,
             Quantity = s.Quantity
-        }).ToList();
+        }).OrderBy(s => s.Size).ToList();
 
         var color = new Entities.FixedProduct.FixedProductColor
         {

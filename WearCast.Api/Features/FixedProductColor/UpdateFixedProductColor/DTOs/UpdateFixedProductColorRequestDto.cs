@@ -31,12 +31,12 @@ public class UpdateFixedProductColorValidator : AbstractValidator<UpdateFixedPro
             })
             .WithMessage("Product color not found.");
 
-        RuleFor(x => x.ColorName).NotEmpty().WithMessage("Color name is required.")
+        RuleFor(x => x.ColorName.Trim()).NotEmpty().WithMessage("Color name is required.")
             .MaximumLength(50).WithMessage("Color name cannot exceed 50 characters.")
             .Must(name => !string.IsNullOrWhiteSpace(name))
             .WithMessage("Color name cannot be empty spaces.");
 
-        RuleFor(x => x.ColorCode)
+        RuleFor(x => x.ColorCode.Trim())
             .NotEmpty()
             .Matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
             .WithMessage("Invalid color code format. It should be a valid Hex code (e.g., #FFFFFF).")
