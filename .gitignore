@@ -6,3 +6,5 @@ riderModule.iml
 .idea/
 /.vs
 *.user
+**/Migrations/
+WearCast.Api/wwwroot/

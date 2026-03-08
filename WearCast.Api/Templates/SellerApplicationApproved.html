@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Approved - WearCast</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #f4f4f5;
+            padding: 40px 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            background-color: #1f2937;
+            padding: 25px;
+            text-align: center;
+        }
+
+            .email-header h1 {
+                color: #ffffff;
+                margin: 0;
+                font-size: 24px;
+                letter-spacing: 1px;
+            }
+
+        .email-body {
+            padding: 30px;
+            color: #374151;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+
+        .success-container {
+            background-color: #f0fdf4; /* لون أخضر فاتح جداً ومريح */
+            border-left: 4px solid #16a34a; /* خط أخضر على الشمال */
+            border-radius: 4px;
+            padding: 15px 20px;
+            margin: 25px 0;
+        }
+
+        .success-title {
+            font-weight: bold;
+            color: #166534;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        .success-text {
+            color: #14532d;
+            margin: 0;
+        }
+
+        .next-steps {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+            .next-steps h3 {
+                margin-top: 0;
+                color: #111827;
+                font-size: 16px;
+            }
+
+            .next-steps ul {
+                margin: 0;
+                padding-left: 20px;
+                color: #4b5563;
+            }
+
+            .next-steps li {
+                margin-bottom: 8px;
+            }
+
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+            .email-footer p {
+                margin: 0;
+                color: #9ca3af;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <div class="email-header">
+                <h1>WearCast</h1>
+            </div>
+
+            <div class="email-body">
+                <div class="greeting">Hello {{managerName}},</div>
+
+                <p>Great news! We have reviewed your application and are thrilled to inform you that <strong>{{sellerName}}</strong> is now officially approved as a brand on WearCast.</p>
+
+                <div class="success-container">
+                    <p class="success-title">🎉 You're in!</p>
+                    <p class="success-text">Your seller account has been successfully created. You can now start managing your store, adding products, and reaching new customers.</p>
+                </div>
+
+                <div class="next-steps">
+                    <h3>What's Next?</h3>
+                    <ul>
+                        <li>Log in to your <strong>Seller Dashboard</strong> using the email and password you created during registration.</li>
+                        <li>Complete your store profile and settings.</li>
+                        <li>Start listing your amazing products!</li>
+                    </ul>
+                </div>
+
+                <br>
+                <p>Welcome to the WearCast family!<br><strong>The WearCast Team</strong></p>
+            </div>
+
+            <div class="email-footer">
+                <p>&copy; 2026 WearCast. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
