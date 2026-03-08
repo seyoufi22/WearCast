@@ -26,21 +26,7 @@ public class AddFixedProductSizeHandler : IRequestHandler<AddFixedProductSizeReq
             Quantity = request.Quantity
         };
 
-        color.Sizes.Add(newSize);
-        var sortedList = color.Sizes
-            .OrderBy(s => s.Size)
-            .Select(s => new Entities.FixedProduct.FixedProductSize
-            {
-                Size = s.Size,
-                Quantity = s.Quantity
-            })
-            .ToList();
-        color.Sizes.Clear();
-        foreach (var item in sortedList)
-        {
-            color.Sizes.Add(item);
-        }
-        //color.Sizes = color.Sizes.OrderBy(s => s.Size).ToList();
+        color.AddSize(newSize);
 
         await _colorRepo.UpdateAsync(color);
 
