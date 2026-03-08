@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace WearCast.Api.Entities.FixedProduct;
 
 public class FixedProductColor : BaseModel
@@ -10,4 +12,22 @@ public class FixedProductColor : BaseModel
     public FixedProduct Product { get; set; }
     public ICollection<FixedProductImage> Images { get; set; }
     public ICollection<FixedProductSize> Sizes { get; set; }= new List<FixedProductSize>();
+    public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+    public void AddSize(FixedProductSize  newSize)
+    {
+        Sizes.Add(newSize);
+        var sortedList = Sizes
+            .OrderBy(s => s.Size)
+            .Select(s => new FixedProductSize
+            {
+                Size = s.Size,
+                Quantity = s.Quantity
+            })
+            .ToList();
+        Sizes.Clear();
+        foreach (var item in sortedList)
+        {
+            Sizes.Add(item);
+        }
+    }
 }

@@ -26,7 +26,8 @@ public class AddFixedProductSizeHandler : IRequestHandler<AddFixedProductSizeReq
             Quantity = request.Quantity
         };
 
-        color.Sizes.Add(newSize);
+        color.AddSize(newSize);
+
         await _colorRepo.UpdateAsync(color);
 
         return true;

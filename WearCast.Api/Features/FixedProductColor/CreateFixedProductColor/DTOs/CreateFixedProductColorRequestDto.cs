@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-
+using FluentValidation;
 namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
 
 public record CreateFixedProductColorRequestDto(
@@ -52,12 +52,12 @@ public class CreateFixedProductColorValidator : AbstractValidator<CreateFixedPro
             })
             .WithMessage("Product not found.");
 
-        RuleFor(x => x.ColorName).NotEmpty()
+        RuleFor(x => x.ColorName.Trim()).NotEmpty()
             .MaximumLength(50).WithMessage("Color name cannot exceed 50 characters.")
             .Must(name => !string.IsNullOrWhiteSpace(name))
             .WithMessage("Color name cannot be empty spaces.");  
 
-        RuleFor(x => x.ColorCode)
+        RuleFor(x => x.ColorCode.Trim())
             .NotEmpty().WithMessage("Color code is required.")
             .Matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
             .WithMessage("Invalid color code format. It should be a valid Hex code (e.g., #FFFFFF or #FFF).")
