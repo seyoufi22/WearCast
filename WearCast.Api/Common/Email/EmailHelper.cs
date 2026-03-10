@@ -11,7 +11,7 @@ namespace WearCast.Api.Common.Email
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "EmailConfirmation",
-                _webHostEnvironment.WebRootPath,
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
                     { "{{name}}", $"{user.FirstName} {user.LastName}" },
@@ -32,7 +32,7 @@ namespace WearCast.Api.Common.Email
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "ForgetPassword",
-                _webHostEnvironment.WebRootPath,
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
                     { "{{name}}", $"{user.FirstName} {user.LastName}" },
@@ -53,7 +53,7 @@ namespace WearCast.Api.Common.Email
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "EmailConfirmationForSellerManager",
-                _webHostEnvironment.WebRootPath,
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
                     { "{{managerName}}", app.ManagerFirstName },
@@ -75,7 +75,7 @@ namespace WearCast.Api.Common.Email
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "SellerApplicationApproved",
-                _webHostEnvironment.WebRootPath,
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
                     { "{{managerName}}", app.ManagerFirstName },
@@ -96,7 +96,7 @@ namespace WearCast.Api.Common.Email
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "SellerApplicationRejected",
-                _webHostEnvironment.WebRootPath,
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
                     { "{{managerName}}", app.ManagerFirstName },
