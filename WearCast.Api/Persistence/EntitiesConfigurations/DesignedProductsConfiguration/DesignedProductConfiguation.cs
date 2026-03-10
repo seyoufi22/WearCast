@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignedProductConfiguation : BaseModelConfiguration<DesignedProduct>
     {
@@ -17,7 +15,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
                    .HasMaxLength(200);
 
             builder.HasIndex(x => x.Slug)
-                   .IsUnique();
+                   .IsUnique()
+                   .HasFilter("[IsDeleted] = 0");
 
             builder.Property(x => x.Description)
                    .HasMaxLength(1000);
@@ -26,9 +25,18 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
                    .IsRequired()
                    .HasConversion<byte>();
 
-            builder.Property(x => x.Price).IsRequired();
-            builder.Property(x => x.CanvasWidth).IsRequired();
-            builder.Property(x => x.CanvasHeight).IsRequired();
+            builder.Property(x => x.Price)
+                   .HasColumnType("decimal(18,2)");
+
+            builder.HasOne(x => x.Factory)
+                   .WithMany(f => f.DesignedProducts)
+                   .HasForeignKey(x => x.FactoryId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(x => x.Category)
+                   .WithMany(c => c.DesignedProducts)
+                   .HasForeignKey(x => x.CategoryId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 

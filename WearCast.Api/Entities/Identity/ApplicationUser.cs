@@ -12,5 +12,11 @@
         public DateTime? ResetPasswordCodeExpiration { get; set; }
         public bool IsDisabled { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; } = [];
+
+        public Customer? Customer { get; set; }
+        public Driver? Driver { get; set; }
+        public SellerManager? SellerManager { get; set; }
+        public FactoryManager? FactoryManager { get; set; }
+        public ShippingCompanyManager? ShippingCompanyManager { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class CustomerDesignConfiguration : BaseModelConfiguration<CustomerDesign>
     {

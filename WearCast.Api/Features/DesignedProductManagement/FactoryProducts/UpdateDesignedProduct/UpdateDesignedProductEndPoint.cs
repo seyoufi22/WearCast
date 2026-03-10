@@ -1,0 +1,35 @@
+﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.UpdateDesignedProduct
+{
+    [Route("api/factory/products")]
+    [ApiController]
+    public class UpdateDesignedProductEndPoint(IMediator mediator) : ControllerBase
+    {
+        private readonly IMediator _mediator = mediator;
+        [HttpPost("{slug}")]
+        public async Task<IActionResult> Update([FromRoute] string slug, [FromBody] UpdateProductBody body, CancellationToken cancellationToken)
+        {
+            var request = new UpdateDesignedProductRequest(
+                slug,
+                body.Name,
+                body.Description,
+                body.TargetAudience,
+                body.Price,
+                body.CanvasWidth,
+                body.CanvasHeight,
+                body.CategoryId
+                );
+            var result = await mediator.Send(request, cancellationToken);
+
+            return result.ToResponse();
+        }
+    }
+    public record UpdateProductBody(
+        string Name,
+        string Description,
+        TargetAudience TargetAudience,
+        decimal Price,
+        int CanvasWidth,
+        int CanvasHeight,
+        int CategoryId
+        );
+}

@@ -1,12 +1,10 @@
-﻿
-using System.Security.Cryptography;
-using WearCast.Api.Entities.Identity;
+﻿using System.Security.Cryptography;
 using RefreshTokenEntity = WearCast.Api.Entities.Identity.RefreshToken;
 
 namespace WearCast.Api.Features.AuthenticationManagement.Login
 {
     public class LoginHandler(
-        UserManager<ApplicationUser>userManager,
+        UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IJwtProvider jwtProvider,
         ApplicationDbContext context
@@ -18,6 +16,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
         private readonly ApplicationDbContext _context = context;
 
         private readonly int _refreshTokenExpiryDays = 30;
+
         public async Task<Result<AuthResponse>> Handle(LoginRequest request, CancellationToken cancellationToken)
         {
             if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
@@ -32,10 +31,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             {
                 var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
 
-                var (token, expiresIn) = _jwtProvider.GenerateToken(user, userRoles, userPermissions);
+                var profileClaims = await GetProfileClaimsAsync(user.Id, userRoles, cancellationToken);
+
+                var (token, expiresIn) = _jwtProvider.GenerateToken(user, userRoles, userPermissions, profileClaims);
 
                 var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
                 var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
                 user.RefreshTokens.Add(new RefreshTokenEntity
@@ -50,6 +50,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
                 return Result.Success(response);
             }
+
             var error = result.IsNotAllowed
                 ? UserErrors.EmailNotConfirmed
                 : result.IsLockedOut
@@ -58,6 +59,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             return Result.Failure<AuthResponse>(error);
         }
+
         private async Task<(IEnumerable<string> roles, IEnumerable<string> permissions)> GetUserRolesAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
         {
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -71,6 +73,81 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
                                         .ToListAsync(cancellationToken);
 
             return (userRoles, userPermissions);
+        }
+
+        private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, IEnumerable<string> roles, CancellationToken cancellationToken)
+        {
+            var claims = new Dictionary<string, string>();
+
+            if (roles.Contains(DefaultRoles.Customer))
+            {
+                var customerId = await _context.Customers
+                    .Where(c => c.UserId == userId)
+                    .Select(c => (int?)c.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (customerId != null)
+                {
+                    claims.Add("CustomerId", customerId.ToString()!);
+                }
+            }
+
+            if (roles.Contains(DefaultRoles.Driver))
+            {
+                var driverId = await _context.Drivers
+                    .Where(d => d.UserId == userId)
+                    .Select(d => (int?)d.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (driverId != null)
+                {
+                    claims.Add("DriverId", driverId.ToString()!);
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.Factory))
+            {
+                var factoryManagerId = await _context.FactoryManagers
+                    .Where(fm => fm.UserId == userId)
+                    .Select(fm => (int?)fm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (factoryManagerId != null)
+                {
+                    claims.Add("FactoryManagerId", factoryManagerId.ToString());
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.Seller))
+            {
+                var sellerManagerId = await _context.SellerManagers
+                    .Where(sm => sm.UserId == userId)
+                    .Select(sm => (int?)sm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (sellerManagerId != null)
+                {
+                    claims.Add("SellerManagerId", sellerManagerId.ToString()!);
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.ShippingCompany))
+            {
+                var shippingCompanyManagerId = await _context.ShippingCompanyManagers
+                    .Where(scm => scm.UserId == userId)
+                    .Select(scm => (int?)scm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (shippingCompanyManagerId != null)
+                {
+                    claims.Add("ShippingCompanyManagerId", shippingCompanyManagerId.ToString()!);
+                }
+            }
+
+            return claims;
         }
     }
 }

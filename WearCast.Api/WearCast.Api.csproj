@@ -14,7 +14,7 @@
         <PackageReference Include="Hangfire.Core" Version="1.8.23" />
         <PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="8.0.0" />
         <PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
-        <PackageReference Include="MailKit" Version="4.14.1" />
+        <PackageReference Include="MailKit" Version="4.15.1" />
         <PackageReference Include="MediatR" Version="14.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
@@ -32,9 +32,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\DesignedProductManagement\FactoryProducts\" />
-      <Folder Include="Features\DesignedProductManagement\FactoryProductColors\" />
-      <Folder Include="Features\DesignedProductManagement\FactoryProductImages\" />
       <Folder Include="Features\DesignedProductManagement\FactoryAssets\" />
       <Folder Include="Features\DesignedProductManagement\CustomerCatalogAndWorkspace\" />
       <Folder Include="wwwroot\" />

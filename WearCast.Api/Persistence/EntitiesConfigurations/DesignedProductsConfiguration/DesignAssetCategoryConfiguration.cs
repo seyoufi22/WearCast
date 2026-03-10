@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignAssetCategoryConfiguration : BaseModelConfiguration<DesignAssetCategory>
     {
@@ -11,7 +9,9 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
             builder.Property(x => x.Slug).IsRequired().HasMaxLength(100);
 
-            builder.HasIndex(x => x.Slug).IsUnique();
+            builder.HasIndex(x => x.Slug)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
         }
     }
 }

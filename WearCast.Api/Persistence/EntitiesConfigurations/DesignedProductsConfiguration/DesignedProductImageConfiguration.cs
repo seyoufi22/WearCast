@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignedProductImageConfiguration : BaseModelConfiguration<DesignedProductImage>
     {
@@ -19,6 +17,10 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
                    .WithMany(c => c.Images)
                    .HasForeignKey(x => x.DesignedProductColorId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(x => new { x.DesignedProductColorId, x.ViewSide })
+                   .IsUnique()
+                   .HasFilter("[IsDeleted] = 0");
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignedProductColorConfiguration : BaseModelConfiguration<DesignedProductColor>
     {
@@ -24,7 +22,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
                   .IsRequired();
 
             builder.HasIndex(x => new { x.DesignedProductId, x.Slug })
-                   .IsUnique();
+                   .IsUnique()
+                   .HasFilter("[IsDeleted] = 0");
 
             builder.HasOne(x => x.DesignedProduct)
                    .WithMany(p => p.Colors)
