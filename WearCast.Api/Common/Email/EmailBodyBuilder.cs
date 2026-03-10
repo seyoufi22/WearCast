@@ -2,12 +2,12 @@
 {
     public static class EmailBodyBuilder
     {
-        public static string GenerateEmailBody(string template, Dictionary<string, string> templateModel)
+        public static string GenerateEmailBody(string template, string webRootPath, Dictionary<string, string> templateModel)
         {
-            var templatePath = $"{Directory.GetCurrentDirectory()}/Templates/{template}.html";
-            var streamReader = new StreamReader(templatePath);
+            var templatePath = Path.Combine(webRootPath, "Templates", $"{template}.html");
+
+            using var streamReader = new StreamReader(templatePath);
             var body = streamReader.ReadToEnd();
-            streamReader.Close();
 
             foreach (var item in templateModel)
             {
