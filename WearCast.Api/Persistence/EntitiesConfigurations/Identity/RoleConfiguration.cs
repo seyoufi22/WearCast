@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.Identity;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.Identity
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.Identity
 {
     public class RoleConfiguration : IEntityTypeConfiguration<ApplicationRole>
     {
@@ -28,24 +26,24 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.Identity
                 },
                 new ApplicationRole
                 {
-                    Id = DefaultRoles.SellerRoleId,
-                    Name = DefaultRoles.Seller,
-                    NormalizedName = DefaultRoles.Seller.ToUpper(),
-                    ConcurrencyStamp = DefaultRoles.SellerRoleConcurrencyStamp
+                    Id = DefaultRoles.SellerManagerRoleId,
+                    Name = DefaultRoles.SellerManager,
+                    NormalizedName = DefaultRoles.SellerManager.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.SellerManagerRoleConcurrencyStamp
                 },
                 new ApplicationRole
                 {
-                    Id = DefaultRoles.FactoryRoleId,
-                    Name = DefaultRoles.Factory,
-                    NormalizedName = DefaultRoles.Factory.ToUpper(),
-                    ConcurrencyStamp = DefaultRoles.FactoryRoleConcurrencyStamp
+                    Id = DefaultRoles.FactoryManagerRoleId,
+                    Name = DefaultRoles.FactoryManager,
+                    NormalizedName = DefaultRoles.FactoryManager.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.FactoryManagerRoleConcurrencyStamp
                 },
                 new ApplicationRole
                 {
-                    Id = DefaultRoles.ShippingCompanyRoleId,
-                    Name = DefaultRoles.ShippingCompany,
-                    NormalizedName = DefaultRoles.ShippingCompany.ToUpper(),
-                    ConcurrencyStamp = DefaultRoles.ShippingCompanyRoleConcurrencyStamp
+                    Id = DefaultRoles.ShippingCompanyManagerRoleId,
+                    Name = DefaultRoles.ShippingCompanyManager,
+                    NormalizedName = DefaultRoles.ShippingCompanyManager.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.ShippingCompanyManagerRoleConcurrencyStamp
                 },
                 new ApplicationRole
                 {

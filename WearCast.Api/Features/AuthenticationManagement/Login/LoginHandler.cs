@@ -72,5 +72,83 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             return (userRoles, userPermissions);
         }
+<<<<<<< Updated upstream
+=======
+
+        private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, IEnumerable<string> roles, CancellationToken cancellationToken)
+        {
+            var claims = new Dictionary<string, string>();
+
+            if (roles.Contains(DefaultRoles.Customer))
+            {
+                var customerId = await _context.Customers
+                    .Where(c => c.UserId == userId)
+                    .Select(c => (int?)c.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (customerId != null)
+                {
+                    claims.Add("CustomerId", customerId.ToString()!);
+                }
+            }
+
+            if (roles.Contains(DefaultRoles.Driver))
+            {
+                var driverId = await _context.Drivers
+                    .Where(d => d.UserId == userId)
+                    .Select(d => (int?)d.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (driverId != null)
+                {
+                    claims.Add("DriverId", driverId.ToString()!);
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.FactoryManager))
+            {
+                var factoryManagerId = await _context.FactoryManagers
+                    .Where(fm => fm.UserId == userId)
+                    .Select(fm => (int?)fm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (factoryManagerId != null)
+                {
+                    claims.Add("FactoryManagerId", factoryManagerId.ToString());
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.SellerManager))
+            {
+                var sellerManagerId = await _context.SellerManagers
+                    .Where(sm => sm.UserId == userId)
+                    .Select(sm => (int?)sm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (sellerManagerId != null)
+                {
+                    claims.Add("SellerManagerId", sellerManagerId.ToString()!);
+                }
+            }
+
+
+            if (roles.Contains(DefaultRoles.ShippingCompanyManager))
+            {
+                var shippingCompanyManagerId = await _context.ShippingCompanyManagers
+                    .Where(scm => scm.UserId == userId)
+                    .Select(scm => (int?)scm.Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (shippingCompanyManagerId != null)
+                {
+                    claims.Add("ShippingCompanyManagerId", shippingCompanyManagerId.ToString()!);
+                }
+            }
+
+            return claims;
+        }
+>>>>>>> Stashed changes
     }
 }

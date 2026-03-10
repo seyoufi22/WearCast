@@ -52,7 +52,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompany);
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompanyManager);
                 if (!roleResult.Succeeded)
                 {
                     await transaction.RollbackAsync(cancellationToken);
