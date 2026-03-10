@@ -29,11 +29,10 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             if (result.Succeeded)
             {
-                var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
+                var (role, userPermissions) = await GetUserRoleAndPermissions(user, cancellationToken);
+                var profileClaims = await GetProfileClaimsAsync(user.Id, role, cancellationToken);
 
-                var profileClaims = await GetProfileClaimsAsync(user.Id, userRoles, cancellationToken);
-
-                var (token, expiresIn) = _jwtProvider.GenerateToken(user, userRoles, userPermissions, profileClaims);
+                var (token, expiresIn) = _jwtProvider.GenerateToken(user, role, userPermissions, profileClaims);
 
                 var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
                 var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
@@ -60,115 +59,93 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             return Result.Failure<AuthResponse>(error);
         }
 
-        private async Task<(IEnumerable<string> roles, IEnumerable<string> permissions)> GetUserRolesAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
+        private async Task<(string role, IEnumerable<string> permissions)> GetUserRoleAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
         {
             var userRoles = await _userManager.GetRolesAsync(user);
+
+            var userRole = userRoles.FirstOrDefault() ?? string.Empty;
 
             var userPermissions = await (from r in _context.Roles
                                          join p in _context.RoleClaims
                                          on r.Id equals p.RoleId
-                                         where userRoles.Contains(r.Name!)
+                                         where r.Name == userRole
                                          select p.ClaimValue!)
                                         .Distinct()
                                         .ToListAsync(cancellationToken);
 
-            return (userRoles, userPermissions);
+            return (userRole, userPermissions);
         }
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Development
 
-        private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, IEnumerable<string> roles, CancellationToken cancellationToken)
+        private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, string role, CancellationToken cancellationToken)
         {
             var claims = new Dictionary<string, string>();
 
-            if (roles.Contains(DefaultRoles.Customer))
+            switch (role)
             {
-                var customerId = await _context.Customers
-                    .Where(c => c.UserId == userId)
-                    .Select(c => (int?)c.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
+                case DefaultRoles.Customer:
+                    var customerId = await _context.Customers
+                        .Where(c => c.UserId == userId)
+                        .Select(c => (int?)c.Id)
+                        .FirstOrDefaultAsync(cancellationToken);
 
-                if (customerId != null)
-                {
-                    claims.Add("CustomerId", customerId.ToString()!);
-                }
-            }
+                    if (customerId != null) claims.Add("CustomerId", customerId.ToString()!);
+                    break;
 
-            if (roles.Contains(DefaultRoles.Driver))
-            {
-                var driverId = await _context.Drivers
-                    .Where(d => d.UserId == userId)
-                    .Select(d => (int?)d.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
+                case DefaultRoles.Driver:
+                    var driverInfo = await _context.Drivers
+                        .Where(d => d.UserId == userId)
+                        .Select(d => new { d.Id, d.ShippingCompanyId })
+                        .FirstOrDefaultAsync(cancellationToken);
 
-                if (driverId != null)
-                {
-                    claims.Add("DriverId", driverId.ToString()!);
-                }
-            }
+                    if (driverInfo != null)
+                    {
+                        claims.Add("DriverId", driverInfo.Id.ToString());
+                        if (driverInfo.ShippingCompanyId != null)
+                            claims.Add("ShippingCompanyId", driverInfo.ShippingCompanyId.ToString()!);
+                    }
+                    break;
 
+                case DefaultRoles.FactoryManager:
+                    var factoryInfo = await _context.FactoryManagers
+                        .Where(fm => fm.UserId == userId)
+                        .Select(fm => new { fm.Id, fm.FactoryId })
+                        .FirstOrDefaultAsync(cancellationToken);
 
-<<<<<<< HEAD
-            if (roles.Contains(DefaultRoles.Factory))
-=======
-            if (roles.Contains(DefaultRoles.FactoryManager))
->>>>>>> Development
-            {
-                var factoryManagerId = await _context.FactoryManagers
-                    .Where(fm => fm.UserId == userId)
-                    .Select(fm => (int?)fm.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
+                    if (factoryInfo != null)
+                    {
+                        claims.Add("FactoryManagerId", factoryInfo.Id.ToString());
+                        claims.Add("FactoryId", factoryInfo.FactoryId.ToString());
+                    }
+                    break;
 
-                if (factoryManagerId != null)
-                {
-                    claims.Add("FactoryManagerId", factoryManagerId.ToString());
-                }
-            }
+                case DefaultRoles.SellerManager:
+                    var sellerInfo = await _context.SellerManagers
+                        .Where(sm => sm.UserId == userId)
+                        .Select(sm => new { sm.Id, sm.SellerId })
+                        .FirstOrDefaultAsync(cancellationToken);
 
+                    if (sellerInfo != null)
+                    {
+                        claims.Add("SellerManagerId", sellerInfo.Id.ToString());
+                        claims.Add("SellerId", sellerInfo.SellerId.ToString());
+                    }
+                    break;
 
-<<<<<<< HEAD
-            if (roles.Contains(DefaultRoles.Seller))
-=======
-            if (roles.Contains(DefaultRoles.SellerManager))
->>>>>>> Development
-            {
-                var sellerManagerId = await _context.SellerManagers
-                    .Where(sm => sm.UserId == userId)
-                    .Select(sm => (int?)sm.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
+                case DefaultRoles.ShippingCompanyManager:
+                    var shippingInfo = await _context.ShippingCompanyManagers
+                        .Where(scm => scm.UserId == userId)
+                        .Select(scm => new { scm.Id, scm.ShippingCompanyId })
+                        .FirstOrDefaultAsync(cancellationToken);
 
-                if (sellerManagerId != null)
-                {
-                    claims.Add("SellerManagerId", sellerManagerId.ToString()!);
-                }
-            }
-
-
-<<<<<<< HEAD
-            if (roles.Contains(DefaultRoles.ShippingCompany))
-=======
-            if (roles.Contains(DefaultRoles.ShippingCompanyManager))
->>>>>>> Development
-            {
-                var shippingCompanyManagerId = await _context.ShippingCompanyManagers
-                    .Where(scm => scm.UserId == userId)
-                    .Select(scm => (int?)scm.Id)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (shippingCompanyManagerId != null)
-                {
-                    claims.Add("ShippingCompanyManagerId", shippingCompanyManagerId.ToString()!);
-                }
+                    if (shippingInfo != null)
+                    {
+                        claims.Add("ShippingCompanyManagerId", shippingInfo.Id.ToString());
+                        claims.Add("ShippingCompanyId", shippingInfo.ShippingCompanyId.ToString());
+                    }
+                    break;
             }
 
             return claims;
         }
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> Development
     }
 }

@@ -12,7 +12,7 @@ namespace WearCast.Api.Authentication
 
         public (string token, int expiresIn) GenerateToken(
             ApplicationUser user,
-            IEnumerable<string> roles,
+            string role,
             IEnumerable<string> permissions,
             Dictionary<string, string>? profileClaims = null)
         {
@@ -23,7 +23,9 @@ namespace WearCast.Api.Authentication
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
                 new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(nameof(roles), JsonSerializer.Serialize(roles), JsonClaimValueTypes.JsonArray),
+
+                new Claim("role", role),
+
                 new Claim(nameof(permissions), JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray)
             };
 
