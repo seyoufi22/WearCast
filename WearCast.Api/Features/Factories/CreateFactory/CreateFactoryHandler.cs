@@ -53,7 +53,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Factory);
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.FactoryManager);
                 if (!roleResult.Succeeded)
                 {
                     await _imageService.DeleteAsync(factoryLogoUrl);

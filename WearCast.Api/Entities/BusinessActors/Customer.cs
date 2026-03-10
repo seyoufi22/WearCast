@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Entities.BusinessActors
+﻿namespace WearCast.Api.Entities.BusinessActors
 {
     public class Customer
     {
@@ -13,5 +11,8 @@ namespace WearCast.Api.Entities.BusinessActors
         public ApplicationUser? ApplicationUser { get; set; }
 
         public ICollection<CustomerDesign> Designs { get; set; } = [];
+
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
     }
 }

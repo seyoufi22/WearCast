@@ -74,6 +74,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             return (userRoles, userPermissions);
         }
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Development
 
         private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, IEnumerable<string> roles, CancellationToken cancellationToken)
         {
@@ -106,7 +111,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             }
 
 
+<<<<<<< HEAD
             if (roles.Contains(DefaultRoles.Factory))
+=======
+            if (roles.Contains(DefaultRoles.FactoryManager))
+>>>>>>> Development
             {
                 var factoryManagerId = await _context.FactoryManagers
                     .Where(fm => fm.UserId == userId)
@@ -120,7 +129,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             }
 
 
+<<<<<<< HEAD
             if (roles.Contains(DefaultRoles.Seller))
+=======
+            if (roles.Contains(DefaultRoles.SellerManager))
+>>>>>>> Development
             {
                 var sellerManagerId = await _context.SellerManagers
                     .Where(sm => sm.UserId == userId)
@@ -134,7 +147,11 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             }
 
 
+<<<<<<< HEAD
             if (roles.Contains(DefaultRoles.ShippingCompany))
+=======
+            if (roles.Contains(DefaultRoles.ShippingCompanyManager))
+>>>>>>> Development
             {
                 var shippingCompanyManagerId = await _context.ShippingCompanyManagers
                     .Where(scm => scm.UserId == userId)
@@ -149,5 +166,9 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             return claims;
         }
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> Development
     }
 }
