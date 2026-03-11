@@ -20,17 +20,17 @@
 
             foreach (var permission in Permissions.SellerPermissions)
             {
-                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.SellerRoleId));
+                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.SellerManagerRoleId));
             }
 
             foreach (var permission in Permissions.FactoryPermissions)
             {
-                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.FactoryRoleId));
+                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.FactoryManagerRoleId));
             }
 
             foreach (var permission in Permissions.ShippingCompanyPermissions)
             {
-                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.ShippingCompanyRoleId));
+                claims.Add(CreateClaim(idCounter++, permission, DefaultRoles.ShippingCompanyManagerRoleId));
             }
 
             foreach (var permission in Permissions.DriverPermissions)

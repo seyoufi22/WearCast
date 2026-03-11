@@ -6,7 +6,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
             builder.HasOne(c => c.ApplicationUser)
-                 .WithOne()
+                 .WithOne(u => u.Customer)
                  .HasForeignKey<Customer>(c => c.UserId)
                  .IsRequired()
                  .OnDelete(DeleteBehavior.Cascade);

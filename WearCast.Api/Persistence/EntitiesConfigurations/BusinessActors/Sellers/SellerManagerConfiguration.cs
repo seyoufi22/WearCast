@@ -5,9 +5,10 @@
         public void Configure(EntityTypeBuilder<SellerManager> builder)
         {
             builder.HasOne(sm => sm.ApplicationUser)
-                   .WithMany()
-                   .HasForeignKey(sm => sm.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                  .WithOne(u => u.SellerManager)
+                  .HasForeignKey<SellerManager>(sm => sm.UserId)
+                  .IsRequired()
+                  .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(sm => sm.Seller)
                    .WithMany(s => s.Managers)

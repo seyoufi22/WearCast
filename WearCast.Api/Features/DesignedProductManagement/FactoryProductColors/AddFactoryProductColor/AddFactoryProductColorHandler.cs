@@ -1,0 +1,65 @@
+﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.AddFactoryProductColor
+{
+    public class AddFactoryProductColorHandler(
+        ApplicationDbContext context,
+        IHttpContextAccessor httpContextAccessor
+        ) : IRequestHandler<AddFactoryProductColorRequest, Result<AddFactoryProductColorResponse>>
+    {
+        private readonly ApplicationDbContext _context = context;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
+        public async Task<Result<AddFactoryProductColorResponse>> Handle(AddFactoryProductColorRequest request, CancellationToken cancellationToken)
+        {
+            var user = _httpContextAccessor.HttpContext!.User;
+
+
+            var productInfo = await _context.DesignedProducts
+                 .Where(x => x.Slug == request.ProductSlug)
+                 .Select(x => new { x.Id, x.FactoryId })
+                 .FirstOrDefaultAsync(cancellationToken);
+
+            if (productInfo == null)
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(DesignedProductErrors.ProductNotFound);
+            }
+
+            if (user.IsSuperAdmin())
+            {
+                //No Action
+            }
+            else if (user.IsFactoryManager())
+            {
+                var factoryIdFromToken = user.GetFactoryId();
+
+                if (factoryIdFromToken == null)
+                {
+                    return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.NoAssociatedFactory);
+                }
+
+                if (productInfo.FactoryId != factoryIdFromToken.Value)
+                {
+                    return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
+                }
+            }
+            else
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
+            }
+
+            var colorSlug = request.Name.ToUniqueSlug();
+
+            var newProductColor = new DesignedProductColor
+            {
+                Name = request.Name,
+                HexCode = request.HexCode,
+                Slug = colorSlug,
+                DesignedProductId = productInfo.Id
+            };
+
+            _context.DesignedProductColors.Add(newProductColor);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(new AddFactoryProductColorResponse(colorSlug));
+        }
+    }
+}

@@ -2,19 +2,22 @@
 
 namespace WearCast.Api.Common.Email
 {
-    public class EmailHelper(IEmailSender emailSender)
+    public class EmailHelper(IEmailSender emailSender, IWebHostEnvironment webHostEnvironment)
     {
         private readonly IEmailSender _emailSender = emailSender;
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         public async Task SendConfirmationEmail(ApplicationUser user, string code)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation",
-           templateModel: new Dictionary<string, string>
-           {
-            { "{{name}}", $"{user.FirstName} {user.LastName}" },
-            { "{{code}}", code }
-           }
-        );
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "EmailConfirmation",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+                    { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                    { "{{code}}", code }
+                }
+            );
 
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 user.Email!,
@@ -24,13 +27,16 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+
         public async Task SendResetPasswordEmail(ApplicationUser user, string code)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("ForgetPassword",
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "ForgetPassword",
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
-            { "{{name}}", $"{user.FirstName} {user.LastName}" },
-            { "{{code}}", code }
+                    { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                    { "{{code}}", code }
                 }
             );
 
@@ -42,14 +48,17 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+
         public async Task SendConfirmationEmailForSellerManager(SellerApplication app, string code)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmationForSellerManager",
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "EmailConfirmationForSellerManager",
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
-            { "{{managerName}}", app.ManagerFirstName },
-            { "{{sellerName}}", app.SellerName },
-            { "{{code}}", code }
+                    { "{{managerName}}", app.ManagerFirstName },
+                    { "{{sellerName}}", app.SellerName },
+                    { "{{code}}", code }
                 }
             );
 
@@ -61,13 +70,16 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+
         public async Task SendSellerApplicationApprovedEmail(SellerApplication app)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("SellerApplicationApproved",
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "SellerApplicationApproved",
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
-            { "{{managerName}}", app.ManagerFirstName },
-            { "{{sellerName}}", app.SellerName }
+                    { "{{managerName}}", app.ManagerFirstName },
+                    { "{{sellerName}}", app.SellerName }
                 }
             );
 
@@ -79,14 +91,17 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+
         public async Task SendSellerApplicationRejectedEmail(SellerApplication app)
         {
-            var emailBody = EmailBodyBuilder.GenerateEmailBody("SellerApplicationRejected",
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "SellerApplicationRejected",
+                _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
-            { "{{managerName}}", app.ManagerFirstName },
-            { "{{sellerName}}", app.SellerName },
-            { "{{reason}}", app.RejectionReason ?? "No specific reason was provided. Please contact support for more details." }
+                    { "{{managerName}}", app.ManagerFirstName },
+                    { "{{sellerName}}", app.SellerName },
+                    { "{{reason}}", app.RejectionReason ?? "No specific reason was provided. Please contact support for more details." }
                 }
             );
 

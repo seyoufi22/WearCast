@@ -54,7 +54,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompany);
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompanyManager);
                 if (!roleResult.Succeeded)
                 {
                     await _imageService.DeleteAsync(companyLogoUrl);

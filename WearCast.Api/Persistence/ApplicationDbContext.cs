@@ -25,6 +25,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
     public DbSet<Entities.FixedProduct.Favourite> Favourites { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
+
+    public DbSet<DesignedProduct> DesignedProducts { get; set; }
+    public DbSet<DesignedProductColor> DesignedProductColors { get; set; }
+    public DbSet<DesignedProductImage> DesignedProductImages { get; set; }
+    public DbSet<DesignAsset> DesignAssets { get; set; }
+    public DbSet<DesignAssetCategory> DesignAssetCategories { get; set; }
+    public DbSet<CustomerDesign> CustomerDesigns { get; set; }
+    public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
+    public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
