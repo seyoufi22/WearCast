@@ -8,7 +8,7 @@
         int CanvasWidth,
         int CanvasHeight,
         int CategoryId,
-        int FactoryId
+        int? FactoryId
         ) : IRequest<Result<CreateDesignedProductResponse>>
     {
         public List<CreateProductSizeRequest> SizeDetails { get; init; } = [];

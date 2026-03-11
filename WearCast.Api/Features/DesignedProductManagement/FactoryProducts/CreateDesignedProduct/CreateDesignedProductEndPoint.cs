@@ -7,6 +7,7 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateDesignedProductRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);

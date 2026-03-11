@@ -14,6 +14,7 @@ global using WearCast.Api.Authentication.Filters;
 global using WearCast.Api.Common.Consts;
 global using WearCast.Api.Common.Email;
 global using WearCast.Api.Common.Enums;
+global using WearCast.Api.Common.Errors;
 global using WearCast.Api.Common.Extensions;
 global using WearCast.Api.Common.Handlers;
 global using WearCast.Api.Common.Repository;

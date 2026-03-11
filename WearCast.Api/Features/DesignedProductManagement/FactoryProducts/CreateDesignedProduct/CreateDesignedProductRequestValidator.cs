@@ -23,9 +23,6 @@
             RuleFor(x => x.CategoryId)
                 .GreaterThan(0).WithMessage("Category ID is required.");
 
-            RuleFor(x => x.FactoryId)
-                .GreaterThan(0).WithMessage("Factory ID is required.");
-
             RuleFor(x => x.TargetAudience)
                 .IsInEnum().WithMessage("Invalid target audience value.");
 

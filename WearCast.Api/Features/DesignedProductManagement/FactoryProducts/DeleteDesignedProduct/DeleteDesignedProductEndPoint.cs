@@ -5,6 +5,7 @@
     public class DeleteDesignedProductEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
+        [Authorize]
         [HttpDelete("{slug}")]
         public async Task<IActionResult> Delete([FromRoute] string slug, CancellationToken cancellationToken)
         {

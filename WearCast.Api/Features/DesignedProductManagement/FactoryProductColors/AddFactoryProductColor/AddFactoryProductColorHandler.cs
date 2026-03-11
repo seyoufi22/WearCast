@@ -1,21 +1,49 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.AddFactoryProductColor
 {
     public class AddFactoryProductColorHandler(
-        ApplicationDbContext context
+        ApplicationDbContext context,
+        IHttpContextAccessor httpContextAccessor
         ) : IRequestHandler<AddFactoryProductColorRequest, Result<AddFactoryProductColorResponse>>
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result<AddFactoryProductColorResponse>> Handle(AddFactoryProductColorRequest request, CancellationToken cancellationToken)
         {
-            var productId = await _context.DesignedProducts
-                 .Where(x => x.Slug == request.ProductSlug && !x.IsDeleted)
-                 .Select(x => (int?)x.Id)
+            var user = _httpContextAccessor.HttpContext!.User;
+
+
+            var productInfo = await _context.DesignedProducts
+                 .Where(x => x.Slug == request.ProductSlug)
+                 .Select(x => new { x.Id, x.FactoryId })
                  .FirstOrDefaultAsync(cancellationToken);
 
-            if (productId == null)
+            if (productInfo == null)
             {
                 return Result.Failure<AddFactoryProductColorResponse>(DesignedProductErrors.ProductNotFound);
+            }
+
+            if (user.IsSuperAdmin())
+            {
+                //No Action
+            }
+            else if (user.IsFactoryManager())
+            {
+                var factoryIdFromToken = user.GetFactoryId();
+
+                if (factoryIdFromToken == null)
+                {
+                    return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.NoAssociatedFactory);
+                }
+
+                if (productInfo.FactoryId != factoryIdFromToken.Value)
+                {
+                    return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
+                }
+            }
+            else
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
             }
 
             var colorSlug = request.Name.ToUniqueSlug();
@@ -25,7 +53,7 @@
                 Name = request.Name,
                 HexCode = request.HexCode,
                 Slug = colorSlug,
-                DesignedProductId = productId.Value
+                DesignedProductId = productInfo.Id
             };
 
             _context.DesignedProductColors.Add(newProductColor);

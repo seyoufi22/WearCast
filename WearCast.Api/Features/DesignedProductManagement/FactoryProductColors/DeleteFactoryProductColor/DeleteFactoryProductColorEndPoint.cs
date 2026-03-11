@@ -6,6 +6,7 @@
     {
         private readonly IMediator _mediator = mediator;
 
+        [Authorize]
         [HttpDelete("{productSlug}/colors/{colorSlug}")]
         public async Task<IActionResult> Delete(
             [FromRoute] string productSlug,

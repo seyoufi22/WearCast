@@ -6,7 +6,8 @@
         {
             CreateMap<UpdateDesignedProductRequest, DesignedProduct>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.Slug, opt => opt.Ignore());
+                .ForMember(dest => dest.Slug, opt => opt.Ignore())
+                .ForMember(dest => dest.FactoryId, opt => opt.Ignore());
         }
     }
 }

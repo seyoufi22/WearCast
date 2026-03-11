@@ -5,6 +5,7 @@
     public class UpdateDesignedProductEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
+        [Authorize]
         [HttpPost("{slug}")]
         public async Task<IActionResult> Update([FromRoute] string slug, [FromBody] UpdateProductBody body, CancellationToken cancellationToken)
         {

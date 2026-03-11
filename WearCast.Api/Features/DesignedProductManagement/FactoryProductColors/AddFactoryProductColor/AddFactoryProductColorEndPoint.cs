@@ -5,6 +5,7 @@
     public class AddFactoryProductColorEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
+        [Authorize]
         [HttpPost("{productSlug}/colors")]
         public async Task<IActionResult> Add([FromRoute] string productSlug, [FromBody] CreateFactoryProductColorBody body, CancellationToken cancellationToken)
         {

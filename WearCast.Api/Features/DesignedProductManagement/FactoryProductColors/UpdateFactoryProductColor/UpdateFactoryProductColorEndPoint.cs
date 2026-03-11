@@ -5,6 +5,7 @@
     public class UpdateFactoryProductColorEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
+        [Authorize]
         [HttpPut("{productSlug}/colors/{colorSlug}")]
         public async Task<IActionResult> Update(
             [FromRoute] string productSlug,
