@@ -18,10 +18,14 @@ public class GetAllFavouritesByCustomerIdEndpoint : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("{customerId}")]
-    public async Task<IActionResult> GetAllByCustomerId([FromRoute] int customerId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 100, CancellationToken cancellationToken = default)
+    [HttpGet]
+    public async Task<IActionResult> GetAllByCustomerId([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 100, CancellationToken cancellationToken = default)
     {
-        var result = await _sender.Send(new GetAllFavouritesByCustomerIdQuery(customerId, pageIndex, pageSize), cancellationToken);
+        var customerId = HttpContext.User.GetCustomerId();
+        if (customerId == null)
+            return Unauthorized("User is not a valid customer.");
+
+        var result = await _sender.Send(new GetAllFavouritesByCustomerIdQuery(customerId.Value, pageIndex, pageSize), cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }

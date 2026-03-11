@@ -22,9 +22,11 @@ public class AddNewFavouriteItemEndpoint : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddNewFavouriteItem([FromBody] AddNewFavouriteItemRequestDto request, CancellationToken cancellationToken = default)
     {
-        // Typically, you might extract CustomerId from the User claims, 
-        // but since the task specifies using the request values:
-        var result = await _sender.Send(new AddNewFavouriteItemCommand(request.CustomerId, request.FixedProductColorId), cancellationToken);
+        var customerId = HttpContext.User.GetCustomerId();
+        if (customerId == null)
+            return Unauthorized("User is not a valid customer.");
+
+        var result = await _sender.Send(new AddNewFavouriteItemCommand(customerId.Value, request.FixedProductColorId), cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }

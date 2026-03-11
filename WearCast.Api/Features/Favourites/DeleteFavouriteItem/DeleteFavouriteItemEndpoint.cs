@@ -22,7 +22,11 @@ public class DeleteFavouriteItemEndpoint : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteFavouriteItem([FromBody] DeleteFavouriteItemRequestDto request, CancellationToken cancellationToken = default)
     {
-        var result = await _sender.Send(new DeleteFavouriteItemCommand(request.CustomerId, request.FixedProductColorId), cancellationToken);
+        var customerId = HttpContext.User.GetCustomerId();
+        if (customerId == null)
+            return Unauthorized("User is not a valid customer.");
+
+        var result = await _sender.Send(new DeleteFavouriteItemCommand(customerId.Value, request.FixedProductColorId), cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
