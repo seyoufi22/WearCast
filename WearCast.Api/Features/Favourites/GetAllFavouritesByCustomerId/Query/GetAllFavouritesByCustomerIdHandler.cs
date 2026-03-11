@@ -28,7 +28,6 @@ public class GetAllFavouritesByCustomerIdHandler : IRequestHandler<GetAllFavouri
 
         var projectedQuery = query.Select(f => new FavouriteItemDto
         {
-            CustomerId = f.CustomerId,
             FixedProductColorId = f.FixedProductColorId,
             ProductId = f.FixedProductColor.ProductId,
             ProductName = f.FixedProductColor.Product.Name,

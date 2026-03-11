@@ -2,7 +2,6 @@ namespace WearCast.Api.Features.Favourites.GetAllFavouritesByCustomerId.DTOs;
 
 public class FavouriteItemDto
 {
-    public int CustomerId { get; set; }
     public int FixedProductColorId { get; set; }
     public int ProductId { get; set; }
     public string ProductName { get; set; }
