@@ -7,12 +7,12 @@
             builder.HasOne(shm => shm.ApplicationUser)
                  .WithMany()
                  .HasForeignKey(shm => shm.UserId)
-                 .OnDelete(DeleteBehavior.Cascade);
+                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(shm => shm.ShippingCompany)
                    .WithMany(sh => sh.Managers)
                    .HasForeignKey(shm => shm.ShippingCompanyId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

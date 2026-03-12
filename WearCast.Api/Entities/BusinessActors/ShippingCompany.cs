@@ -22,9 +22,6 @@ namespace WearCast.Api.Entities.BusinessActors
 
         public ICollection<ShippingCompanyManager> Managers { get; set; } = new List<ShippingCompanyManager>();
         public ICollection<Driver> Drivers { get; set; } = new List<Driver>();
-
-        public string UserId { get; set; }
-        public ApplicationUser? ApplicationUser { get; set; }
         public List<Shipment> Shipments { get; set; } = new List<Shipment>();
 
     }

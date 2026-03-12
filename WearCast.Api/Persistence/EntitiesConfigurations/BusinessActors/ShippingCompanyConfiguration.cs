@@ -6,11 +6,6 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
         public void Configure(EntityTypeBuilder<ShippingCompany> builder)
         {
             builder.HasKey(c => c.Id);
-            builder.HasOne(sh => sh.ApplicationUser)
-                 .WithOne()
-                 .HasForeignKey<ShippingCompany>(sh => sh.UserId)
-                 .IsRequired()
-                 .OnDelete(DeleteBehavior.Cascade);
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
 
             builder.Property(x => x.Email).IsRequired().HasMaxLength(256);

@@ -11,7 +11,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
                  .WithOne()
                  .HasForeignKey<Driver>(d => d.UserId)
                  .IsRequired()
-                 .OnDelete(DeleteBehavior.Cascade);
+                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(d => d.ShippingCompany)
                    .WithMany(c => c.Drivers)

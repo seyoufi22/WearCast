@@ -8,6 +8,7 @@
         public int? DriverId { get; set; }
         public Driver? Driver { get; set; } = default;
 
+        public ShipmentStatus ShipmentStatus { get; set; } = ShipmentStatus.UnAssigned;
         public int? ShippingCompanyId { get; set; }
         public ShippingCompany? ShippingCompany { get; set; } = default!;
 
