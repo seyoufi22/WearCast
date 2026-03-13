@@ -1,38 +1,61 @@
 ﻿using WearCast.Api.Features.DesignedProductManagement.FactoryProductColors;
+// متنساش مسار الـ Errors بتاعتك
 
 namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.AddFactoryProductImage
 {
     public class AddFactoryProductImageHandler(
         ApplicationDbContext context,
-        ImageService imageService) : IRequestHandler<AddFactoryProductImageRequest, Result>
+        ImageService imageService,
+        IHttpContextAccessor httpContextAccessor
+        ) : IRequestHandler<AddFactoryProductImageRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ImageService _imageService = imageService;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result> Handle(AddFactoryProductImageRequest request, CancellationToken cancellationToken)
         {
-            var colorId = await _context.DesignedProductColors
-                .Where(c => c.Slug == request.ColorSlug)
-                .Select(c => (int?)c.Id)
+            var user = _httpContextAccessor.HttpContext!.User;
+
+            var isSuperAdmin = user.IsSuperAdmin();
+            var userFactoryId = user.GetFactoryId();
+
+            var colorData = await _context.DesignedProductColors
+                .Where(c => c.Id == request.ColorId)
+                .Select(c => new
+                {
+                    FactoryId = c.DesignedProduct.FactoryId,
+
+                    SideAlreadyExists = c.Images.Any(i => i.ViewSide == request.ViewSide)
+                })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (colorId == null)
+            if (colorData == null)
+            {
                 return Result.Failure(FactoryProductColorErrors.ColorNotFound);
+            }
 
-            var sideAlreadyExists = await _context.Set<DesignedProductImage>()
-                .AnyAsync(i =>
-                    i.DesignedProductColorId == colorId.Value &&
-                    i.ViewSide == request.ViewSide,
-                cancellationToken);
+            if (!isSuperAdmin && colorData.FactoryId != userFactoryId)
+            {
+                return Result.Failure(AuthErrors.Forbidden);
+            }
 
-            if (sideAlreadyExists)
+            if (colorData.SideAlreadyExists)
+            {
                 return Result.Failure(FactoryProductImageErrors.ImageSideAlreadyExists);
+            }
 
+            var imageUrl = await _imageService.UploadAsync(request.Image);
+
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                return Result.Failure(new Error("Image.UploadFailed", "Failed to upload the image.", StatusCodes.Status500InternalServerError));
+            }
 
             var productImage = new DesignedProductImage
             {
-                DesignedProductColorId = colorId.Value,
-                ImageUrl = await _imageService.UploadAsync(request.Image),
+                DesignedProductColorId = request.ColorId,
+                ImageUrl = imageUrl,
                 ViewSide = request.ViewSide
             };
 

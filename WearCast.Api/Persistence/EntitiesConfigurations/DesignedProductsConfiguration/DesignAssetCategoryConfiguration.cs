@@ -7,9 +7,8 @@
             base.Configure(builder);
 
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            builder.Property(x => x.Slug).IsRequired().HasMaxLength(100);
 
-            builder.HasIndex(x => x.Slug)
+            builder.HasIndex(x => x.Name)
                 .IsUnique()
                 .HasFilter("[IsDeleted] = 0");
         }

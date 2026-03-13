@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignAssetConfiguration : BaseModelConfiguration<DesignAsset>
     {
@@ -8,8 +6,19 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
         {
             base.Configure(builder);
 
-            builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            builder.Property(x => x.ImageUrl).IsRequired();
+            builder.Property(x => x.Name)
+                   .IsRequired()
+                   .HasMaxLength(150);
+
+            builder.Property(x => x.ImageUrl)
+                   .IsRequired()
+                   .HasMaxLength(1000);
+
+            builder.Property(x => x.WidthPx)
+                   .IsRequired();
+
+            builder.Property(x => x.HeightPx)
+                   .IsRequired();
 
             builder.HasOne(x => x.DesignAssetCategory)
                    .WithMany(c => c.Assets)

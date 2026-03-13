@@ -6,10 +6,10 @@
     {
         private readonly IMediator _mediator = mediator;
         [Authorize]
-        [HttpDelete("{slug}")]
-        public async Task<IActionResult> Delete([FromRoute] string slug, CancellationToken cancellationToken)
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> Delete([FromRoute] int Id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new DeleteDesignedProductRequest(slug), cancellationToken);
+            var result = await _mediator.Send(new DeleteDesignedProductRequest(Id), cancellationToken);
 
             return result.ToResponse();
         }

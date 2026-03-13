@@ -15,7 +15,7 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
             var product = await _context.DesignedProducts
-                .FirstOrDefaultAsync(x => x.Slug == request.CurrentSlug, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (product == null)
                 return Result.Failure(DesignedProductErrors.ProductNotFound);
@@ -41,11 +41,6 @@
             else
             {
                 return Result.Failure(AuthErrors.Forbidden);
-            }
-
-            if (product.Name != request.Name)
-            {
-                product.Slug = request.Name.ToUniqueSlug();
             }
 
             _mapper.Map(request, product);

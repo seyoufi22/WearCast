@@ -5,10 +5,10 @@
     public class AddFactoryProductSizeEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        [HttpPost("{productSlug}/sizes")]
-        public async Task<IActionResult> Add([FromRoute] string productSlug, [FromBody] AddFactoryProductSizeBody body, CancellationToken cancellationToken)
+        [HttpPost("{productId}/sizes")]
+        public async Task<IActionResult> Add([FromRoute] int productId, [FromBody] AddFactoryProductSizeBody body, CancellationToken cancellationToken)
         {
-            var request = new AddFactoryProductSizeRequest(productSlug, body.Size, body.A, body.B, body.C);
+            var request = new AddFactoryProductSizeRequest(body.Size, body.A, body.B, body.C, productId);
 
             var result = await mediator.Send(request, cancellationToken);
 

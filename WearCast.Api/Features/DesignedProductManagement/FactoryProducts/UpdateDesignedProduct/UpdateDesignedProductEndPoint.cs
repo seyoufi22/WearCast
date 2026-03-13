@@ -6,11 +6,11 @@
     {
         private readonly IMediator _mediator = mediator;
         [Authorize]
-        [HttpPost("{slug}")]
-        public async Task<IActionResult> Update([FromRoute] string slug, [FromBody] UpdateProductBody body, CancellationToken cancellationToken)
+        [HttpPost("{Id}")]
+        public async Task<IActionResult> Update([FromRoute] int Id, [FromBody] UpdateProductBody body, CancellationToken cancellationToken)
         {
             var request = new UpdateDesignedProductRequest(
-                slug,
+                Id,
                 body.Name,
                 body.Description,
                 body.TargetAudience,

@@ -6,13 +6,13 @@
     {
         private readonly IMediator _mediator = mediator;
 
-        [HttpPost("{colorSlug}/images")]
+        [HttpPost("{colorId}/images")]
         public async Task<IActionResult> Add(
-            [FromRoute] string colorSlug,
+            [FromRoute] int colorId,
             [FromForm] AddFactoryProductImageForm form,
             CancellationToken cancellationToken)
         {
-            var request = new AddFactoryProductImageRequest(colorSlug, form.Image, form.ViewSide);
+            var request = new AddFactoryProductImageRequest(colorId, form.Image, form.ViewSide);
             var result = await _mediator.Send(request, cancellationToken);
 
             return result.ToResponse();

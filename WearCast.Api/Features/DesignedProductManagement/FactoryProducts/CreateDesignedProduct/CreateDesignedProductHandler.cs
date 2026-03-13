@@ -54,7 +54,7 @@
             _context.DesignedProducts.Add(product);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new CreateDesignedProductResponse(product.Slug));
+            return Result.Success(new CreateDesignedProductResponse(product.Id));
         }
     }
 }

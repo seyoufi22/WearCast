@@ -1,17 +1,13 @@
 ﻿namespace WearCast.Api.Common.Services
 {
-    public class ImageService
+    public class ImageService(IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, ILogger<ImageService> logger)
     {
-        private readonly IWebHostEnvironment _environment;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebHostEnvironment _environment = environment;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly ILogger<ImageService> _logger = logger;
 
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png" };
 
-        public ImageService(IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
-        {
-            _environment = environment;
-            _httpContextAccessor = httpContextAccessor;
-        }
 
         public (bool IsValid, string ErrorMessage) Validate(IFormFile file)
         {
@@ -31,23 +27,32 @@
             if (file is null || file.Length == 0)
                 return null;
 
-            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-            var uploadsFolder = Path.Combine(webRootPath, "uploads");
+            try
+            {
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+                var uploadsFolder = Path.Combine(webRootPath, "uploads");
 
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
 
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                var uniqueFileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            using var stream = new FileStream(filePath, FileMode.Create);
-            await file.CopyToAsync(stream);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
 
-            var request = _httpContextAccessor.HttpContext!.Request;
-            var baseUrl = $"{request.Scheme}://{request.Host}";
+                var request = _httpContextAccessor.HttpContext!.Request;
+                var baseUrl = $"{request.Scheme}://{request.Host}";
 
-            return $"{baseUrl}/uploads/{uniqueFileName}";
+                return $"{baseUrl}/uploads/{uniqueFileName}";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save the image {FileName} to the disk.", file.FileName);
+
+                return null;
+            }
         }
         public async Task<bool> DeleteAsync(string? fileUrl)
         {

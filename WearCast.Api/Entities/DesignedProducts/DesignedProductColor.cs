@@ -3,7 +3,6 @@
     public class DesignedProductColor : BaseModel
     {
         public string Name { get; set; } = string.Empty;     // مثلاً: أسود غامق
-        public string Slug { get; set; } = string.Empty;     // مثلاً: black
         public string HexCode { get; set; } = string.Empty;  // مثلاً: #000000
 
 

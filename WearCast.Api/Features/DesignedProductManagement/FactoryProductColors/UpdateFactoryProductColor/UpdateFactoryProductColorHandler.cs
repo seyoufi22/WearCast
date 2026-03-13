@@ -16,7 +16,7 @@
 
 
             var queryResult = await _context.DesignedProductColors
-                .Where(x => x.Slug == request.CurrentColorSlug && x.DesignedProduct.Slug == request.ProductSlug)
+                .Where(x => x.Id == request.ColorId && x.DesignedProduct.Id == request.ProductId)
                 .Select(x => new
                 {
                     Color = x,
@@ -55,12 +55,8 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
-            if (color.Name != request.Name)
-            {
-                color.Slug = request.Name.ToUniqueSlug();
-            }
-
-            _mapper.Map(request, color);
+            color.Name = request.Name;
+            color.HexCode = request.HexCode;
 
             await _context.SaveChangesAsync(cancellationToken);
 
