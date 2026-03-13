@@ -26,7 +26,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
-    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

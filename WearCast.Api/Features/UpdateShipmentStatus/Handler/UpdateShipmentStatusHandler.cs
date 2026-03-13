@@ -1,4 +1,5 @@
-﻿using WearCast.Api.Features.UpdateShipmentStatus.DTOs;
+﻿using System.Security.Claims;
+using WearCast.Api.Features.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.UpdateShipmentStatus.Handler
 {
@@ -25,6 +26,9 @@ namespace WearCast.Api.Features.UpdateShipmentStatus.Handler
             }
 
             //bool isAdmin = request.UserRole == "Admin" ;
+            //var U=User.F
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             bool isAdmin = true;
             bool isAssignedDriver = shipment.Driver != null && shipment.Driver.UserId == request.UserId;
 

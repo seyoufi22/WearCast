@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.CategoryFeatures.GetAllCategory.DTOs;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
+using WearCast.Api.Features.Shipments.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.GetAllShipments
 {
@@ -20,7 +20,7 @@ namespace WearCast.Api.Features.Shipments.GetAllShipments
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            var result = await _sender.Send(new GetAllCategoryRequestDto(), cancellationToken);
+            var result = await _sender.Send(new GetAllShipmentsRequestDTO(), cancellationToken);
 
             return Ok(result);
         }

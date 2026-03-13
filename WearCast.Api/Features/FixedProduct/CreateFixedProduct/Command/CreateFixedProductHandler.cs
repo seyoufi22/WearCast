@@ -12,12 +12,12 @@ namespace WearCast.Api.Features.FixedProduct.CreateProduct.Command;
 public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductRequestDto, Result<CreateFixedProductResponseDto>>
 {
     private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
-    private readonly IRepository<Category> _categoryRepo;
+    private readonly IRepository<Entities.Category> _categoryRepo;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public CreateFixedProductHandler(
         IRepository<Entities.FixedProduct.FixedProduct> productRepo,
-        IRepository<Category> categoryRepo,
+        IRepository<Entities.Category> categoryRepo,
         UserManager<ApplicationUser> userManager)
     {
         _productRepo = productRepo;
