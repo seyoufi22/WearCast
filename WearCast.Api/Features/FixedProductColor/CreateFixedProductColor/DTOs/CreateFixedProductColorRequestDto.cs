@@ -94,10 +94,6 @@ public class CreateFixedProductColorValidator : AbstractValidator<CreateFixedPro
                 size.RuleFor(s => s.Size)
                     .IsInEnum()
                     .WithMessage("One or more selected sizes are invalid.");
-
-                size.RuleFor(s => s.Quantity)
-                    .GreaterThan(0)
-                    .WithMessage("Quantity must be greater than 0.");
             });
     }
 }

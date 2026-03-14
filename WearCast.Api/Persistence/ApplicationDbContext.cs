@@ -34,6 +34,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CustomerDesign> CustomerDesigns { get; set; }
     public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
     public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
