@@ -5,33 +5,33 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>cbdda91b-6a65-4ffb-ab2e-0c45ea2e7f49</UserSecretsId>
-    </PropertyGroup>
-
+	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="16.1.0" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
-		<PackageReference Include="Hangfire.Core" Version="1.8.23" />
-		<PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="8.0.0" />
-		<PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
-		<PackageReference Include="MailKit" Version="4.15.1" />
-		<PackageReference Include="MediatR" Version="14.1.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="MimeKit" Version="4.15.1" />
-		<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.4" />
-	</ItemGroup>
-	
+			<PackageReference Include="AutoMapper" Version="16.1.0" />
+			<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+			<PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
+			<PackageReference Include="Hangfire.Core" Version="1.8.23" />
+			<PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="8.0.0" />
+			<PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
+			<PackageReference Include="MailKit" Version="4.15.1" />
+			<PackageReference Include="MediatR" Version="14.1.0" />
+			<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
+			<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+			<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+			<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+			<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
+			<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+				<PrivateAssets>all</PrivateAssets>
+				<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			</PackageReference>
+			<PackageReference Include="MimeKit" Version="4.15.1" />
+			<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+			<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
+			<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.4" />
+		</ItemGroup>
     <ItemGroup>
+      <Folder Include="Features\DesignedProductManagement\FactoryAssets\" />
+      <Folder Include="Features\DesignedProductManagement\CustomerCatalogAndWorkspace\" />
       <Folder Include="wwwroot\" />
       <Folder Include="wwwroot\uploads\" />
     </ItemGroup>

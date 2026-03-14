@@ -1,9 +1,13 @@
-﻿namespace WearCast.Api.Entities
+﻿
+
+namespace WearCast.Api.Entities
 {
     public class Category : BaseModel
     {
-        public string Name { get; set; }    
+        public string Name { get; set; }
         public string ImageUrl { get; set; }
         public ICollection<FixedProduct.FixedProduct> Products { get; set; }
+
+        public ICollection<DesignedProduct> DesignedProducts { get; set; } = [];
     }
 }

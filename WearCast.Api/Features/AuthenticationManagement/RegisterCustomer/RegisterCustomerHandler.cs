@@ -89,6 +89,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
                 await _imageService.DeleteAsync(profileImageUrl);
 
+                _logger.LogError(ex, "Registration failed");
 
                 _logger.LogError(ex, "An error occurred while registering the customer: {Email}", request.Email);
 
@@ -101,6 +102,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
             }
             catch (Exception ex)
             {
+
                 _logger.LogWarning(ex, "Customer registered but failed to send confirmation email to {Email}", request.Email);
             }
 

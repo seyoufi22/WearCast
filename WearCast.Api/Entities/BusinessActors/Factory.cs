@@ -16,6 +16,8 @@
         public string LogoUrl { get; set; } = string.Empty;
 
         public Address Address { get; set; } = new Address();
-        public ICollection<FactoryManager> Managers { get; set; } = new List<FactoryManager>();
+        public ICollection<FactoryManager> Managers { get; set; } = [];
+
+        public ICollection<DesignedProduct> DesignedProducts { get; set; } = [];
     }
 }

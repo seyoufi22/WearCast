@@ -6,10 +6,10 @@
 
         public const string EgyptianPhoneNumber = @"^01[0125][0-9]{8}$";
 
-        // السجل التجاري (أرقام فقط، من 6 إلى 20 رقم)
         public const string CommercialRegisterNumber = @"^\d{6,20}$";
 
-        // البطاقة الضريبية (9 أرقام بالضبط)
         public const string TaxIdNumber = @"^\d{9}$";
+
+        public const string HexColorCode = @"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
     }
 }
