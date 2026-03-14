@@ -29,6 +29,12 @@ public class FixedProductConfiguration : BaseModelConfiguration<Entities.FixedPr
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(p => p.Seller)
+            .WithMany(s => s.FixedProducts)
+            .HasForeignKey(p => p.SellerId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.OwnsMany(p => p.SizeDetails, a =>
         {
             a.ToJson();
