@@ -26,8 +26,11 @@
             return (true, string.Empty);
         }
 
-        public async Task<string> UploadAsync(IFormFile file)
+        public async Task<string?> UploadAsync(IFormFile? file)
         {
+            if (file is null || file.Length == 0)
+                return null;
+
             var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
             var uploadsFolder = Path.Combine(webRootPath, "uploads");
 
@@ -46,21 +49,30 @@
 
             return $"{baseUrl}/uploads/{uniqueFileName}";
         }
-
-        public async Task<bool> DeleteAsync(string fileUrl)
+        public async Task<bool> DeleteAsync(string? fileUrl)
         {
             if (string.IsNullOrEmpty(fileUrl))
-                throw new ArgumentException("File URL is required.");
+                return true;
 
-            var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
+            try
+            {
+                var webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
 
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
-            var filePath = Path.Combine(webRootPath, "uploads", fileName);
+                var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
+                var filePath = Path.Combine(webRootPath, "uploads", fileName);
 
-            if (!File.Exists(filePath)) return false;
+                if (File.Exists(filePath))
+                {
+                    await Task.Run(() => File.Delete(filePath));
+                    return true;
+                }
 
-            await Task.Run(() => File.Delete(filePath));
-            return true;
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

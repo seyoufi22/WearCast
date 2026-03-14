@@ -21,28 +21,20 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
         public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerRequest request, CancellationToken cancellationToken)
         {
-            var emailIsExists = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+            var existingUser = await _userManager.Users
+                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
+                 .Select(x => new { x.Email, x.PhoneNumber })
+                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (emailIsExists)
-                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
-
-            var phoneNumberIsExists = await _userManager.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken);
-
-            if (phoneNumberIsExists)
-                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
-
-            string? profileImageUrl = null;
-            if (request.ProfileImage != null)
+            if (existingUser != null)
             {
-                var (isValid, errorMessage) = _imageService.Validate(request.ProfileImage);
-                if (!isValid)
-                {
-                    return Result.Failure<RegisterCustomerResponse>(new Error("Image.Invalid", errorMessage, StatusCodes.Status400BadRequest));
-                }
+                if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
 
-                profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
+                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
+            var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
 
             var user = _mapper.Map<ApplicationUser>(request);
 
@@ -58,6 +50,8 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
                 if (!createUserResult.Succeeded)
                 {
+                    await _imageService.DeleteAsync(profileImageUrl);
+
                     var error = createUserResult.Errors.First();
 
                     return Result.Failure<RegisterCustomerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
@@ -67,42 +61,50 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
                 if (!roleResult.Succeeded)
                 {
+                    await transaction.RollbackAsync(cancellationToken);
+
+                    await _imageService.DeleteAsync(profileImageUrl);
+
                     var error = roleResult.Errors.First();
 
                     return Result.Failure<RegisterCustomerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var customer = new Customer
-                {
-                    UserId = user.Id,
-                    ProfileImageUrl = profileImageUrl
-                };
+                var customer = _mapper.Map<Customer>(request);
+
+                customer.UserId = user.Id;
+                customer.ProfileImageUrl = profileImageUrl;
 
                 await _context.Customers.AddAsync(customer, cancellationToken);
 
                 await _context.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
-
-                await _emailHelper.SendConfirmationEmail(user, code);
-
-                return Result.Success(new RegisterCustomerResponse(user.Id));
             }
 
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
 
-                if (!string.IsNullOrEmpty(profileImageUrl))
-                {
-                    await _imageService.DeleteAsync(profileImageUrl);
-                }
+
+                await _imageService.DeleteAsync(profileImageUrl);
+
 
                 _logger.LogError(ex, "An error occurred while registering the customer: {Email}", request.Email);
 
                 return Result.Failure<RegisterCustomerResponse>(new Error("Registration.Failed", "An error occurred while registering the customer.", StatusCodes.Status500InternalServerError));
             }
 
+            try
+            {
+                await _emailHelper.SendConfirmationEmail(user, code);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Customer registered but failed to send confirmation email to {Email}", request.Email);
+            }
+
+            return Result.Success(new RegisterCustomerResponse(user.Id));
 
         }
     }

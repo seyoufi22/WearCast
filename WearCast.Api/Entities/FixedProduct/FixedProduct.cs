@@ -9,6 +9,8 @@ public class FixedProduct : BaseModel
     public TargetAudience TargetAudience { get; set; }
 
     public Category Category { get; set; }
+    public int SellerId { get; set; }
+    public BusinessActors.Seller Seller { get; set; }
     public ICollection<FixedProductColor> Colors { get; set; }
     public ICollection<ProductSizeDetail> SizeDetails { get; set; } = new List<ProductSizeDetail>();
 }

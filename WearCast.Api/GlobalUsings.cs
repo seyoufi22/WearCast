@@ -18,6 +18,7 @@ global using WearCast.Api.Common.Extensions;
 global using WearCast.Api.Common.Handlers;
 global using WearCast.Api.Common.Repository;
 global using WearCast.Api.Common.Services;
+global using WearCast.Api.Common.Validators;
 global using WearCast.Api.Common.ValueObjects;
 global using WearCast.Api.Entities;
 global using WearCast.Api.Entities.BusinessActors;

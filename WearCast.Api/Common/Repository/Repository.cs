@@ -33,15 +33,21 @@ public class Repository<T> : IRepository<T> where T : BaseModel, new()
         }
         return await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
     }
-    
-    public async Task<T> GetAsync(Expression<Func<T, bool>>filter,  bool useNoTracking = false)
+
+    public IQueryable<T> Get(bool withDeleted = false)
+    {
+        if (withDeleted)
+            return _dbSet.AsQueryable();
+        return _dbSet.Where(e => !e.IsDeleted).AsQueryable();
+    }
+    public async Task<T> GetAsync(Expression<Func<T, bool>> filter, bool useNoTracking = false)
     {
         if (!useNoTracking)
             return await _dbSet.Where(filter).FirstOrDefaultAsync();
-        else 
+        else
             return await _dbSet.AsNoTracking().Where(filter).FirstOrDefaultAsync();
     }
-    
+
     public async Task<T> UpdateAsync(T dbRecord)
     {
         _context.Update(dbRecord);
