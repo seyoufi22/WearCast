@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace WearCast.Api.Persistence;
@@ -42,6 +43,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        var softDeletableEntities = modelBuilder.Model.GetEntityTypes()
+        .Where(e => typeof(ISoftDeletable).IsAssignableFrom(e.ClrType) && e.BaseType == null);
+
+        foreach (var entity in softDeletableEntities)
+        {
+            var parameter = Expression.Parameter(entity.ClrType, "e");
+            var property = Expression.Property(parameter, nameof(ISoftDeletable.IsDeleted));
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(property, falseConstant);
+            var lambda = Expression.Lambda(condition, parameter);
+
+            modelBuilder.Entity(entity.ClrType).HasQueryFilter(lambda);
+        }
 
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

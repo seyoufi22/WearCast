@@ -1,25 +1,42 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductSizes.UpdateFactoryProductSize
 {
     public class UpdateFactoryProductSizeHandler(
-        ApplicationDbContext context
+        ApplicationDbContext context,
+        IHttpContextAccessor httpContextAccessor
         ) : IRequestHandler<UpdateFactoryProductSizeRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result> Handle(UpdateFactoryProductSizeRequest request, CancellationToken cancellationToken)
         {
-            var sizeDetails = await _context.DesignedProductSizeDetails
-                .FirstOrDefaultAsync(x =>
-                    x.Size == request.Size &&
-                    x.DesignedProduct.Slug == request.ProductSlug,
-                cancellationToken);
+            var user = _httpContextAccessor.HttpContext!.User;
 
-            if (sizeDetails == null)
+            var isSuperAdmin = user.IsSuperAdmin();
+            var userFactoryId = user.GetFactoryId();
+
+            var data = await _context.DesignedProductSizeDetails
+                .Where(x => x.Id == request.Id)
+                .Select(x => new
+                {
+                    SizeEntity = x,
+                    FactoryId = x.DesignedProduct.FactoryId
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (data == null)
+            {
                 return Result.Failure(SizeErrors.SizeNotFound);
+            }
 
-            sizeDetails.A = request.A;
-            sizeDetails.B = request.B;
-            sizeDetails.C = request.C;
+            if (!isSuperAdmin && (userFactoryId == null || data.FactoryId != userFactoryId.Value))
+            {
+                return Result.Failure(AuthErrors.Forbidden);
+            }
+
+            data.SizeEntity.A = request.A;
+            data.SizeEntity.B = request.B;
+            data.SizeEntity.C = request.C;
 
             await _context.SaveChangesAsync(cancellationToken);
 

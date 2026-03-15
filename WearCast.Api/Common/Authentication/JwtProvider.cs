@@ -24,7 +24,7 @@ namespace WearCast.Api.Authentication
                 new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
-                new Claim("role", role),
+                new Claim(ClaimTypes.Role, role),
 
                 new Claim(nameof(permissions), JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray)
             };

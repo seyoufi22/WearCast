@@ -4,8 +4,9 @@
     {
         public DeleteFactoryProductColorRequestValidator()
         {
-            RuleFor(x => x.ProductSlug).NotEmpty().WithMessage("Product slug is required.");
-            RuleFor(x => x.CurrentColorSlug).NotEmpty().WithMessage("Color slug is required.");
+            RuleFor(x => x.ColorId)
+                .GreaterThan(0).WithMessage("Invalid Color Id.");
+
         }
     }
 }

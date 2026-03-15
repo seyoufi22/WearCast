@@ -1,4 +1,4 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.DeleteDesignedProduct
 {
-    public record DeleteDesignedProductRequest(string Slug) : IRequest<Result>;
+    public record DeleteDesignedProductRequest(int Id) : IRequest<Result>;
 }
