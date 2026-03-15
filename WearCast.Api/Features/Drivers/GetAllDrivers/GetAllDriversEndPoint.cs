@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
-using WearCast.Api.Features.FixedProduct.GetFixedProductById.DTOs;
+﻿using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers
 {
-    [Route("api/[controller]")]
+   
     [ApiController]
+    [Tags("Drivers")]
+    [Route("api/Drivers/GetAll")]
     public class GetAllDriversEndPoint : ControllerBase
     {
         private readonly ISender _sender;

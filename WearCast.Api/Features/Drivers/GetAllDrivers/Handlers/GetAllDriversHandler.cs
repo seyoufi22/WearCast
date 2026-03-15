@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
-using MediatR;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
 {
@@ -18,17 +17,17 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
             CancellationToken cancellationToken)
         {
             var drivers = await _context.Drivers
+                .AsNoTracking()
                 .Where(d => d.ApplicationUser != null && d.ApplicationUser.IsDisabled == false)
                 .Select(d => new GetAllDriversResponseDTO
                 {
                     Id = d.Id,
                     DriverName = d.ApplicationUser!.FirstName + " " + d.ApplicationUser.LastName,
                     VehicleType = d.VehicleType,
-                    VehiclePlateNumber = d.VehiclePlateNumber,
-                    ShipmentsCount = d.Shipments.Count(),
+                    ShipmentsCount = d.Shipments.Count(s => s.ShipmentStatus != ShipmentStatus.Delivered),
                     Status = d.Status
                 })
-                .ToListAsync(cancellationToken); 
+                .ToListAsync(cancellationToken);
             return drivers;
         }
     }
