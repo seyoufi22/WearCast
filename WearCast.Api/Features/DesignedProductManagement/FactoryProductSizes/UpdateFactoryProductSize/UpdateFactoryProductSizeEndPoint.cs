@@ -1,18 +1,20 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductSizes.UpdateFactoryProductSize
 {
-    [Route("api/factory/products")]
+    [Route("api/factory/product-sizes")]
     [ApiController]
     public class UpdateFactoryProductSizeEndPoint(IMediator mediator) : ControllerBase
     {
-        [HttpPut("{productSlug}/sizes/{size}")]
+        private readonly IMediator _mediator = mediator;
+
+        [HttpPut("{Id:int}")]
         public async Task<IActionResult> Update(
-            [FromRoute] string productSlug,
-            [FromRoute] Size size,
+            [FromRoute] int Id,
             [FromBody] UpdateFactoryProductSizeBody body,
             CancellationToken cancellationToken)
         {
-            var request = new UpdateFactoryProductSizeRequest(productSlug, size, body.A, body.B, body.C);
-            var result = await mediator.Send(request, cancellationToken);
+            var request = new UpdateFactoryProductSizeRequest(Id, body.A, body.B, body.C);
+
+            var result = await _mediator.Send(request, cancellationToken);
 
             return result.ToResponse();
         }

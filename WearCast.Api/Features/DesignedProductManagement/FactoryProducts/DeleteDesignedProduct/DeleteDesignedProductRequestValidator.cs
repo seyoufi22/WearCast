@@ -4,8 +4,8 @@
     {
         public DeleteDesignedProductRequestValidator()
         {
-            RuleFor(x => x.Slug)
-                .NotEmpty().WithMessage("Product slug is required.");
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Invalid Product Id.");
         }
     }
 }

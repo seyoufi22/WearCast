@@ -1,17 +1,15 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.DeleteFactoryProductImage
 {
-    [Route("api/factory/product-colors")]
     [ApiController]
-    public class DeleteFactoryProductImageEndPoint(IMediator mediator) : ControllerBase
+    [Route("api/factory/product-images")]
+    public class DeleteFactoryProductImageController(IMediator mediator) : ControllerBase
     {
-        [HttpDelete("{colorSlug}/images/{imageId}")]
-        public async Task<IActionResult> Delete(
-            [FromRoute] string colorSlug,
-            [FromRoute] int imageId,
-            CancellationToken cancellationToken)
+        private readonly IMediator _mediator = mediator;
+
+        [HttpDelete("{imageId:int}")]
+        public async Task<IActionResult> DeleteImage(int imageId, CancellationToken cancellationToken)
         {
-            var request = new DeleteFactoryProductImageRequest(colorSlug, imageId);
-            var result = await mediator.Send(request, cancellationToken);
+            var result = await _mediator.Send(new DeleteFactoryProductImageRequest(imageId), cancellationToken);
 
             return result.ToResponse();
         }

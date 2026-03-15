@@ -1,9 +1,11 @@
 ﻿namespace WearCast.Api.Entities.Identity
 {
-    public sealed class ApplicationUser : IdentityUser
+    public sealed class ApplicationUser : IdentityUser, ISoftDeletable
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
+
+        public bool IsDeleted { get; set; }
 
         public string? EmailConfirmationCode { get; set; }
         public DateTime? EmailConfirmationCodeExpiration { get; set; }

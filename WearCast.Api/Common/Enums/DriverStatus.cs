@@ -2,7 +2,7 @@
 {
     public enum DriverStatus
     {
-        Available,
-        NotAvailable
+        Available = 1,
+        NotAvailable = 2
     }
 }

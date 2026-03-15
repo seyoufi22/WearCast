@@ -6,18 +6,18 @@
     {
         private readonly IMediator _mediator = mediator;
         [Authorize]
-        [HttpPut("{productSlug}/colors/{colorSlug}")]
+        [HttpPut("{productId}/colors/{colorId}")]
         public async Task<IActionResult> Update(
-            [FromRoute] string productSlug,
-            [FromRoute] string colorSlug,
+            [FromRoute] int productId,
+            [FromRoute] int colorId,
             [FromBody] UpdateFactoryProductColorBody body,
             CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new UpdateFactoryProductColorRequest(
-                productSlug,
-                colorSlug,
+                colorId,
                 body.Name,
-                body.HexCode), cancellationToken);
+                body.HexCode,
+                productId), cancellationToken);
 
             return result.ToResponse();
 

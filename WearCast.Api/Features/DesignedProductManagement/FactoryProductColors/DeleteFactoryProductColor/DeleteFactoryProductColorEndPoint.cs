@@ -7,13 +7,12 @@
         private readonly IMediator _mediator = mediator;
 
         [Authorize]
-        [HttpDelete("{productSlug}/colors/{colorSlug}")]
+        [HttpDelete("colors/{colorId}")]
         public async Task<IActionResult> Delete(
-            [FromRoute] string productSlug,
-            [FromRoute] string colorSlug,
+            [FromRoute] int colorId,
             CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new DeleteFactoryProductColorRequest(productSlug, colorSlug), cancellationToken);
+            var result = await _mediator.Send(new DeleteFactoryProductColorRequest(colorId), cancellationToken);
 
             return result.ToResponse();
         }

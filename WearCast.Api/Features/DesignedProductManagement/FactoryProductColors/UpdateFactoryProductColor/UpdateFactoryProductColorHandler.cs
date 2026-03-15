@@ -2,21 +2,18 @@
 {
     public class UpdateFactoryProductColorHandler(
         ApplicationDbContext context,
-        IMapper mapper,
         IHttpContextAccessor httpContextAccessor
         ) : IRequestHandler<UpdateFactoryProductColorRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IMapper _mapper = mapper;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result> Handle(UpdateFactoryProductColorRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
-
             var queryResult = await _context.DesignedProductColors
-                .Where(x => x.Slug == request.CurrentColorSlug && x.DesignedProduct.Slug == request.ProductSlug)
+                .Where(x => x.Id == request.ColorId && x.DesignedProductId == request.ProductId)
                 .Select(x => new
                 {
                     Color = x,
@@ -55,12 +52,18 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
-            if (color.Name != request.Name)
+            var isHexUsedByOtherColor = await _context.DesignedProductColors
+                .AnyAsync(x => x.DesignedProductId == request.ProductId &&
+                               x.HexCode == request.HexCode &&
+                               x.Id != request.ColorId, cancellationToken);
+
+            if (isHexUsedByOtherColor)
             {
-                color.Slug = request.Name.ToUniqueSlug();
+                return Result.Failure(FactoryProductColorErrors.ColorAlreadyExists);
             }
 
-            _mapper.Map(request, color);
+            color.Name = request.Name;
+            color.HexCode = request.HexCode;
 
             await _context.SaveChangesAsync(cancellationToken);
 

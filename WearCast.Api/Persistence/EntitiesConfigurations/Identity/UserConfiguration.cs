@@ -28,6 +28,29 @@
                 .WithOwner()
                 .HasForeignKey("UserId");
 
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
+
+            var seedUsers = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    Id = DefaultUsers.SuperAdminId,
+                    FirstName = "WearCast",
+                    LastName = "SuperAdmin",
+                    UserName = DefaultUsers.SuperAdminEmail,
+                    NormalizedUserName = DefaultUsers.SuperAdminEmail.ToUpper(),
+                    Email = DefaultUsers.SuperAdminEmail,
+                    NormalizedEmail = DefaultUsers.SuperAdminEmail.ToUpper(),
+                    PhoneNumber = "01000000001",
+                    PhoneNumberConfirmed = true,
+                    SecurityStamp = DefaultUsers.SuperAdminSecurityStamp,
+                    ConcurrencyStamp = DefaultUsers.SuperAdminConcurrencyStamp,
+                    EmailConfirmed = true,
+                    PasswordHash = passwordHasher.HashPassword(null!, DefaultUsers.SuperAdminPassword)
+                }
+            };
+
+            builder.HasData(seedUsers);
         }
     }
 }

@@ -15,7 +15,7 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
             var product = await _context.DesignedProducts
-                .FirstOrDefaultAsync(x => x.Slug == request.CurrentSlug, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (product == null)
                 return Result.Failure(DesignedProductErrors.ProductNotFound);
@@ -43,9 +43,12 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
-            if (product.Name != request.Name)
+            var categoryExists = await _context.Categories
+                .AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+
+            if (!categoryExists)
             {
-                product.Slug = request.Name.ToUniqueSlug();
+                return Result.Failure(new("Category.NotFound", "The specified category was not found.", StatusCodes.Status404NotFound));
             }
 
             _mapper.Map(request, product);
