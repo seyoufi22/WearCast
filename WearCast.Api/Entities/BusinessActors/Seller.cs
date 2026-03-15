@@ -22,5 +22,6 @@
 
         public ICollection<SellerManager> Managers { get; set; } = new List<SellerManager>();
 
+        public ICollection<FixedProduct.FixedProduct> FixedProducts { get; set; } = new List<FixedProduct.FixedProduct>();
     }
 }
