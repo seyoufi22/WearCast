@@ -2,6 +2,7 @@
 
 public class GetCartItemResponseDto
 {
+    public int IdCartItem { get; set; }
     public int IdProduct { get; set; }
     public int IdProductColor { get; set; }
     public string ProductName { get; set; }

@@ -2,17 +2,23 @@
 
 namespace WearCast.Api.Features.CartManagment.DeleteCartItem;
 
-public class DeleteCartItemHandler(ApplicationDbContext context)
-    : IRequestHandler<DeleteCartItemCommand, bool>
+public class DeleteCartItemHandler(IRepository<CartItem> _cartItemRepository)
+    : IRequestHandler<DeleteCartItemCommand, Result>
 {
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<bool> Handle(DeleteCartItemCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeleteCartItemCommand command, CancellationToken cancellationToken)
     {
-        await _context.CartItems
-            .Where(c => c.CustomerId == command.CustomerId && c.ColorId == command.ColorId)
-            .ExecuteDeleteAsync(cancellationToken);
+        var cartItem = await _cartItemRepository.GetAsync(
+            c => c.Id == command.CartItemId,
+            useNoTracking: true);
 
-        return true;
+        if (cartItem is null)
+            return Result.Failure(new Error("Cart.NotFound", "Item not found", 404));
+
+        if (cartItem.CustomerId != command.CustomerId)
+            return Result.Failure(AuthErrors.Forbidden);
+
+        await _cartItemRepository.HardDeleteAsync(cartItem);
+
+        return Result.Success();
     }
 }

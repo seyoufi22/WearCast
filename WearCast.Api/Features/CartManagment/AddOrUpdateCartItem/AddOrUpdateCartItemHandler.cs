@@ -1,29 +1,32 @@
-﻿namespace WearCast.Api.Features.CartManagment.AddOrUpdateCartItem;
+﻿using WearCast.Api.Features.CartManagment.AddOrUpdateCartItem.DTOs;
+namespace WearCast.Api.Features.CartManagment.AddOrUpdateCartItem;
 
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WearCast.Api.Entities;
-using WearCast.Api.Features.CartManagment.AddOrUpdateCartItem.DTOs;
-
-
-public class AddOrUpdateCartItemHandler(ApplicationDbContext context)
-    : IRequestHandler<AddOrUpdateCartItemCommand, bool>
+public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepository, IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository)
+    : IRequestHandler<AddOrUpdateCartItemCommand, Result>
 {
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<bool> Handle(AddOrUpdateCartItemCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddOrUpdateCartItemCommand command, CancellationToken cancellationToken)
     {
-        var cartItem = await _context.CartItems
-            .Include(c => c.Sizes)
-            .FirstOrDefaultAsync(c =>
-                c.ColorId == command.Request.ColorId &&
-                c.CustomerId == command.CustomerId,
-                cancellationToken);
+        var color = await _colorRepository.Get()
+         .Include(c => c.Sizes)
+         .FirstOrDefaultAsync(c => c.Id == command.Request.ColorId && !c.IsDeleted, cancellationToken);
+
+        if (color == null)
+            return Result.Failure(new Error("Color.NotFound", "The specified color does not exist.", 404));
+
+        if (!color.Sizes.Any(s => s.Size == command.Request.Size))
+            return Result.Failure(new Error("Color.SizeUnavailable", "This size is not available for this product.", 400));
+
+        var cartItem = await _cartItemRepository.Get()
+        .Include(c => c.Sizes)
+        .FirstOrDefaultAsync(c =>
+            c.ColorId == command.Request.ColorId &&
+            c.CustomerId == command.CustomerId,
+            cancellationToken);
 
         if (cartItem == null)
         {
             if (command.Request.Quantity <= 0)
-                return true;
+                return Result.Success();
 
             cartItem = new CartItem
             {
@@ -33,20 +36,22 @@ public class AddOrUpdateCartItemHandler(ApplicationDbContext context)
 
             cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
 
-            await _context.CartItems.AddAsync(cartItem, cancellationToken);
+            await _cartItemRepository.CreateAsync(cartItem);
         }
-        else 
+        else
         {
             cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
 
             if (!cartItem.Sizes.Any())
             {
-                _context.CartItems.Remove(cartItem);
+                await _cartItemRepository.HardDeleteAsync(cartItem);
+            }
+            else
+            {
+                await _cartItemRepository.UpdateAsync(cartItem);
             }
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return true;
+        return Result.Success();
     }
 }

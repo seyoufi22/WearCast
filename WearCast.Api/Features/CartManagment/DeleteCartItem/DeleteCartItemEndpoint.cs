@@ -9,19 +9,22 @@ namespace WearCast.Api.Features.CartManagment.DeleteCartItem;
 public class DeleteCartItemEndpoint(ISender sender) : ControllerBase
 {
 
-    [HttpDelete("DeleteCartItem/{colorId}")]
+    [HttpDelete("DeleteCartItem/{CartItemId}")]
     [Authorize] 
-    public async Task<IActionResult> DeleteCartItem(int colorId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteCartItem(int CartItemId, CancellationToken cancellationToken)
     {
         var customerId = User.FindFirstValue("CustomerId");
 
         if (string.IsNullOrEmpty(customerId))
             return Unauthorized();
 
-        var command = new DeleteCartItemCommand(colorId, int.Parse(customerId));
+        var command = new DeleteCartItemCommand(CartItemId, int.Parse(customerId));
 
-        await sender.Send(command, cancellationToken);
-
+        var result = await sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
         return Ok();
     }
 }
