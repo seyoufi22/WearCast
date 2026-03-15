@@ -46,6 +46,13 @@
                 return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
             }
 
+            var colorExists = await _context.DesignedProductColors
+                .AnyAsync(c => c.DesignedProductId == request.ProductId && c.HexCode == request.HexCode, cancellationToken);
+
+            if (colorExists)
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(FactoryProductColorErrors.ColorAlreadyExists);
+            }
 
             var newProductColor = new DesignedProductColor
             {

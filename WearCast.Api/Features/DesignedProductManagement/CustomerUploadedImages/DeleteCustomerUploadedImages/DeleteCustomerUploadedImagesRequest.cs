@@ -1,6 +1,4 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.CustomerUploadedImages.DeleteCustomerUploadedImages
 {
-    public class DeleteCustomerUploadedImagesRequest
-    {
-    }
+    public record DeleteCustomerUploadedImagesRequest(int Id) : IRequest<Result>;
 }

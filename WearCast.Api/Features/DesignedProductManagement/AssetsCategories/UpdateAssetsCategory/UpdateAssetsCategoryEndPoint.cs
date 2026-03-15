@@ -7,6 +7,7 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAssetsCategoryBody body, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new UpdateAssetsCategoryRequest(id, body.Name), cancellationToken);

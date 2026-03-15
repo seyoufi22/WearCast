@@ -5,6 +5,8 @@
         public UpdateCustomerUploadedImageRequestValidator()
         {
             RuleFor(x => x.Id)
+                .GreaterThan(0)
+                .WithMessage("Invalid Image Id.");
 
             RuleFor(x => x.Image)
                 .NotNull()

@@ -21,7 +21,7 @@
                 .GreaterThan(0).WithMessage("Canvas height must be a valid positive number.");
 
             RuleFor(x => x.CategoryId)
-                .GreaterThan(0).WithMessage("Category ID is required.");
+                .GreaterThan(0).WithMessage("Invalid Category ID .");
 
             RuleFor(x => x.TargetAudience)
                 .IsInEnum().WithMessage("Invalid target audience value.");

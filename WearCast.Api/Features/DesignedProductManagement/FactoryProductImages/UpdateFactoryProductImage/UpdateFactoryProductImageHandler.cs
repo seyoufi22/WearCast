@@ -4,13 +4,13 @@
         ApplicationDbContext context,
         ImageService imageService,
         IHttpContextAccessor httpContextAccessor
-        ) : IRequestHandler<UpdateFactoryProductImageRequest, Result>
+        ) : IRequestHandler<UpdateFactoryProductImageRequest, Result<FactoryProductImagesResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ImageService _imageService = imageService;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-        public async Task<Result> Handle(UpdateFactoryProductImageRequest request, CancellationToken cancellationToken)
+        public async Task<Result<FactoryProductImagesResponse>> Handle(UpdateFactoryProductImageRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
@@ -28,10 +28,10 @@
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (data == null)
-                return Result.Failure(FactoryProductImageErrors.ImageNotFound);
+                return Result.Failure<FactoryProductImagesResponse>(FactoryProductImageErrors.ImageNotFound);
 
             if (!isSuperAdmin && data.FactoryId != userFactoryId)
-                return Result.Failure(AuthErrors.Forbidden);
+                return Result.Failure<FactoryProductImagesResponse>(AuthErrors.Forbidden);
 
             if (data.Entity.ViewSide != request.ViewSide)
             {
@@ -42,7 +42,7 @@
                     cancellationToken);
 
                 if (sideAlreadyExists)
-                    return Result.Failure(FactoryProductImageErrors.ImageSideAlreadyExists);
+                    return Result.Failure<FactoryProductImagesResponse>(FactoryProductImageErrors.ImageSideAlreadyExists);
 
                 data.Entity.ViewSide = request.ViewSide;
             }
@@ -51,7 +51,7 @@
             {
                 var newImageUrl = await _imageService.UploadAsync(request.Image);
                 if (string.IsNullOrEmpty(newImageUrl))
-                    return Result.Failure(new Error("Image.UploadFailed", "Failed to upload image", 500));
+                    return Result.Failure<FactoryProductImagesResponse>(new Error("Image.UploadFailed", "Failed to upload image", 500));
 
                 await _imageService.DeleteAsync(data.Entity.ImageUrl);
                 data.Entity.ImageUrl = newImageUrl;
@@ -59,7 +59,7 @@
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success();
+            return Result.Success(new FactoryProductImagesResponse(data.Entity.Id));
         }
     }
 }

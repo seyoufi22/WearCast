@@ -1,9 +1,7 @@
 ﻿namespace WearCast.Api.Entities.DesignedProducts
 {
-    public class CustomerDesign : BaseModel
+    public class CustomerDesign : BaseModel, ISoftDeletable
     {
-        public string Name { get; set; } = string.Empty;
-
         public string ViewDesignsJson { get; set; } = string.Empty;
 
         public int CustomerId { get; set; }

@@ -7,6 +7,7 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpPost("{colorId}/images")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Add(
             [FromRoute] int colorId,
             [FromForm] AddFactoryProductImageForm form,

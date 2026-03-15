@@ -8,6 +8,7 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpPut("{Id:int}")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update([FromRoute] int Id, [FromForm] UpdateCustomerUploadedImageForm form, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new UpdateCustomerUploadedImageRequest(Id, form.Image), cancellationToken);

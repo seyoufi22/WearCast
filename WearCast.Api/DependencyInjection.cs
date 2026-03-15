@@ -145,6 +145,7 @@ namespace WearCast.Api
 
             var jwtSettings = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -161,9 +162,7 @@ namespace WearCast.Api
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
                         ValidIssuer = jwtSettings?.Issuer,
-                        ValidAudience = jwtSettings?.Audience,
-
-                        RoleClaimType = "role"
+                        ValidAudience = jwtSettings?.Audience
                     };
                 });
 

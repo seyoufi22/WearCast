@@ -35,6 +35,7 @@
             {
                 var factoryIdFromToken = user.GetFactoryId();
 
+
                 if (factoryIdFromToken == null)
                 {
                     return Result.Failure<CreateDesignedProductResponse>(AuthErrors.NoAssociatedFactory);

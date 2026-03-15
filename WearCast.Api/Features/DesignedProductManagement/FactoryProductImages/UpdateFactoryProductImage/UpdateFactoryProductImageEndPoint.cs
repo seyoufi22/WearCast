@@ -7,6 +7,7 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpPut("{imageId:int}")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Update(
             [FromRoute] int imageId,
             [FromForm] UpdateDesignedProductImageForm form,

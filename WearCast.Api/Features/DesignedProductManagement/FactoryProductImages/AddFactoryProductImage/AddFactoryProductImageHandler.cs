@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.DesignedProductManagement.FactoryProductColors;
-// متنساش مسار الـ Errors بتاعتك
 
 namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.AddFactoryProductImage
 {
@@ -7,13 +6,13 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.A
         ApplicationDbContext context,
         ImageService imageService,
         IHttpContextAccessor httpContextAccessor
-        ) : IRequestHandler<AddFactoryProductImageRequest, Result>
+        ) : IRequestHandler<AddFactoryProductImageRequest, Result<FactoryProductImagesResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ImageService _imageService = imageService;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-        public async Task<Result> Handle(AddFactoryProductImageRequest request, CancellationToken cancellationToken)
+        public async Task<Result<FactoryProductImagesResponse>> Handle(AddFactoryProductImageRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
@@ -32,24 +31,24 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.A
 
             if (colorData == null)
             {
-                return Result.Failure(FactoryProductColorErrors.ColorNotFound);
+                return Result.Failure<FactoryProductImagesResponse>(FactoryProductColorErrors.ColorNotFound);
             }
 
             if (!isSuperAdmin && colorData.FactoryId != userFactoryId)
             {
-                return Result.Failure(AuthErrors.Forbidden);
+                return Result.Failure<FactoryProductImagesResponse>(AuthErrors.Forbidden);
             }
 
             if (colorData.SideAlreadyExists)
             {
-                return Result.Failure(FactoryProductImageErrors.ImageSideAlreadyExists);
+                return Result.Failure<FactoryProductImagesResponse>(FactoryProductImageErrors.ImageSideAlreadyExists);
             }
 
             var imageUrl = await _imageService.UploadAsync(request.Image);
 
             if (string.IsNullOrEmpty(imageUrl))
             {
-                return Result.Failure(new Error("Image.UploadFailed", "Failed to upload the image.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<FactoryProductImagesResponse>(new Error("Image.UploadFailed", "Failed to upload the image.", StatusCodes.Status500InternalServerError));
             }
 
             var productImage = new DesignedProductImage
@@ -62,7 +61,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.A
             _context.DesignedProductImages.Add(productImage);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success();
+            return Result.Success(new FactoryProductImagesResponse(productImage.Id));
         }
     }
 }

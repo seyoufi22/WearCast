@@ -17,7 +17,7 @@
             }
             var category = new DesignAssetCategory
             {
-                Name = request.Name
+                Name = normalizedName
             };
 
             _context.DesignAssetCategories.Add(category);

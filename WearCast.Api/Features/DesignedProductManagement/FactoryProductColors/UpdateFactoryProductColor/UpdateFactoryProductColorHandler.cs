@@ -2,21 +2,18 @@
 {
     public class UpdateFactoryProductColorHandler(
         ApplicationDbContext context,
-        IMapper mapper,
         IHttpContextAccessor httpContextAccessor
         ) : IRequestHandler<UpdateFactoryProductColorRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IMapper _mapper = mapper;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result> Handle(UpdateFactoryProductColorRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
-
             var queryResult = await _context.DesignedProductColors
-                .Where(x => x.Id == request.ColorId && x.DesignedProduct.Id == request.ProductId)
+                .Where(x => x.Id == request.ColorId && x.DesignedProductId == request.ProductId)
                 .Select(x => new
                 {
                     Color = x,
@@ -53,6 +50,16 @@
             else
             {
                 return Result.Failure(AuthErrors.Forbidden);
+            }
+
+            var isHexUsedByOtherColor = await _context.DesignedProductColors
+                .AnyAsync(x => x.DesignedProductId == request.ProductId &&
+                               x.HexCode == request.HexCode &&
+                               x.Id != request.ColorId, cancellationToken);
+
+            if (isHexUsedByOtherColor)
+            {
+                return Result.Failure(FactoryProductColorErrors.ColorAlreadyExists);
             }
 
             color.Name = request.Name;

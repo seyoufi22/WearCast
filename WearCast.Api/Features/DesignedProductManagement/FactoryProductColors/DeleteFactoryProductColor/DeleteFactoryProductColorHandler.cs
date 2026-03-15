@@ -13,7 +13,7 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
             var queryResult = await _context.DesignedProductColors
-               .Where(x => x.Id == request.ColorId && x.DesignedProduct.Id == request.ProductId)
+               .Where(x => x.Id == request.ColorId)
                .Select(x => new
                {
                    Color = x,

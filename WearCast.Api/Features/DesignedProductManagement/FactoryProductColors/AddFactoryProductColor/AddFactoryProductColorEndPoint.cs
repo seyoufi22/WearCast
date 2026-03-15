@@ -7,7 +7,6 @@
         private readonly IMediator _mediator = mediator;
         [Authorize]
         [HttpPost("{productId}/colors")]
-        [HttpPost("{productId}/colors")]
         public async Task<IActionResult> Add([FromRoute] int productId, [FromBody] CreateFactoryProductColorBody body, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new AddFactoryProductColorRequest(productId, body.Name, body.HexCode), cancellationToken);

@@ -4,5 +4,5 @@
          int ColorId,
          IFormFile Image,
          ViewSide ViewSide
-     ) : IRequest<Result>;
+     ) : IRequest<Result<FactoryProductImagesResponse>>;
 }

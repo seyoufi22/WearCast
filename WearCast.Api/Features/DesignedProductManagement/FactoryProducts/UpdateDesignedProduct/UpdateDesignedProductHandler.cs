@@ -43,6 +43,14 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
+            var categoryExists = await _context.Categories
+                .AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+
+            if (!categoryExists)
+            {
+                return Result.Failure(new("Category.NotFound", "The specified category was not found.", StatusCodes.Status404NotFound));
+            }
+
             _mapper.Map(request, product);
 
             await _context.SaveChangesAsync(cancellationToken);
