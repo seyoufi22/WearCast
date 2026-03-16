@@ -47,6 +47,8 @@
             {
                 var user = _mapper.Map<ApplicationUser>(application);
 
+                user.EmailConfirmed = true;
+
                 var createUserResult = await _userManager.CreateAsync(user);
                 if (!createUserResult.Succeeded)
                 {
