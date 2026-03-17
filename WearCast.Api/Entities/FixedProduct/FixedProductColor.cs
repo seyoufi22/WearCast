@@ -13,6 +13,7 @@ public class FixedProductColor : BaseModel
     public ICollection<FixedProductImage> Images { get; set; }
     public ICollection<FixedProductSize> Sizes { get; set; }= new List<FixedProductSize>();
     public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+    public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
     public void AddSize(FixedProductSize  newSize)
     {
         Sizes.Add(newSize);

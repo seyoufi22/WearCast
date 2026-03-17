@@ -1,4 +1,5 @@
-using WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.CreateProduct;
