@@ -44,7 +44,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
             if (nationalIdExists)
             {
-                return Result.Failure(DriverErrors.DublicatedNationalId);
+                return Result.Failure(DriverErrors.DuplicatedNationalId);
             }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);

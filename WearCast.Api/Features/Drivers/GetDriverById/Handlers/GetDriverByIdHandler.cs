@@ -35,10 +35,7 @@ namespace WearCast.Api.Features.Drivers.GetDriverById.Handlers
                 .FirstOrDefaultAsync(cancellationToken);
             if (driver == null)
             {
-                return Result.Failure<GetDriverByIdResponseDTO>(new Error(
-                    "Driver.NotFound",
-                    $"No active driver found with ID {request.Id}",
-                    StatusCodes.Status404NotFound));
+                return Result.Failure<GetDriverByIdResponseDTO>(DriverErrors.NotFound);
             }
             return Result.Success(driver); 
         }
