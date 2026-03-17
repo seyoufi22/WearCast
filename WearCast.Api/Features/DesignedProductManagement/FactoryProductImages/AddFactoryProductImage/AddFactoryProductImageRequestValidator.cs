@@ -4,7 +4,7 @@
     {
         public AddFactoryProductImageRequestValidator()
         {
-            RuleFor(x => x.ColorSlug).NotEmpty().WithMessage("Color slug is required.");
+            RuleFor(x => x.ColorId).GreaterThan(0).WithMessage("Invalid Color Id.");
 
             RuleFor(x => x.ViewSide).IsInEnum().WithMessage("Invalid view side.");
 

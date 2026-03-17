@@ -10,14 +10,6 @@
                   .IsRequired()
                   .HasMaxLength(200);
 
-            builder.Property(x => x.Slug)
-                   .IsRequired()
-                   .HasMaxLength(200);
-
-            builder.HasIndex(x => x.Slug)
-                   .IsUnique()
-                   .HasFilter("[IsDeleted] = 0");
-
             builder.Property(x => x.Description)
                    .HasMaxLength(1000);
 

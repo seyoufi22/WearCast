@@ -14,7 +14,7 @@
 
 
             var product = await _context.DesignedProducts
-                .FirstOrDefaultAsync(x => x.Slug == request.Slug, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (product == null)
             {

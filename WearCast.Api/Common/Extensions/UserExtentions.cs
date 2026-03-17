@@ -7,7 +7,7 @@ namespace WearCast.Api.Common.Extensions
         #region Basic User Info
 
         public static string? GetUserId(this ClaimsPrincipal user) =>
-            user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+            user.FindFirstValue(ClaimTypes.NameIdentifier);
 
         public static string? GetUserRole(this ClaimsPrincipal user) =>
             user.FindFirstValue(ClaimTypes.Role);
@@ -15,8 +15,6 @@ namespace WearCast.Api.Common.Extensions
         #endregion
 
         #region Role Checkers
-
-
 
         public static bool IsSuperAdmin(this ClaimsPrincipal user) =>
             user.IsInRole(DefaultRoles.SuperAdmin);
@@ -39,7 +37,6 @@ namespace WearCast.Api.Common.Extensions
         #endregion
 
         #region Business Actor IDs
-
 
         public static int? GetCustomerId(this ClaimsPrincipal user)
         {
@@ -70,8 +67,9 @@ namespace WearCast.Api.Common.Extensions
             var idString = user.FindFirstValue("ShippingCompanyManagerId");
             return int.TryParse(idString, out var id) ? id : null;
         }
+
         public static string? GetAdminId(this ClaimsPrincipal user) =>
-            user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+            user.GetUserId();
 
         public static int? GetFactoryId(this ClaimsPrincipal user)
         {

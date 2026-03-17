@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Entities.BusinessActors
 {
-    public class Seller
+    public class Seller : ISoftDeletable
     {
         public int Id { get; set; }
 
@@ -18,7 +18,10 @@
 
         public Address Address { get; set; } = new Address();
 
+        public bool IsDeleted { get; set; }
+
         public ICollection<SellerManager> Managers { get; set; } = new List<SellerManager>();
 
+        public ICollection<FixedProduct.FixedProduct> FixedProducts { get; set; } = new List<FixedProduct.FixedProduct>();
     }
 }

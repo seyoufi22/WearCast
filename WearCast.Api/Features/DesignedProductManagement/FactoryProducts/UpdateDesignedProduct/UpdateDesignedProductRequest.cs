@@ -1,7 +1,7 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.UpdateDesignedProduct
 {
     public record UpdateDesignedProductRequest(
-        string CurrentSlug,
+        int Id,
         string Name,
         string Description,
         TargetAudience TargetAudience,

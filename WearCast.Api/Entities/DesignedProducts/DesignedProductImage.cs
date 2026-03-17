@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Entities.DesignedProducts
 {
-    public class DesignedProductImage : BaseModel
+    public class DesignedProductImage : BaseModel, ISoftDeletable
     {
         public string ImageUrl { get; set; } = string.Empty;
 

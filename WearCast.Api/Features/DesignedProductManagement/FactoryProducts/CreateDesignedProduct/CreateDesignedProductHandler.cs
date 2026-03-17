@@ -35,6 +35,7 @@
             {
                 var factoryIdFromToken = user.GetFactoryId();
 
+
                 if (factoryIdFromToken == null)
                 {
                     return Result.Failure<CreateDesignedProductResponse>(AuthErrors.NoAssociatedFactory);
@@ -54,7 +55,7 @@
             _context.DesignedProducts.Add(product);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new CreateDesignedProductResponse(product.Slug));
+            return Result.Success(new CreateDesignedProductResponse(product.Id));
         }
     }
 }

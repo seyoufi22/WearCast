@@ -6,10 +6,10 @@
     {
         private readonly IMediator _mediator = mediator;
         [Authorize]
-        [HttpPost("{productSlug}/colors")]
-        public async Task<IActionResult> Add([FromRoute] string productSlug, [FromBody] CreateFactoryProductColorBody body, CancellationToken cancellationToken)
+        [HttpPost("{productId}/colors")]
+        public async Task<IActionResult> Add([FromRoute] int productId, [FromBody] CreateFactoryProductColorBody body, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new AddFactoryProductColorRequest(productSlug, body.Name, body.HexCode), cancellationToken);
+            var result = await _mediator.Send(new AddFactoryProductColorRequest(productId, body.Name, body.HexCode), cancellationToken);
 
             return result.ToResponse();
         }

@@ -4,8 +4,7 @@
     {
         public DeleteFactoryProductSizeRequestValidator()
         {
-            RuleFor(x => x.ProductSlug).NotEmpty().WithMessage("Product slug is required.");
-            RuleFor(x => x.Size).IsInEnum().WithMessage("Invalid size selected.");
+            RuleFor(x => x.Id).GreaterThan(0).WithMessage("Invalid Size Id.");
         }
     }
 }

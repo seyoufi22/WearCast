@@ -1,7 +1,6 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.DeleteFactoryProductColor
 {
     public record DeleteFactoryProductColorRequest(
-        string ProductSlug,
-        string CurrentColorSlug
+        int ColorId
         ) : IRequest<Result>;
 }

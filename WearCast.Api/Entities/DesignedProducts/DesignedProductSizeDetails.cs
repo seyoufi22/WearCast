@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Entities.DesignedProducts
 {
-    public class DesignedProductSizeDetails
+    public class DesignedProductSizeDetails : ISoftDeletable
     {
         public int Id { get; set; }
         public Size Size { get; set; }

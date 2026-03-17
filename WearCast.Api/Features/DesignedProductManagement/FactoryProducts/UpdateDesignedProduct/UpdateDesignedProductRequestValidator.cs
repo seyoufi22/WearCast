@@ -4,7 +4,8 @@
     {
         public UpdateDesignedProductRequestValidator()
         {
-            RuleFor(x => x.CurrentSlug).NotEmpty().WithMessage("Product slug is required.");
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Invalid Product Id.");
 
             RuleFor(x => x.Name)
                  .NotEmpty().WithMessage("Product name is required.")

@@ -13,12 +13,12 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
 
-            var productInfo = await _context.DesignedProducts
-                 .Where(x => x.Slug == request.ProductSlug)
-                 .Select(x => new { x.Id, x.FactoryId })
+            var factoryId = await _context.DesignedProducts
+                 .Where(x => x.Id == request.ProductId)
+                 .Select(x => (int?)x.FactoryId)
                  .FirstOrDefaultAsync(cancellationToken);
 
-            if (productInfo == null)
+            if (factoryId == null)
             {
                 return Result.Failure<AddFactoryProductColorResponse>(DesignedProductErrors.ProductNotFound);
             }
@@ -36,7 +36,7 @@
                     return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.NoAssociatedFactory);
                 }
 
-                if (productInfo.FactoryId != factoryIdFromToken.Value)
+                if (factoryId != factoryIdFromToken.Value)
                 {
                     return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
                 }
@@ -46,20 +46,25 @@
                 return Result.Failure<AddFactoryProductColorResponse>(AuthErrors.Forbidden);
             }
 
-            var colorSlug = request.Name.ToUniqueSlug();
+            var colorExists = await _context.DesignedProductColors
+                .AnyAsync(c => c.DesignedProductId == request.ProductId && c.HexCode == request.HexCode, cancellationToken);
+
+            if (colorExists)
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(FactoryProductColorErrors.ColorAlreadyExists);
+            }
 
             var newProductColor = new DesignedProductColor
             {
                 Name = request.Name,
                 HexCode = request.HexCode,
-                Slug = colorSlug,
-                DesignedProductId = productInfo.Id
+                DesignedProductId = request.ProductId
             };
 
             _context.DesignedProductColors.Add(newProductColor);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new AddFactoryProductColorResponse(colorSlug));
+            return Result.Success(new AddFactoryProductColorResponse(newProductColor.Id));
         }
     }
 }

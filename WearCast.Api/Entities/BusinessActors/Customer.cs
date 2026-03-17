@@ -3,13 +3,14 @@ using WearCast.Api.Entities.FixedProduct;
 
 namespace WearCast.Api.Entities.BusinessActors
 {
-    public class Customer
+    public class Customer : ISoftDeletable
     {
         public int Id { get; set; }
 
         public Address Address { get; set; } = new Address();
 
         public string? ProfileImageUrl { get; set; }
+        public bool IsDeleted { get; set; }
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
 

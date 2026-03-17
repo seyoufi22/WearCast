@@ -14,14 +14,10 @@
                    .IsRequired()
                    .HasMaxLength(10);
 
-            builder.Property(x => x.Slug)
-                   .IsRequired()
-                   .HasMaxLength(100);
-
             builder.Property(x => x.DesignedProductId)
                   .IsRequired();
 
-            builder.HasIndex(x => new { x.DesignedProductId, x.Slug })
+            builder.HasIndex(x => new { x.DesignedProductId, x.HexCode })
                    .IsUnique()
                    .HasFilter("[IsDeleted] = 0");
 

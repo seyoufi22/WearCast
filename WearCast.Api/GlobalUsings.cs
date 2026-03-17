@@ -17,6 +17,7 @@ global using WearCast.Api.Common.Enums;
 global using WearCast.Api.Common.Errors;
 global using WearCast.Api.Common.Extensions;
 global using WearCast.Api.Common.Handlers;
+global using WearCast.Api.Common.Interfaces;
 global using WearCast.Api.Common.Repository;
 global using WearCast.Api.Common.Services;
 global using WearCast.Api.Common.Validators;

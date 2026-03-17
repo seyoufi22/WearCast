@@ -15,7 +15,7 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdRequestDto,
     {
         var category = await _categoryRepo.GetAsync(c => c.Id == request.Id);
 
-        if (category == null)
+        if (category is null)
             return null;
 
         return new CategoryResponse(category.Name, category.ImageUrl);

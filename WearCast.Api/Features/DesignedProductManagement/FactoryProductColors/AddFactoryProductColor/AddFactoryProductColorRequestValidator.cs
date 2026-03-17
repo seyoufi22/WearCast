@@ -4,8 +4,8 @@
     {
         public AddFactoryProductColorRequestValidator()
         {
-            RuleFor(x => x.ProductSlug)
-                .NotEmpty().WithMessage("Product slug is required.");
+            RuleFor(x => x.ProductId)
+                .GreaterThan(0).WithMessage("Invalid Product Id.");
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Color name is required.")

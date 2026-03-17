@@ -1,9 +1,9 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.UpdateFactoryProductColor
 {
     public record UpdateFactoryProductColorRequest(
-         string ProductSlug,
-         string CurrentColorSlug,
+         int ColorId,
          string Name,
-         string HexCode
+         string HexCode,
+         int ProductId
      ) : IRequest<Result>;
 }
