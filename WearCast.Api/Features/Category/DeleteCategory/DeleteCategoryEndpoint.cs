@@ -7,7 +7,7 @@ namespace WearCast.Api.Features.Category.DeleteCategory;
 [ApiController]
 public class DeleteCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpDelete("DeleteCategory/{id:int}", Name = "DeleteCategory")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -15,8 +15,10 @@ public class DeleteCategoryEndPoint(ISender sender) : ControllerBase
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new DeleteCategoryRequestDto(id), cancellationToken);
-        if (!result)
-            return NotFound();
+        if (!result.IsSuccess)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
         return NoContent();
     }
 }
