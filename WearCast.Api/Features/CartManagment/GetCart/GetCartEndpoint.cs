@@ -8,8 +8,8 @@ namespace WearCast.Api.Features.CartManagment.GetCart;
 [ApiController]
 public class GetCartEndpoint(ISender sender) : ControllerBase
 {
+    [Authorize(Roles = "Customer")]
     [HttpGet("GetCart")]
-    [Authorize]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
         var customerId = User.FindFirstValue("CustomerId");

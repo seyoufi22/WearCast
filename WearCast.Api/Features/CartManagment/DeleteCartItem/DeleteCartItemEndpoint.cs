@@ -9,9 +9,9 @@ namespace WearCast.Api.Features.CartManagment.DeleteCartItem;
 public class DeleteCartItemEndpoint(ISender sender) : ControllerBase
 {
 
+    [Authorize(Roles = "Customer")] 
     [HttpDelete("DeleteCartItem/{CartItemId}")]
-    [Authorize] 
-    public async Task<IActionResult> DeleteCartItem(int CartItemId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteCartItem([FromRoute] int CartItemId, CancellationToken cancellationToken)
     {
         var customerId = User.FindFirstValue("CustomerId");
 

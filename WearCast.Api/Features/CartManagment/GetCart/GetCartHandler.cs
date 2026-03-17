@@ -11,6 +11,7 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
             .Where(c => c.CustomerId == request.CustomerId && c.ColorId != null)
             .Select(c => new GetCartItemResponseDto
             {
+                IdCartItem = c.Id,
                 IdProduct = c.Color.ProductId,
                 IdProductColor = c.ColorId.Value,
                 ProductName = c.Color.Product.Name,

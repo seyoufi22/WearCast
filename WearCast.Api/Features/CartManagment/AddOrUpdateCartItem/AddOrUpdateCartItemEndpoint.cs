@@ -9,7 +9,7 @@ namespace WearCast.Api.Features.CartManagment.AddOrUpdateCartItem;
 [ApiController]
 public class AddOrUpdateCartItemEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles ="Customer")]
     [HttpPost("AddOrUpdateItem")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
