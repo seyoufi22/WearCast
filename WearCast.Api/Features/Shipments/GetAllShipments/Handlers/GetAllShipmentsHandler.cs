@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Shipments.GetAllShipments.Handlers
 {
-    public class GetAllShipmentsHandler : IRequestHandler<GetAllShipmentsRequestDTO, IEnumerable<GetAllShipmentsResponseDTO>>
+    public class GetAllShipmentsHandler : IRequestHandler<GetAllShipmentsRequestDTO, Result<IEnumerable<GetAllShipmentsResponseDTO>>>
     {
         private readonly ApplicationDbContext _context;
 
@@ -13,11 +13,12 @@ namespace WearCast.Api.Features.Shipments.GetAllShipments.Handlers
             _context = context;
         }
 
-        public async Task<IEnumerable<GetAllShipmentsResponseDTO>> Handle(
+        public async Task<Result<IEnumerable<GetAllShipmentsResponseDTO>>> Handle(
             GetAllShipmentsRequestDTO request,
             CancellationToken cancellationToken)
         {
             var shipments = await _context.Shipments
+                .AsNoTracking()
                 .Select(s => new GetAllShipmentsResponseDTO
                 {
                     Id = s.Id,
@@ -25,20 +26,19 @@ namespace WearCast.Api.Features.Shipments.GetAllShipments.Handlers
                     Price = s.Price,
                     ShipmentStatus = s.ShipmentStatus,
 
-                    CustomerName = s.Customer != null ? s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName : null,
-                    CustomerEmail = s.Customer != null ? s.Customer.ApplicationUser.Email : null,
-                    CustomerPhoneNumber = s.Customer != null ? s.Customer.ApplicationUser.PhoneNumber : null,
+                    CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
 
-                    DriverName = s.Driver != null && s.Driver.ApplicationUser != null && !s.Driver.ApplicationUser.IsDisabled
-                        ? s.Driver.ApplicationUser.FirstName + " " + s.Driver.ApplicationUser.LastName
-                        : null,
+                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber,
+
+                    DriverName = s.Driver != null ?
+                        s.Driver.ApplicationUser.FirstName + " " + s.Driver.ApplicationUser.LastName : null,
 
                     PickUpCity = s.PickUpAddress.City,
                     DeliveryCity = s.DeliveryAddress.City
                 })
                 .ToListAsync(cancellationToken);
 
-            return shipments;
+            return Result.Success(shipments.AsEnumerable());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace WearCast.Api.Features.Drivers.CreateDriver
 {
+    [Tags("Drivers")]
     [Route("api/drivers")]
     [ApiController]
     public class CreateDriverEndPoint(IMediator mediator) : ControllerBase

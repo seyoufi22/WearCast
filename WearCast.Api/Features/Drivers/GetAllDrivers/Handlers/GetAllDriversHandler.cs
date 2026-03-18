@@ -3,7 +3,7 @@ using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
 {
-    public class GetAllDriversHandler : IRequestHandler<GetAllDriversRequestDTO, IEnumerable<GetAllDriversResponseDTO>>
+    public class GetAllDriversHandler : IRequestHandler<GetAllDriversRequestDTO, Result<IEnumerable<GetAllDriversResponseDTO>>>
     {
         private readonly ApplicationDbContext _context;
 
@@ -12,7 +12,7 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
             _context = context;
         }
 
-        public async Task<IEnumerable<GetAllDriversResponseDTO>> Handle(
+        public async Task<Result<IEnumerable<GetAllDriversResponseDTO>>> Handle(
             GetAllDriversRequestDTO request,
             CancellationToken cancellationToken)
         {
@@ -24,11 +24,13 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
                     Id = d.Id,
                     DriverName = d.ApplicationUser!.FirstName + " " + d.ApplicationUser.LastName,
                     VehicleType = d.VehicleType,
-                    ShipmentsCount = d.Shipments.Count(s => s.ShipmentStatus != ShipmentStatus.Delivered),
+                    ShipmentsCount = d.Shipments.Count(s =>
+                    s.ShipmentStatus == ShipmentStatus.Assigned||
+                    s.ShipmentStatus==ShipmentStatus.OutForDelivery),
                     Status = d.Status
                 })
                 .ToListAsync(cancellationToken);
-            return drivers;
+            return Result.Success(drivers.AsEnumerable());
         }
     }
 }

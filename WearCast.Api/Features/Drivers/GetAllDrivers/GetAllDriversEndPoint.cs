@@ -21,7 +21,7 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers
         {
             var result = await _sender.Send(new GetAllDriversRequestDTO(), cancellationToken);
 
-            return Ok(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
     }
 }

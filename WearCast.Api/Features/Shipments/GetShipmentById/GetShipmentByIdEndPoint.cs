@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
-using WearCast.Api.Features.FixedProduct.GetFixedProductById.DTOs;
+using WearCast.Api.Features.Shipments.GetShipmentById.DTOs;
 
-namespace WearCast.Api.Features.Drivers.GetDriverById
+namespace WearCast.Api.Features.Shipments.GetShipmentById
 {
     [ApiController]
-    [Tags("Drivers")]
-    [Route("api/Drivers")]
-    public class GetDriverByIdEndPoint : ControllerBase
+    [Tags("Shipments")]
+    [Route("api/Shipments")]
+    public class GetShipmentByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
-        public GetDriverByIdEndPoint(ISender sender)
+
+        public GetShipmentByIdEndPoint(ISender sender)
         {
             _sender = sender;
         }
 
         [Authorize]
-        [HttpGet("{id}/GetById")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
-            var result = await _sender.Send(new GetDriverByIdRequestDTO(id), cancellationToken);
+            var result = await _sender.Send(new GetShipmentByIdRequestDTO(id), cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }

@@ -6,7 +6,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
 {
     [ApiController]
     [Tags("Drivers")]
-    [Route("api/Drivers/ChangeStatus")]
+    [Route("api/Drivers")]
     public class ChangeDriverStatusEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -17,7 +17,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
         }
 
         [Authorize]
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}/ChangeStatus")]
         public async Task<IActionResult> UpdateStatus(
             [FromRoute] int id,
             [FromBody] UpdateDriverStatusRequestDTO request,

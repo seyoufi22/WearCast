@@ -5,8 +5,9 @@ using WearCast.Api.Features.Shipments.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.GetAllShipments
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Tags("Shipments")]
+    [Route("api/Shipments")]
     public class GetAllShipmentsEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -22,7 +23,7 @@ namespace WearCast.Api.Features.Shipments.GetAllShipments
         {
             var result = await _sender.Send(new GetAllShipmentsRequestDTO(), cancellationToken);
 
-            return Ok(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
     }
 }

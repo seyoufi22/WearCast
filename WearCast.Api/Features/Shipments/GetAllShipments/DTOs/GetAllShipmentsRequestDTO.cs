@@ -2,7 +2,7 @@
 
 namespace WearCast.Api.Features.Shipments.GetAllShipments.DTOs
 {
-    public class GetAllShipmentsRequestDTO: IRequest<IEnumerable<GetAllShipmentsResponseDTO>>
+    public class GetAllShipmentsRequestDTO: IRequest<Result<IEnumerable<GetAllShipmentsResponseDTO>>>
     {
     }
 }
