@@ -1,4 +1,5 @@
-﻿using WearCast.Api.Features.FixedProductColor.AddFixedProductImage.DTOs;
+﻿using System.Security.Claims;
+using WearCast.Api.Features.FixedProductColor.AddFixedProductImage.DTOs;
 
 namespace WearCast.Api.Features.FixedProductColor.AddFixedProductImage;
 
@@ -9,18 +10,29 @@ public class AddFixedProductImageEndpoint(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [Authorize]
+    [Authorize(Roles = "SellerManager,SuperAdmin")]
     [HttpPost("AddImage")]
-    [Consumes("multipart/form-data")] 
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> AddImage([FromForm] AddFixedProductImageRequestDto request)
     {
-        var result = await _mediator.Send(request);
-
-        if (result)
+        Result result;
+        var Role = User.FindFirstValue(ClaimTypes.Role);
+        if (Role == "SuperAdmin")
+            result = await _mediator.Send(new AddFixedProductImageCommandDto(request.ProductColorId, request.Image, 0, true));
+        else
         {
-            return Ok(new { Message = "Image uploaded successfully."});
+            var sellerId = User.FindFirstValue("SellerId");
+
+            if (string.IsNullOrEmpty(sellerId))
+                return Unauthorized();
+
+            result = await _mediator.Send(new AddFixedProductImageCommandDto(request.ProductColorId, request.Image, int.Parse(sellerId), false));
         }
 
-        return BadRequest("Failed to add image. ProductColor does not exist.");
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "Image uploaded successfully." });
     }
 }

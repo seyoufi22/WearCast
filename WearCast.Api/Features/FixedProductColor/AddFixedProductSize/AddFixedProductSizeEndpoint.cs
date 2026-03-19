@@ -1,7 +1,8 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using WearCast.Api.Features.FixedProductColor.AddFixedProductImage.DTOs;
+using WearCast.Api.Features.FixedProductColor.AddFixedProductSize.DTOs;
 using WearCast.Api.Features.FixedProductSize.AddFixedProductSize.DTOs;
+
 
 namespace WearCast.Api.Features.FixedProductSize.AddFixedProductSize;
 
@@ -10,17 +11,28 @@ namespace WearCast.Api.Features.FixedProductSize.AddFixedProductSize;
 [ApiController]
 public class AddFixedProductSizeEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = "SellerManager,SuperAdmin")]
     [HttpPost("AddSize")]
     public async Task<IActionResult> AddSize([FromBody] AddFixedProductSizeRequestDto request, CancellationToken cancellationToken)
     {
-        var isSuccess = await sender.Send(request, cancellationToken);
-
-        if (isSuccess)
+        Result result;
+        var Role = User.FindFirstValue(ClaimTypes.Role);
+        if (Role == "SuperAdmin")
+            result = await sender.Send(new AddFixedProductSizeCommandDto(request, true, null));
+        else
         {
-            return Ok(new { Message = "Size added successfully to the product color." });
+            var sellerId = User.FindFirstValue("SellerId");
+
+            if (string.IsNullOrEmpty(sellerId))
+                return Unauthorized();
+
+            result = await sender.Send(new AddFixedProductSizeCommandDto(request, false, int.Parse(sellerId)));
         }
 
-        return NotFound(new { Message = "Product color not found." });
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "Size added successfully to the product color." });
     }
 }
