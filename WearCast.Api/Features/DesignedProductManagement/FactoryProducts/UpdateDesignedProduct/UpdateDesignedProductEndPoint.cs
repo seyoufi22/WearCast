@@ -13,7 +13,7 @@
                 Id,
                 body.Name,
                 body.Description,
-                body.TargetAudience,
+                body.TargetAudiences,
                 body.Price,
                 body.CanvasWidth,
                 body.CanvasHeight,
@@ -27,7 +27,7 @@
     public record UpdateProductBody(
         string Name,
         string Description,
-        TargetAudience TargetAudience,
+        List<TargetAudience> TargetAudiences,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,

@@ -13,10 +13,6 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
             var customerId = user.GetCustomerId();
-            if (customerId == null)
-            {
-                return Result.Failure<CustomerDesignResponse>(AuthErrors.Forbidden);
-            }
 
             var customerDesign = await _context.CustomerDesigns
                 .FirstOrDefaultAsync(d =>
@@ -31,10 +27,20 @@
 
             customerDesign.ViewDesignsJson = request.ViewDesignsJson;
 
-            // لو غير اللون، نحدثه كمان
             if (customerDesign.DesignedProductColorId != request.NewProductColorId)
             {
                 // ممكن هنا تعمل تشيك سريع لو حابب تتأكد إن اللون ده لسه موجود/متاح
+
+                var isValidColor = await _context.DesignedProductColors
+                    .AnyAsync(c =>
+                        c.Id == request.NewProductColorId &&
+                        c.DesignedProductId == customerDesign.DesignedProductId, // لازم اللون يكون تبع نفس المنتج
+                    cancellationToken);
+
+                if (!isValidColor)
+                {
+                    return Result.Failure<CustomerDesignResponse>(new Error("Design.InvalidColor", "The selected color does not exist for this product.", 400));
+                }
                 customerDesign.DesignedProductColorId = request.NewProductColorId;
             }
 

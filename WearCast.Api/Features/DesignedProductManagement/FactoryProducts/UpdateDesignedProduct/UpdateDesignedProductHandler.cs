@@ -53,6 +53,8 @@
 
             _mapper.Map(request, product);
 
+            product.TargetAudience = request.TargetAudiences.Aggregate((current, next) => current | next);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

@@ -50,6 +50,8 @@
 
             var product = _mapper.Map<DesignedProduct>(request);
 
+            product.TargetAudience = request.TargetAudiences.Aggregate((current, next) => current | next);
+
             product.FactoryId = finalFactoryId;
 
             _context.DesignedProducts.Add(product);

@@ -23,9 +23,12 @@
             RuleFor(x => x.CategoryId)
                 .GreaterThan(0).WithMessage("Invalid Category ID .");
 
-            RuleFor(x => x.TargetAudience)
-                .IsInEnum().WithMessage("Invalid target audience value.");
+            RuleFor(x => x.TargetAudiences)
+                .NotEmpty().WithMessage("At least one target audience must be selected.");
 
+            // بنتأكد إن كل عنصر جوه الليستة هو قيمة صحيحة في الـ Enum
+            RuleForEach(x => x.TargetAudiences)
+                .IsInEnum().WithMessage("Invalid target audience value.");
 
             /*
             RuleFor(x => x.SizeDetails)
