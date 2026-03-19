@@ -3,7 +3,7 @@
     public record CreateDesignedProductRequest(
         string Name,
         string Description,
-        TargetAudience TargetAudience,
+        List<TargetAudience> TargetAudiences,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
