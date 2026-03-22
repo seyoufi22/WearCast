@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Entities.BusinessActors
 {
-    public class Factory
+    public class Factory : ISoftDeletable
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -16,6 +16,9 @@
         public string LogoUrl { get; set; } = string.Empty;
 
         public Address Address { get; set; } = new Address();
-        public ICollection<FactoryManager> Managers { get; set; } = new List<FactoryManager>();
+        public bool IsDeleted { get; set; }
+        public ICollection<FactoryManager> Managers { get; set; } = [];
+
+        public ICollection<DesignedProduct> DesignedProducts { get; set; } = [];
     }
 }

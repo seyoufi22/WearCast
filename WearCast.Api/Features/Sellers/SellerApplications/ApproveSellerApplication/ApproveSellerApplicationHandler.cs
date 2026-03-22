@@ -47,6 +47,8 @@
             {
                 var user = _mapper.Map<ApplicationUser>(application);
 
+                user.EmailConfirmed = true;
+
                 var createUserResult = await _userManager.CreateAsync(user);
                 if (!createUserResult.Succeeded)
                 {
@@ -54,7 +56,7 @@
                     return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Seller);
+                var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.SellerManager);
                 if (!roleResult.Succeeded)
                 {
                     await transaction.RollbackAsync(cancellationToken);

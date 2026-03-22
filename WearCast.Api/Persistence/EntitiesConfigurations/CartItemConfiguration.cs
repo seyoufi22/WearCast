@@ -1,10 +1,12 @@
 ﻿namespace WearCast.Api.Persistence.EntitiesConfigurations;
 
-public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
+public class CartItemConfiguration : BaseModelConfiguration<CartItem>
 {
-    public void Configure(EntityTypeBuilder<CartItem> builder)
+    public override void Configure(EntityTypeBuilder<CartItem> builder)
     {
-        builder.HasKey(x => new { x.ColorId, x.CustomerId });
+        base.Configure(builder);
+
+        builder.HasIndex(c => new { c.CustomerId, c.ColorId });
 
         builder.HasOne(x => x.Customer)
                .WithMany(x => x.CartItems)

@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Entities.BusinessActors
 {
-    public class Driver
+    public class Driver : ISoftDeletable
     {
         public int Id { get; set; }
 
@@ -13,6 +13,7 @@
         public string NationalId { get; set; } = string.Empty;
         public DeliveryVehicleType VehicleType { get; set; }
         public string? VehiclePlateNumber { get; set; }
+        public bool IsDeleted { get; set; }
 
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }

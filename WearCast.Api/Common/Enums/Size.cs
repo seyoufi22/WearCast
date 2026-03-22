@@ -1,15 +1,17 @@
-﻿namespace WearCast.Api.Common.Enums;
+﻿using System.Runtime.Serialization;
+
+namespace WearCast.Api.Common.Enums;
 
 public enum Size
 {
-    _2XS,
-    XS,
-    S,
-    M,
-    L,
-    XL,
-    _2XL,
-    _3XL,
-    _4XL,
-    _5XL
+    _2XS=11,
+    _XS=12,
+    _S =13,
+    _M =14,
+    _L =15,
+    _XL =16,
+    _2XL =17,
+    _3XL =18,
+    _4XL =19,
+    _5XL =20
 }

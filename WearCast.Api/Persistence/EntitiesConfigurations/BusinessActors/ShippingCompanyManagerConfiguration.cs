@@ -4,10 +4,11 @@
     {
         public void Configure(EntityTypeBuilder<ShippingCompanyManager> builder)
         {
-            builder.HasOne(shm => shm.ApplicationUser)
-                 .WithMany()
-                 .HasForeignKey(shm => shm.UserId)
-                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(scm => scm.ApplicationUser)
+                   .WithOne(u => u.ShippingCompanyManager)
+                   .HasForeignKey<ShippingCompanyManager>(scm => scm.UserId)
+                   .IsRequired()
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(shm => shm.ShippingCompany)
                    .WithMany(sh => sh.Managers)

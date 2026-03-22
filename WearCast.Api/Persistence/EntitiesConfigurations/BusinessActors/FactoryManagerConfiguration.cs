@@ -5,8 +5,9 @@
         public void Configure(EntityTypeBuilder<FactoryManager> builder)
         {
             builder.HasOne(fm => fm.ApplicationUser)
-                  .WithMany()
-                  .HasForeignKey(fm => fm.UserId)
+                  .WithOne(u => u.FactoryManager)
+                  .HasForeignKey<FactoryManager>(fm => fm.UserId)
+                  .IsRequired()
                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(fm => fm.Factory)

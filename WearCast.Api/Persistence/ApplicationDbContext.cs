@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace WearCast.Api.Persistence;
@@ -24,11 +25,38 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
+    public DbSet<Entities.FixedProduct.Favourite> Favourites { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
+
+    public DbSet<DesignedProduct> DesignedProducts { get; set; }
+    public DbSet<DesignedProductColor> DesignedProductColors { get; set; }
+    public DbSet<DesignedProductImage> DesignedProductImages { get; set; }
+    public DbSet<DesignAsset> DesignAssets { get; set; }
+    public DbSet<DesignAssetCategory> DesignAssetCategories { get; set; }
+    public DbSet<CustomerDesign> CustomerDesigns { get; set; }
+    public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
+    public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        var softDeletableEntities = modelBuilder.Model.GetEntityTypes()
+        .Where(e => typeof(ISoftDeletable).IsAssignableFrom(e.ClrType) && e.BaseType == null);
+
+        foreach (var entity in softDeletableEntities)
+        {
+            var parameter = Expression.Parameter(entity.ClrType, "e");
+            var property = Expression.Property(parameter, nameof(ISoftDeletable.IsDeleted));
+            var falseConstant = Expression.Constant(false);
+            var condition = Expression.Equal(property, falseConstant);
+            var lambda = Expression.Lambda(condition, parameter);
+
+            modelBuilder.Entity(entity.ClrType).HasQueryFilter(lambda);
+        }
 
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
