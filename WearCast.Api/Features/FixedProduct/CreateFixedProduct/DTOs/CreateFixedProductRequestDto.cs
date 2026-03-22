@@ -16,6 +16,9 @@ public record CreateFixedProductRequestDto : IRequest<Result<CreateFixedProductR
 
     [System.Text.Json.Serialization.JsonIgnore]
     public string CreatedById { get; set; } = string.Empty;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int SellerId { get; set; }
 }
 
 public record CreateProductSizeDetailDto
