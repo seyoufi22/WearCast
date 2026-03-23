@@ -1,6 +1,6 @@
-﻿using WearCast.Api.Features.CartManagment.GetCart.DTOs;
+﻿using WearCast.Api.Features.CartManagment.GetFixedProductsInCart.DTOs;
 
-namespace WearCast.Api.Features.CartManagment.GetCart;
+namespace WearCast.Api.Features.CartManagment.GetFixedProductsInCart;
 
 public class GetCartHandler(IRepository<CartItem> cartItemRepository)
     : IRequestHandler<GetCartRequestDto, List<GetCartItemResponseDto>>
@@ -8,19 +8,19 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
     public async Task<List<GetCartItemResponseDto>> Handle(GetCartRequestDto request, CancellationToken cancellationToken)
     {
         var result = await cartItemRepository.Get()
-            .Where(c => c.CustomerId == request.CustomerId && c.ColorId != null)
+            .Where(c => c.CustomerId == request.CustomerId && c.FixedColorId != null)
             .Select(c => new GetCartItemResponseDto
             {
-                IdCartItem = c.Id,
-                IdProduct = c.Color.ProductId,
-                IdProductColor = c.ColorId.Value,
-                ProductName = c.Color.Product.Name,
-                Price = c.Color.Product.Price,
-                Image = c.Color.ImageUrl,
+                CartItemId = c.Id,
+                ProductId = c.FixedColor!.ProductId,
+                ProductColorId = c.FixedColorId!.Value,
+                ProductName = c.FixedColor.Product.Name,
+                Price = c.FixedColor.Product.Price,
+                Image = c.FixedColor.ImageUrl,
                 Sizes = c.Sizes.Select(s => new SizeDto(
                     s.Size,
                     s.Quantity,
-                    c.Color.Sizes
+                    c.FixedColor.Sizes
                         .Where(cs => cs.Size == s.Size)
                         .Select(cs => cs.Quantity)
                         .FirstOrDefault()

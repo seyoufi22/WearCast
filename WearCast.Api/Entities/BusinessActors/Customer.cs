@@ -1,4 +1,7 @@
-﻿namespace WearCast.Api.Entities.BusinessActors
+﻿using WearCast.Api.Entities.Identity;
+using WearCast.Api.Entities.FixedProduct;
+
+namespace WearCast.Api.Entities.BusinessActors
 {
     public class Customer : ISoftDeletable
     {
@@ -14,5 +17,6 @@
         public ICollection<CustomerDesign> Designs { get; set; } = [];
 
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
     }
 }

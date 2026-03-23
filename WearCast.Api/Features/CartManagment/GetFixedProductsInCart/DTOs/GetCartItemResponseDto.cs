@@ -1,10 +1,10 @@
-﻿namespace WearCast.Api.Features.CartManagment.GetCart.DTOs;
+﻿namespace WearCast.Api.Features.CartManagment.GetFixedProductsInCart.DTOs;
 
 public class GetCartItemResponseDto
 {
-    public int IdCartItem { get; set; }
-    public int IdProduct { get; set; }
-    public int IdProductColor { get; set; }
+    public int CartItemId { get; set; }
+    public int ProductId { get; set; }
+    public int ProductColorId { get; set; }
     public string ProductName { get; set; }
     public decimal Price { get; set; }    
     public string Image { get; set; }
