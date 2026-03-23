@@ -18,6 +18,11 @@ public class CartItemConfiguration : BaseModelConfiguration<CartItem>
            .HasForeignKey(x => x.FixedColorId).
            OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(x => x.DesignedCustomer)
+           .WithOne(x => x.CartItem)
+           .HasForeignKey<CartItem>(x => x.CustomerDesignId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         builder.OwnsMany(c => c.Sizes, a =>
         {
             a.ToJson();

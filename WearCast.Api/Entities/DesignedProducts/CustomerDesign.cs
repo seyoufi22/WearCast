@@ -13,5 +13,8 @@
         public int DesignedProductColorId { get; set; }
         public DesignedProductColor DesignedProductColor { get; set; } = default!;
 
+        public int? CartItemId { get; set; }
+        public CartItem? CartItem { get; set; }
+
     }
 }
