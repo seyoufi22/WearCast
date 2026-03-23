@@ -22,6 +22,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Category> Categories { get; set; }
     public DbSet<SellerApplication> SellerApplications { get; set; }
 
+    public DbSet<Entities.Shipping.Shipment> Shipments { get; set; }
+
     public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
