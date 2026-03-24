@@ -52,6 +52,9 @@ namespace WearCast.Api
 
             services.AddScoped<IPasswordHasher<SellerApplication>, PasswordHasher<SellerApplication>>();
 
+            services.Configure<WearCast.Api.Common.Settings.StripeSettings>(configuration.GetSection(WearCast.Api.Common.Settings.StripeSettings.SectionName));
+            Stripe.StripeConfiguration.ApiKey = configuration[$"{WearCast.Api.Common.Settings.StripeSettings.SectionName}:SecretKey"];
+
             return services;
         }
         private static IServiceCollection AddSwaggerServices(this IServiceCollection services)
