@@ -18,13 +18,13 @@ jobs:
           
       - name: Install dependencies
         run: dotnet restore
-        
+          
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
-        
+          
       - name: Deploy to MonsterASP.NET via MSDeploy (Safe Sync)
         shell: cmd
         env:
@@ -37,5 +37,7 @@ jobs:
           -verb:sync 
           -source:contentPath="%GITHUB_WORKSPACE%\publish" 
           -dest:contentPath="%WEBSITE_NAME%",ComputerName="%SERVER_COMPUTER_NAME%",UserName="%SERVER_USERNAME%",Password="%SERVER_PASSWORD%",AuthType="Basic" 
+          -enableRule:AppOffline
           -skip:objectName=dirPath,absolutePath=".*\\wwwroot\\uploads.*" 
+          -skip:objectName=dirPath,absolutePath=".*\\.well-known.*" 
           -allowUntrusted
