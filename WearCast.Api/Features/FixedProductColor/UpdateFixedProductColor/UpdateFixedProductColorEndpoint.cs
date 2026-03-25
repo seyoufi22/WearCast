@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using WearCast.Api.Features.FixedProductColor.AdjustStockFixedProductSize.DTOs;
 using WearCast.Api.Features.FixedProductColor.UpdateFixedProductColor.DTOs;
 
 namespace WearCast.Api.Features.FixedProductColor.UpdateFixedProductColor;
@@ -10,18 +12,30 @@ namespace WearCast.Api.Features.FixedProductColor.UpdateFixedProductColor;
 [ApiController]
 public class UpdateFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = "SellerManager,SuperAdmin")]
     [HttpPut("UpdateColor")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UpdateColor([FromForm] UpdateFixedProductColorRequestDto request, CancellationToken cancellationToken)
     {
-        var isSuccess = await sender.Send(request, cancellationToken);
 
-        if (isSuccess)
+        Result result;
+        var Role = User.FindFirstValue(ClaimTypes.Role);
+        if (Role == "SuperAdmin")
+            result = await sender.Send(new UpdateFixedProductColorCommandDto(request, 0, true));
+        else
         {
-            return Ok(new { Message = "Product color updated successfully." });
+            var sellerId = User.FindFirstValue("SellerId");
+
+            if (string.IsNullOrEmpty(sellerId))
+                return Unauthorized();
+
+            result = await sender.Send(new UpdateFixedProductColorCommandDto(request, int.Parse(sellerId), false));
         }
 
-        return NotFound(new { Message = "Product color not found." });
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "Product color updated successfully." });
     }
 }

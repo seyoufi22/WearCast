@@ -1,8 +1,9 @@
 ﻿using WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor.DTOs;
+using WearCast.Api.Features.FixedProductColor.Errors;
 
 namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor;
 
-public class DeleteFixedProductColorHandler : IRequestHandler<DeleteFixedProductColorRequestDto, bool>
+public class DeleteFixedProductColorHandler : IRequestHandler<DeleteFixedProductColorRequestDto, Result>
 {
     private readonly IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository;
 
@@ -11,17 +12,19 @@ public class DeleteFixedProductColorHandler : IRequestHandler<DeleteFixedProduct
         _colorRepository = colorRepository;
     }
 
-    public async Task<bool> Handle(DeleteFixedProductColorRequestDto request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeleteFixedProductColorRequestDto request, CancellationToken cancellationToken)
     {
-        var color = await _colorRepository.GetAsync(c => c.Id == request.ColorId);
+        var color = await _colorRepository.Get().Include(c=>c.Product)
+            .FirstOrDefaultAsync(c => c.Id == request.ColorId);
 
-        if (color == null)
-        {
-            return false;
-        }
+        if (color is null)
+            return Result.Failure(FixedProductColorErrors.ColorNotFound);
+
+        if(!request.isAdminRequest && color.Product.SellerId != request.sellerId)
+            return Result.Failure(AuthErrors.Forbidden);
 
         await _colorRepository.SoftDeleteAsync(request.ColorId);
 
-        return true;
+        return Result.Success();
     }
 }
