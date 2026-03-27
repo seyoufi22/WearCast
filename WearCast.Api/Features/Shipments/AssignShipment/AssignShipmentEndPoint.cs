@@ -27,7 +27,7 @@ namespace WearCast.Api.Features.Shipments.AssignShipment
 
             if (result.IsFailure)
             {
-                return BadRequest(result.Error); 
+                return StatusCode(result.Error.StatusCode.Value, result.Error);
             }
 
             return NoContent();
