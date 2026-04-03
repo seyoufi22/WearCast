@@ -21,6 +21,17 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.StripePaymentIntentId)
             .HasMaxLength(500);
 
+        builder.Property(o => o.RecipientName)
+            .IsRequired()
+            .HasMaxLength(200);
+
+        builder.Property(o => o.RecipientPhoneNumber)
+            .IsRequired()
+            .HasMaxLength(20);
+
+        builder.Property(o => o.RecipientAdditionalPhoneNumber)
+            .HasMaxLength(20);
+
         builder.OwnsOne(o => o.ShippingAddress);
 
         builder.HasOne(o => o.Customer)
@@ -36,6 +47,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasMany(o => o.FixedProductItems)
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
+
