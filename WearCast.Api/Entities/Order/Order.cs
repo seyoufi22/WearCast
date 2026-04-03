@@ -10,6 +10,11 @@ public class Order : BaseModel
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public string? StripeSessionId { get; set; }
     public string? StripePaymentIntentId { get; set; }
+
+    // Shipping / recipient info
+    public string RecipientName { get; set; } = string.Empty;
+    public string RecipientPhoneNumber { get; set; } = string.Empty;
+    public string? RecipientAdditionalPhoneNumber { get; set; }
     public Address ShippingAddress { get; set; } = new();
 
     public Customer Customer { get; set; } = null!;
