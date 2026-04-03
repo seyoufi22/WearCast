@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
-using WearCast.Api.Features.CartManagment.GetCart.DTOs;
+using WearCast.Api.Features.CartManagment.GetFixedProductsInCart.DTOs;
 
-namespace WearCast.Api.Features.CartManagment.GetCart;
+namespace WearCast.Api.Features.CartManagment.GetFixedProductsInCart;
 
 [Tags("Cart")]
 [Route("api/Cart")]
@@ -9,7 +9,7 @@ namespace WearCast.Api.Features.CartManagment.GetCart;
 public class GetCartEndpoint(ISender sender) : ControllerBase
 {
     [Authorize(Roles = "Customer")]
-    [HttpGet("GetCart")]
+    [HttpGet("GetFixedColorInCart")]
     public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
     {
         var customerId = User.FindFirstValue("CustomerId");

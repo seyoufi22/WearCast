@@ -1,10 +1,10 @@
-﻿using WearCast.Api.Features.CartManagment.AddOrUpdateCartItem.DTOs;
-namespace WearCast.Api.Features.CartManagment.AddOrUpdateCartItem;
+﻿using WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart.DTOs;
+namespace WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart;
 
 public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepository, IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository)
-    : IRequestHandler<AddOrUpdateCartItemCommand, Result>
+    : IRequestHandler<AddOrUpdateFixedColorToCartCommand, Result>
 {
-    public async Task<Result> Handle(AddOrUpdateCartItemCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddOrUpdateFixedColorToCartCommand command, CancellationToken cancellationToken)
     {
         var color = await _colorRepository.Get()
          .Include(c => c.Sizes)
@@ -19,7 +19,7 @@ public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepositor
         var cartItem = await _cartItemRepository.Get()
         .Include(c => c.Sizes)
         .FirstOrDefaultAsync(c =>
-            c.ColorId == command.Request.ColorId &&
+            c.FixedColorId == command.Request.ColorId &&
             c.CustomerId == command.CustomerId,
             cancellationToken);
 
@@ -31,7 +31,7 @@ public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepositor
             cartItem = new CartItem
             {
                 CustomerId = command.CustomerId,
-                ColorId = command.Request.ColorId
+                FixedColorId = command.Request.ColorId
             };
 
             cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);

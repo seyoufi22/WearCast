@@ -1,12 +1,10 @@
-﻿using MediatR;
-using WearCast.Api.Common.Repository;
-using WearCast.Api.Entities.FixedProduct;
+﻿using WearCast.Api.Entities.FixedProduct;
 using WearCast.Api.Features.FixedProductColor.AddFixedProductImage.DTOs;
-using WearCast.Api.Common.Services;
+using WearCast.Api.Features.FixedProductColor.Errors;
 
 namespace WearCast.Api.Features.FixedProductColor.AddFixedProductImage;
 
-public class AddFixedProductImageHandler : IRequestHandler<AddFixedProductImageRequestDto, bool>
+public class AddFixedProductImageHandler : IRequestHandler<AddFixedProductImageCommandDto, Result>
 {
     private readonly IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository;
     private readonly IRepository<FixedProductImage> _imageRepository;
@@ -22,21 +20,42 @@ public class AddFixedProductImageHandler : IRequestHandler<AddFixedProductImageR
         _imageService = imageService;
     }
 
-    public async Task<bool> Handle(AddFixedProductImageRequestDto request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddFixedProductImageCommandDto request, CancellationToken cancellationToken)
     {
-        var color = await _colorRepository.GetAsync(c => c.Id == request.ProductColorId, useNoTracking: true);
-        if (color == null) return false;
+        var color = await _colorRepository.Get()
+        .Include(c => c.Product)
+        .FirstOrDefaultAsync(c => c.Id == request.ProductColorId, cancellationToken);
 
-        var uploadedUrl = await _imageService.UploadAsync(request.File);
+        if (color is null)
+        {
+            return Result.Failure(FixedProductColorErrors.ColorNotFound);
+        }
+
+        if (!request.isAdminRequest && color.Product.SellerId != request.sellerId)
+        {
+            return Result.Failure(AuthErrors.Forbidden);
+        }
+
+        var imageValidation = _imageService.Validate(request.Image!);
+        if (!imageValidation.IsValid)
+        {
+            return Result.Failure(new Error("Product.InvalidImage", imageValidation.ErrorMessage, 400));
+        }
+
+        string? url = await _imageService.UploadAsync(request.Image);
+        if (string.IsNullOrEmpty(url))
+        {
+            return Result.Failure(FixedProductColorErrors.UploadFailed);
+        }
 
         var newImage = new FixedProductImage
         {
             ProductColorId = request.ProductColorId,
-            ImageUrl = uploadedUrl
+            ImageUrl = url
         };
 
         await _imageRepository.CreateAsync(newImage);
 
-        return true;
+        return Result.Success();
     }
 }

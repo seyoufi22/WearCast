@@ -3,9 +3,11 @@ using WearCast.Api.Entities.FixedProduct;
 using WearCast.Api.Entities.BusinessActors;
 public class CartItem : BaseModel
 {
-    public int? ColorId { get; set; }
+    public int? FixedColorId { get; set; }
+    public int? CustomerDesignId { get; set; } 
     public int CustomerId { get; set; }
-    public FixedProductColor? Color { get; set; }
+    public FixedProductColor? FixedColor { get; set; }
+    public CustomerDesign? DesignedCustomer { get; set; }
     public Customer Customer { get; set; } = null!;
     public ICollection<FixedProductSize> Sizes { get; set; } = new List<FixedProductSize>();
     public void AddOrUpdateSize(Size sizeName, int quantityChange)
