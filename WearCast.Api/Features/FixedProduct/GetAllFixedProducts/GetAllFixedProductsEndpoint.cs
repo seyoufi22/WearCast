@@ -17,12 +17,12 @@ public class GetAllFixedProductsEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 100, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAll([FromQuery] GetAllFixedProductsQuery request,CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new GetAllFixedProductsQuery(pageIndex, pageSize), cancellationToken);
-        
+
+        var result = await _sender.Send(request, cancellationToken);
+
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 }

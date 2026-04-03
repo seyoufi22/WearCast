@@ -7,9 +7,8 @@ public record GetAllFixedProductsResponseDto
     public string Name { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
-    public string TargetAudience { get; init; } = string.Empty;
-    
-    public List<ProductSizeDetailGetAllResponseDto> SizeDetails { get; init; } = new();
+    public TargetAudience? TargetAudience { get; init; } = null;
+    public string? MainImageUrl { get; init; }
 }
 
 public record ProductSizeDetailGetAllResponseDto
