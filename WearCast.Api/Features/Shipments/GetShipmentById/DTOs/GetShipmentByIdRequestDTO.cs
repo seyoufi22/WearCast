@@ -15,7 +15,7 @@
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0)
-                .WithMessage("Shipment ID must be greater than 0.");
+                .WithMessage("Shipment ID must be valid.");
         }
     }
 }
