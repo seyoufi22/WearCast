@@ -1,4 +1,5 @@
-﻿using WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
+﻿using System.Security.Claims;
+using WearCast.Api.Features.FixedProductColor.CreateFixedProductColor.DTOs;
 
 namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor;
 
@@ -8,14 +9,23 @@ namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor;
 public class CreateFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
-    [Authorize]
+    [Authorize(Roles = "SellerManager")]
     [HttpPost("CreateProductColor")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<int>> Create(
         [FromForm] CreateFixedProductColorRequestDto request,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(request, cancellationToken);
-        return Created(string.Empty, result);
+        var sellerId = User.FindFirstValue("SellerId");
+
+        if (string.IsNullOrEmpty(sellerId))
+            return Unauthorized();
+
+        var result = await _sender.Send(new CreateFixedProductColorCommandDto(request,int.Parse(sellerId)), cancellationToken);
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "color added successfully." });
     }
 }

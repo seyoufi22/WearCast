@@ -1,9 +1,6 @@
 ﻿namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductImage.DTOs;
 
-public class DeleteFixedProductImageRequestDto : IRequest<bool>
-{
-    public int ImageId { get; set; }
-}
+public record DeleteFixedProductImageRequestDto(int ImageId, int sellerId, bool isAdminRequest) : IRequest<Result>;
 
 public class DeleteFixedProductImageValidator : AbstractValidator<DeleteFixedProductImageRequestDto>
 {
