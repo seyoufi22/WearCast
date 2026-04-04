@@ -25,10 +25,17 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
         
-      - name: Deploy to MonsterASP.NET via WebDeploy
-        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
-        with:
-          website-name: ${{ secrets.WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SERVER_USERNAME }}
-          server-password: ${{ secrets.SERVER_PASSWORD }}
+      - name: Deploy to MonsterASP.NET via MSDeploy (Safe Sync)
+        shell: cmd
+        env:
+          WEBSITE_NAME: ${{ secrets.WEBSITE_NAME }}
+          SERVER_COMPUTER_NAME: ${{ secrets.SERVER_COMPUTER_NAME }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: >
+          "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
+          -verb:sync 
+          -source:contentPath="%GITHUB_WORKSPACE%\publish" 
+          -dest:contentPath="%WEBSITE_NAME%",ComputerName="%SERVER_COMPUTER_NAME%",UserName="%SERVER_USERNAME%",Password="%SERVER_PASSWORD%",AuthType="Basic" 
+          -skip:objectName=dirPath,absolutePath=".*\\wwwroot\\uploads.*" 
+          -allowUntrusted

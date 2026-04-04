@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.Category.DeleteCategory.DTOs;
 
-public record DeleteCategoryRequestDto(int Id) : IRequest<bool>;
+public record DeleteCategoryRequestDto(int Id) : IRequest<Result>;
 
 public class DeleteCategoryCommandValidator : AbstractValidator<DeleteCategoryRequestDto>
 {

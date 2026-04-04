@@ -7,4 +7,5 @@ riderModule.iml
 /.vs
 *.user
 **/Migrations/
-WearCast.Api/wwwroot/
+WearCast.Api/wwwroot/uploads/*
+!WearCast.Api/wwwroot/uploads/.gitkeep
