@@ -50,5 +50,10 @@ public class StripeWebhookEndpoint : ControllerBase
         {
             return BadRequest();
         }
+        catch (Exception)
+        {
+            return StatusCode(500);
+        }
     }
 }
+

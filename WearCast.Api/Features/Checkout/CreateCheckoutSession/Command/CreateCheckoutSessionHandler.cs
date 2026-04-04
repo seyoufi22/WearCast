@@ -3,6 +3,7 @@ using WearCast.Api.Common.Repository;
 using WearCast.Api.Common.Settings;
 using WearCast.Api.Entities.Order;
 using WearCast.Api.Features.Checkout.CreateCheckoutSession.DTOs;
+using WearCast.Api.Persistence;
 using Stripe.Checkout;
 
 namespace WearCast.Api.Features.Checkout.CreateCheckoutSession.Command;
@@ -12,15 +13,18 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
     private readonly IRepository<CartItem> _cartRepo;
     private readonly IRepository<Order> _orderRepo;
     private readonly IOptions<StripeSettings> _stripeSettings;
+    private readonly ApplicationDbContext _dbContext;
 
     public CreateCheckoutSessionHandler(
         IRepository<CartItem> cartRepo,
         IRepository<Order> orderRepo,
-        IOptions<StripeSettings> stripeSettings)
+        IOptions<StripeSettings> stripeSettings,
+        ApplicationDbContext dbContext)
     {
         _cartRepo = cartRepo;
         _orderRepo = orderRepo;
         _stripeSettings = stripeSettings;
+        _dbContext = dbContext;
     }
 
     public async Task<Result<CreateCheckoutSessionResponseDto>> Handle(CreateCheckoutSessionRequestDto request, CancellationToken cancellationToken)
@@ -60,6 +64,16 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 // Flatten each size into a separate order item
                 foreach (var size in cartItem.Sizes)
                 {
+                    // Validate stock (Don't decrement here, decrement happens in webhook on payment success)
+                    var stockSize = color.Sizes.FirstOrDefault(s => s.Size == size.Size);
+                    if (stockSize == null || stockSize.Quantity < size.Quantity)
+                    {
+                        return Result.Failure<CreateCheckoutSessionResponseDto>(
+                            new Error("Checkout.InsufficientStock",
+                                $"Insufficient stock for {product.Name} - {color.ColorName} ({size.Size}). Available: {stockSize?.Quantity ?? 0}, Requested: {size.Quantity}",
+                                StatusCodes.Status400BadRequest));
+                    }
+
                     var orderItem = new FixedProductOrderItem
                     {
                         FixedColorId = color.Id,
@@ -148,3 +162,4 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         });
     }
 }
+
