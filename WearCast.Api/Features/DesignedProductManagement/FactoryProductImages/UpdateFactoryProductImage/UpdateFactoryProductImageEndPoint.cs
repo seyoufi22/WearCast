@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.UpdateFactoryProductImage
 {
-    [Route("api/factory/product-images")]
+    [Route("api/factories/product-images")]
     [ApiController]
+    [Tags("Factory Product Image")]
     public class UpdateFactoryProductImageEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

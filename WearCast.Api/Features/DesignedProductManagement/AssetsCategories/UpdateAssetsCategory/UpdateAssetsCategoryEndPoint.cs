@@ -2,6 +2,7 @@
 {
     [ApiController]
     [Route("api/assets-categories")]
+    [Tags("AssetsCategory")]
     public class UpdateAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
