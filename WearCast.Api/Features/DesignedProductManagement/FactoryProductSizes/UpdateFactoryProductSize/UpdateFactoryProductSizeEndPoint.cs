@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductSizes.UpdateFactoryProductSize
 {
-    [Route("api/factory/product-sizes")]
+    [Route("api/factories/product-sizes")]
     [ApiController]
+    [Tags("Factory Product size")]
     public class UpdateFactoryProductSizeEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

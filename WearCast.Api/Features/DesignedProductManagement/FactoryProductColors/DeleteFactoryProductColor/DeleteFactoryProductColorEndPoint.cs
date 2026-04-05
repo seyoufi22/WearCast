@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.DeleteFactoryProductColor
 {
-    [Route("api/factory/products")]
+    [Route("api/factories/products")]
     [ApiController]
+    [Tags("Factory Product Color")]
     public class DeleteFactoryProductColorEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
