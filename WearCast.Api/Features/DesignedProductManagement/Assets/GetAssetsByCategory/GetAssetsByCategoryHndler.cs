@@ -1,25 +1,25 @@
 ﻿using WearCast.Api.Features.DesignedProductManagement.AssetsCategories;
 
-namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAllAssets
+namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAssetsByCategory
 {
-    public class GetAllAssetsHndler(ApplicationDbContext context) : IRequestHandler<GetAllAssetsRequest, Result<IEnumerable<GetAllAssetsResponse>>>
+    public class GetAssetsByCategoryHndler(ApplicationDbContext context) : IRequestHandler<GetAssetsByCategoryRequest, Result<IEnumerable<GetAssetsByCategoryResponse>>>
     {
         private readonly ApplicationDbContext _context = context;
 
-        public async Task<Result<IEnumerable<GetAllAssetsResponse>>> Handle(GetAllAssetsRequest request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<GetAssetsByCategoryResponse>>> Handle(GetAssetsByCategoryRequest request, CancellationToken cancellationToken)
         {
             var categoryExists = await _context.DesignAssetCategories
                 .AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
 
             if (!categoryExists)
             {
-                return Result.Failure<IEnumerable<GetAllAssetsResponse>>(AssetsCategoryErrors.CategoryNotFound);
+                return Result.Failure<IEnumerable<GetAssetsByCategoryResponse>>(AssetsCategoryErrors.CategoryNotFound);
             }
 
             var assets = await _context.DesignAssets
                 .AsNoTracking()
                 .Where(a => a.DesignAssetCategoryId == request.CategoryId)
-                .Select(a => new GetAllAssetsResponse(
+                .Select(a => new GetAssetsByCategoryResponse(
                    a.Id,
                     a.Name,
                     a.ImageUrl,
@@ -29,7 +29,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAllAssets
                     ))
                 .ToListAsync(cancellationToken);
 
-            return Result.Success<IEnumerable<GetAllAssetsResponse>>(assets);
+            return Result.Success<IEnumerable<GetAssetsByCategoryResponse>>(assets);
         }
     }
 }

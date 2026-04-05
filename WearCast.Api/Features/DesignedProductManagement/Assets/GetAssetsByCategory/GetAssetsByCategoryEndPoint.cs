@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAllAssets
+﻿namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAssetsByCategory
 {
     [Route("api/design-assets")]
     [ApiController]
@@ -10,7 +10,7 @@
         [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetAll([FromRoute] int categoryId, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllAssetsRequest(categoryId), cancellationToken);
+            var result = await _mediator.Send(new GetAssetsByCategoryRequest(categoryId), cancellationToken);
 
             return result.ToResponse();
         }
