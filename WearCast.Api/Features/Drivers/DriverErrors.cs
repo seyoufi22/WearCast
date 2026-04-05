@@ -4,5 +4,8 @@
     {
         public static readonly Error DublicatedNationalId =
             new("Driver.DublicatedNationalId", "Another driver with the same national id is already exists", StatusCodes.Status409Conflict);
+
+        public static readonly Error NotFound
+            = new("DriverNotFound", "Driver does not exist.", StatusCodes.Status404NotFound);
     }
 }
