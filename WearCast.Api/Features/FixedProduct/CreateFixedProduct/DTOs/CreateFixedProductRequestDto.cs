@@ -10,6 +10,7 @@ public record CreateFixedProductRequestDto : IRequest<Result<CreateFixedProductR
     public string Name { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
+    public DressStyle DressStyle { get; init; }
     public TargetAudience TargetAudience { get; init; }
 
     public List<CreateProductSizeDetailDto> SizeDetails { get; init; } = new();
@@ -45,8 +46,21 @@ public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductR
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Description is required.");
-            
+
+        RuleFor(x => x.DressStyle)
+        .IsInEnum().WithMessage("Invalid DressStyle selected.");
+
         RuleFor(x => x.TargetAudience)
-            .IsInEnum().WithMessage("Valid TargetAudience is required.");
+            .IsInEnum().WithMessage("Invalid TargetAudience selected.");
+
+        RuleFor(x => x.SizeDetails)
+            .Must(list => list.Select(d => d.Size).Distinct().Count() == list.Count)
+            .WithMessage("Duplicate sizes are not allowed.");
+
+        RuleForEach(x => x.SizeDetails).ChildRules(detail =>
+        {
+            detail.RuleFor(d => d.Size)
+                .IsInEnum().WithMessage("Invalid size value.");
+        });
     }
 }
