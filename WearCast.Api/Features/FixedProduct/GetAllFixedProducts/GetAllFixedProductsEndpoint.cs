@@ -2,6 +2,7 @@ using WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Hangfire;
 
 namespace WearCast.Api.Features.FixedProduct.GetAllFixedProducts;
 

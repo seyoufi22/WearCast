@@ -23,10 +23,15 @@ public class UpdateFixedProductHandler : IRequestHandler<UpdateFixedProductReque
     public async Task<Result<UpdateFixedProductResponseDto>> Handle(UpdateFixedProductRequestDto request, CancellationToken cancellationToken)
     {
         var product = await _productRepo.GetAsync(p => p.Id == request.Id);
-        
+
         if (product == null)
         {
             return Result.Failure<UpdateFixedProductResponseDto>(FixedProductErrors.ProductNotFound);
+        }
+
+        if (!request.isAdminRequest && product.SellerId != request.SellerId)
+        {
+            return Result.Failure<UpdateFixedProductResponseDto>(AuthErrors.Forbidden);
         }
 
         var categoryExists = await _categoryRepo.GetAsync(c => c.Id == request.CategoryId, useNoTracking: true);
@@ -58,7 +63,7 @@ public class UpdateFixedProductHandler : IRequestHandler<UpdateFixedProductReque
                 C = sd.C
             });
         }
-        
+
         await _productRepo.UpdateAsync(product);
 
         return Result.Success(new UpdateFixedProductResponseDto(product.Id, product.Name));

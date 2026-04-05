@@ -6,7 +6,8 @@ public class FixedProduct : BaseModel
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public string Description { get; set; } = string.Empty;
-    public TargetAudience TargetAudience { get; set; }
+    public TargetAudience TargetAudience { get; set; } = TargetAudience.Unisex;
+    public DressStyle DressStyle { get; set; } = DressStyle.Casual;
 
     public Category Category { get; set; } = default!;
     public int SellerId { get; set; }

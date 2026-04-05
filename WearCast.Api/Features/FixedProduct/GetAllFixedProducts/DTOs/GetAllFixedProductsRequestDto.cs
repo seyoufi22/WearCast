@@ -8,6 +8,7 @@ public record GetAllFixedProductsQuery(
     string? Category = null,
     decimal? MinPrice = null,
     decimal? MaxPrice = null,
+    DressStyle? DressStyle = null,
     TargetAudience? TargetAudience = null,
     List<Size>? Sizes = null,
     SortBy SortBy = SortBy.Newest
@@ -33,5 +34,19 @@ public class GetAllFixedProductsQueryValidator : AbstractValidator<GetAllFixedPr
             .GreaterThan(x => x.MinPrice ?? 0)
             .When(x => x.MaxPrice.HasValue)
             .WithMessage("Max price must be greater than min price.");
+
+        RuleFor(x => x.TargetAudience)
+            .IsInEnum()
+            .When(x => x.TargetAudience.HasValue)
+            .WithMessage("Invalid target audience.");
+
+        RuleFor(x => x.SortBy)
+            .IsInEnum()
+            .WithMessage("Invalid sort option.");
+
+        RuleForEach(x => x.Sizes)
+            .IsInEnum()
+            .WithMessage("Invalid size value.");
+
     }
 }

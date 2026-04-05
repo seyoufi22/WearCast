@@ -17,10 +17,15 @@ public class DeleteFixedProductHandler : IRequestHandler<DeleteFixedProductReque
     public async Task<Result> Handle(DeleteFixedProductRequest request, CancellationToken cancellationToken)
     {
         var product = await _productRepo.GetAsync(p => p.Id == request.Id, useNoTracking: true);
-        
+
         if (product == null)
         {
             return Result.Failure(FixedProductErrors.ProductNotFound);
+        }
+
+        if (!request.isAdminRequest && product.SellerId != request.SellerId)
+        {
+            return Result.Failure(AuthErrors.Forbidden);
         }
 
         await _productRepo.SoftDeleteAsync(product.Id);

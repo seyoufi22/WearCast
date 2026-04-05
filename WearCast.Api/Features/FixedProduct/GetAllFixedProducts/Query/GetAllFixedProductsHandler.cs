@@ -18,13 +18,15 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
         var query = _productRepo.Get()
         .AsNoTracking()
         .Where(p => p.Colors.Any(c => !c.IsDeleted));
-        //var query = _productRepo.Get().Include(p => p.SizeDetails).AsNoTracking();
 
         if (!string.IsNullOrEmpty(request.Category))
-            query = query.Where(p => p.Category.Name == request.Category);
+            query = query.Where(p => p.Category.Name == request.Category.Trim());
+
+        if(request.DressStyle.HasValue)
+            query = query.Where(p => p.DressStyle == request.DressStyle.Value);
 
         if (request.TargetAudience.HasValue)
-            query = query.Where(p => p.TargetAudience == request.TargetAudience.Value);
+            query = query.Where(p => (p.TargetAudience&request.TargetAudience.Value) == request.TargetAudience.Value);
 
         if (request.MinPrice.HasValue)
             query = query.Where(p => p.Price >= request.MinPrice.Value);
@@ -32,7 +34,7 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
         if (request.MaxPrice.HasValue)
             query = query.Where(p => p.Price <= request.MaxPrice.Value);
 
-        if (request.Sizes != null && request.Sizes.Any())
+        if (request.Sizes != null && request.Sizes.Any()) 
         {
             query = query.Where(p => p.Colors.Any(c =>
                 !c.IsDeleted &&
@@ -55,19 +57,26 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             SortBy.Newest => query.OrderByDescending(p => p.CreatedOn),
             _ => query
         };
-        var projectedQuery = query.Select(product => new GetAllFixedProductsResponseDto
+
+        var projectedQuery = query.Select(product => new
         {
-            Id = product.Id,
-            CategoryId = product.CategoryId,
-            Name = product.Name,
-            Price = product.Price,
-            Description = product.Description,
-            TargetAudience = product.TargetAudience,
-            MainImageUrl = product.Colors
+            Product = product,
+            FirstColor = product.Colors
             .Where(c => !c.IsDeleted && c.Sizes.Any(s => s.Quantity > 0))
             .OrderBy(c => c.Id)
-            .Select(c => c.ImageUrl)
-            .FirstOrDefault(),
+            .Select(c => new { c.Id, c.ImageUrl })
+            .FirstOrDefault()
+        })
+        .Select(x => new GetAllFixedProductsResponseDto
+        {
+            Id = x.Product.Id,
+            CategoryId = x.Product.CategoryId,
+            Name = x.Product.Name,
+            Price = x.Product.Price,
+            Description = x.Product.Description,
+            TargetAudience = x.Product.TargetAudience,
+            colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
+            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null
         });
 
         var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
