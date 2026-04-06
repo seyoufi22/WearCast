@@ -1,12 +1,8 @@
 ﻿using System.Security.Claims;
-using WearCast.Api.Features.FixedProduct.GetAllFixedProductsForSeller.DTOs;
 using WearCast.Api.Features.FixedProduct.GetAllFixedProductsStatusForSeller.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.GetAllFixedProductsStatusForSeller;
 
-//public class GetAllFixedProductsStatusForSellerEndpoint
-//{
-//}
 [ApiController]
 [Route("api/FixedProduct/GetAllFixedProductsStatusForSeller")]
 [Tags("FixedProduct")]

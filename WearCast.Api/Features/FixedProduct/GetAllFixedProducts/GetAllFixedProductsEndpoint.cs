@@ -1,5 +1,6 @@
 using WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 
+
 namespace WearCast.Api.Features.FixedProduct.GetAllFixedProducts;
 
 [ApiController]
