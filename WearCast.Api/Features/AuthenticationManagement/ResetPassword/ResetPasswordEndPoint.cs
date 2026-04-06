@@ -2,6 +2,7 @@
 {
     [Route("api/auth")]
     [ApiController]
+    [Tags("Auth")]
     public class ResetPasswordEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

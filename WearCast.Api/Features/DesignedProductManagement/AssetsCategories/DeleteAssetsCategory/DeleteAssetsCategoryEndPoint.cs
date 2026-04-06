@@ -3,6 +3,7 @@
     [ApiController]
     [Route("api/assets-categories")]
     [Authorize]
+    [Tags("AssetsCategory")]
     public class DeleteAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

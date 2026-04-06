@@ -1,10 +1,6 @@
-using WearCast.Api.Common.Repository;
-using WearCast.Api.Abstractions;
 using WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.FixedProduct.GetAllFixedProducts.Query;
 
@@ -19,16 +15,68 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
 
     public async Task<Result<PagingViewModel<GetAllFixedProductsResponseDto>>> Handle(GetAllFixedProductsQuery request, CancellationToken cancellationToken)
     {
-        var query = _productRepo.Get().Include(p => p.SizeDetails).AsNoTracking();
+        var query = _productRepo.Get()
+        .AsNoTracking()
+        .Where(p => p.Colors.Any(c => !c.IsDeleted));
 
-        var projectedQuery = query.Select(product => new GetAllFixedProductsResponseDto
+        if (!string.IsNullOrEmpty(request.Category))
+            query = query.Where(p => p.Category.Name == request.Category.Trim());
+
+        if(request.DressStyle.HasValue)
+            query = query.Where(p => p.DressStyle == request.DressStyle.Value);
+
+        if (request.TargetAudience.HasValue)
+            query = query.Where(p => (p.TargetAudience&request.TargetAudience.Value) == request.TargetAudience.Value);
+
+        if (request.MinPrice.HasValue)
+            query = query.Where(p => p.Price >= request.MinPrice.Value);
+
+        if (request.MaxPrice.HasValue)
+            query = query.Where(p => p.Price <= request.MaxPrice.Value);
+
+        if (request.Sizes != null && request.Sizes.Any()) 
         {
-            Id = product.Id,
-            CategoryId = product.CategoryId,
-            Name = product.Name,
-            Price = product.Price,
-            Description = product.Description,
-            TargetAudience = product.TargetAudience.ToString(),
+            query = query.Where(p => p.Colors.Any(c =>
+                !c.IsDeleted &&
+                c.Sizes.Any(s => request.Sizes.Contains(s.Size) && s.Quantity > 0)
+            ));
+        }
+        else
+        {
+            query = query.Where(p => p.Colors.Any(c =>
+                !c.IsDeleted &&
+                c.Sizes.Any(s => s.Quantity > 0)
+            ));
+        }
+
+        query = request.SortBy switch
+        {
+            SortBy.PriceAsc => query.OrderBy(p => p.Price),
+            SortBy.PriceDesc => query.OrderByDescending(p => p.Price),
+            //SortBy.MostPopular => query.OrderByDescending(p => p.SalesCount),
+            SortBy.Newest => query.OrderByDescending(p => p.CreatedOn),
+            _ => query
+        };
+
+        var projectedQuery = query.Select(product => new
+        {
+            Product = product,
+            FirstColor = product.Colors
+            .Where(c => !c.IsDeleted && c.Sizes.Any(s => s.Quantity > 0))
+            .OrderBy(c => c.Id)
+            .Select(c => new { c.Id, c.ImageUrl })
+            .FirstOrDefault()
+        })
+        .Select(x => new GetAllFixedProductsResponseDto
+        {
+            Id = x.Product.Id,
+            CategoryId = x.Product.CategoryId,
+            Name = x.Product.Name,
+            Price = x.Product.Price,
+            Description = x.Product.Description,
+            TargetAudience = x.Product.TargetAudience,
+            colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
+            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null,
             SellerId = product.SellerId,
             SizeDetails = product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
             {
