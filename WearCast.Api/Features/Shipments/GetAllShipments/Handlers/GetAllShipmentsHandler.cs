@@ -33,7 +33,6 @@ namespace WearCast.Api.Features.Shipments.GetAllShipments.Handlers
                     DriverName = s.Driver != null ?
                         s.Driver.ApplicationUser.FirstName + " " + s.Driver.ApplicationUser.LastName : null,
 
-                    PickUpCity = s.PickUpAddress.City,
                     DeliveryCity = s.DeliveryAddress.City
                 })
                 .ToListAsync(cancellationToken);

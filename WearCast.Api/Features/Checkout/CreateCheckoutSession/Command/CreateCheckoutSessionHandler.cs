@@ -48,12 +48,18 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         // 2. Group cart items by seller
         var itemsBySeller = cartItems.GroupBy(c => c.FixedColor!.Product.SellerId);
 
+        var sellerIds = itemsBySeller.Select(g => g.Key).ToList();
+        var sellers = await _dbContext.Sellers
+            .Where(s => sellerIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, cancellationToken);
+            
         var orders = new List<Order>();
         var stripeLineItems = new List<SessionLineItemOptions>();
 
         foreach (var sellerGroup in itemsBySeller)
         {
             var sellerId = sellerGroup.Key;
+            var seller = sellers[sellerId];
             var orderItems = new List<FixedProductOrderItem>();
 
             foreach (var cartItem in sellerGroup)
@@ -117,12 +123,19 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 RecipientName = request.ShippingInfo.RecipientName,
                 RecipientPhoneNumber = request.ShippingInfo.PhoneNumber,
                 RecipientAdditionalPhoneNumber = request.ShippingInfo.AdditionalPhoneNumber,
-                ShippingAddress = new Address
+                ShippingAddress = new WearCast.Api.Common.ValueObjects.Address
                 {
                     State = request.ShippingInfo.State,
                     City = request.ShippingInfo.City,
                     Street = request.ShippingInfo.Street,
                     BuildingNumber = request.ShippingInfo.BuildingNumber
+                },
+                PickUpAddress = new WearCast.Api.Common.ValueObjects.Address
+                {
+                    State = seller.Address.State,
+                    City = seller.Address.City,
+                    Street = seller.Address.Street,
+                    BuildingNumber = seller.Address.BuildingNumber
                 }
             };
             orders.Add(order);

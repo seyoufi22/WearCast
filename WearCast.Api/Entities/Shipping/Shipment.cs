@@ -2,7 +2,6 @@
 {
     public class Shipment : BaseModel
     {
-        public Address PickUpAddress { get; set; }
         public Address DeliveryAddress { get; set; }
         public decimal Price { get; set; }
         public int? DriverId { get; set; }

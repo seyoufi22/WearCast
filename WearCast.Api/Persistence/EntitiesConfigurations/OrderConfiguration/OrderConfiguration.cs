@@ -33,6 +33,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(20);
 
         builder.OwnsOne(o => o.ShippingAddress);
+        builder.OwnsOne(o => o.PickUpAddress);
 
         builder.HasOne(o => o.Customer)
             .WithMany(c => c.Orders)

@@ -66,7 +66,6 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
             {
                 CustomerID = firstOrder.CustomerId,
                 DeliveryAddress = deliveryAddress,
-                PickUpAddress = new Common.ValueObjects.Address(), // No default pickup address logic yet
                 ShipmentStatus = ShipmentStatus.UnAssigned,
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById, // Inherit user mapping
