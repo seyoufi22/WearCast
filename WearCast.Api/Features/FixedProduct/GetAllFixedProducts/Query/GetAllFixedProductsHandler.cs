@@ -77,8 +77,8 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             TargetAudience = x.Product.TargetAudience,
             colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
             MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null,
-            SellerId = product.SellerId,
-            SizeDetails = product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
+            SellerId = x.Product.SellerId,
+            SizeDetails = x.Product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
             {
                 Size = sd.Size.ToString(),
                 A = sd.A,

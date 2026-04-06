@@ -15,5 +15,7 @@
         public int CustomerID {get;set;}
         public Customer Customer { get; set; } = default;
 
+        public ICollection<Order.Order> Orders { get; set; } = new List<Order.Order>();
+
     }
 }

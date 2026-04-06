@@ -20,4 +20,7 @@ public class Order : BaseModel
     public Customer Customer { get; set; } = null!;
     public Seller Seller { get; set; } = null!;
     public ICollection<FixedProductOrderItem> FixedProductItems { get; set; } = new List<FixedProductOrderItem>();
+
+    public int? ShipmentId { get; set; }
+    public Shipping.Shipment? Shipment { get; set; }
 }

@@ -40,7 +40,12 @@ public class StripeWebhookEndpoint : ControllerBase
                 var session = stripeEvent.Data.Object as Session;
                 if (session != null)
                 {
-                    await _sender.Send(new StripeWebhookRequestDto(session.Id), cancellationToken);
+                    var result = await _sender.Send(new StripeWebhookRequestDto(session.Id), cancellationToken);
+                    if (result.IsFailure)
+                    {
+                        Console.WriteLine($"Webhook failed: {result.Error.Code} - {result.Error.Description}");
+                        return BadRequest(result.Error);
+                    }
                 }
             }
 

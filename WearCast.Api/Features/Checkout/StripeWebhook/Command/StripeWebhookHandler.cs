@@ -2,6 +2,9 @@ using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Enums;
 using WearCast.Api.Features.Checkout.StripeWebhook.DTOs;
 using WearCast.Api.Persistence;
+using WearCast.Api.Entities.Shipping;
+using WearCast.Api.Entities.BusinessActors;
+using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Checkout.StripeWebhook.Command;
 
@@ -42,6 +45,36 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                     dbContext.Entry(color).State = EntityState.Modified;
                 }
             }
+        }
+
+        // Find a default shipping company
+        var shippingCompany = await dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
+        if (shippingCompany != null)
+        {
+            var firstOrder = orders.First();
+            
+            var deliveryAddress = new Common.ValueObjects.Address();
+            if (firstOrder.ShippingAddress != null)
+            {
+                deliveryAddress.State = firstOrder.ShippingAddress.State;
+                deliveryAddress.City = firstOrder.ShippingAddress.City;
+                deliveryAddress.Street = firstOrder.ShippingAddress.Street;
+                deliveryAddress.BuildingNumber = firstOrder.ShippingAddress.BuildingNumber;
+            }
+
+            var shipment = new Shipment
+            {
+                CustomerID = firstOrder.CustomerId,
+                DeliveryAddress = deliveryAddress,
+                PickUpAddress = new Common.ValueObjects.Address(), // No default pickup address logic yet
+                ShipmentStatus = ShipmentStatus.UnAssigned,
+                ShippingCompanyId = shippingCompany.Id,
+                CreatedById = firstOrder.CreatedById, // Inherit user mapping
+                Orders = orders.Where(o => o.Status == OrderStatus.Paid).ToList()
+            };
+            
+            // Re-fetch customer to ensure tracking or use CustomerID mapping, EF takes care of it natively
+            dbContext.Shipments.Add(shipment);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
