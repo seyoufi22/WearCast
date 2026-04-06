@@ -1,4 +1,5 @@
-﻿namespace WearCast.Api.Entities.BusinessActors
+﻿using WearCast.Api.Entities.Shipping;
+namespace WearCast.Api.Entities.BusinessActors
 {
     public class Driver : ISoftDeletable
     {
@@ -17,9 +18,8 @@
 
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
-
+        public List<Shipment> Shipments { get; set; } = new List<Shipment>();
         public int ShippingCompanyId { get; set; }
-
-        public ShippingCompany? ShippingCompany { get; set; }
+        public ShippingCompany ShippingCompany { get; set; } = default!;
     }
 }

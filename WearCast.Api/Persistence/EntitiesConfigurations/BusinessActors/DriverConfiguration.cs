@@ -5,16 +5,19 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
     {
         public void Configure(EntityTypeBuilder<Driver> builder)
         {
+            builder.HasKey(d => d.Id);
+
             builder.HasOne(d => d.ApplicationUser)
                  .WithOne(u => u.Driver)
                  .HasForeignKey<Driver>(d => d.UserId)
                  .IsRequired()
-                 .OnDelete(DeleteBehavior.Cascade);
+                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(d => d.ShippingCompany)
-                   .WithMany(sh => sh.Drivers)
+                   .WithMany(c => c.Drivers)
                    .HasForeignKey(d => d.ShippingCompanyId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .IsRequired()
+                   .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.NationalId)
                 .IsRequired()
