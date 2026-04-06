@@ -29,6 +29,7 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             Price = product.Price,
             Description = product.Description,
             TargetAudience = product.TargetAudience.ToString(),
+            SellerId = product.SellerId,
             SizeDetails = product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
             {
                 Size = sd.Size.ToString(),

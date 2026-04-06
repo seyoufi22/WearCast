@@ -11,6 +11,7 @@ public record GetFixedProductByIdResponseDto
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
     public string TargetAudience { get; init; } = string.Empty;
+    public int SellerId { get; init; }
     
     public List<ProductSizeDetailResponseDto> SizeDetails { get; init; } = new();
 }
