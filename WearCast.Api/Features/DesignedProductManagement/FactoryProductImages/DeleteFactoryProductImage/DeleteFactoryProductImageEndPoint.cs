@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.DeleteFactoryProductImage
 {
     [ApiController]
-    [Route("api/factory/product-images")]
+    [Route("api/factories/product-images")]
+    [Tags("Factory Product Image")]
     public class DeleteFactoryProductImageController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

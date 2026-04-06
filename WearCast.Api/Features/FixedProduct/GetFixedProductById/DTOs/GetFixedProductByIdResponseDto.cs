@@ -12,6 +12,7 @@ public record GetFixedProductByIdResponseDto
     public string Description { get; init; } = string.Empty;
     public string TargetAudience { get; init; } = string.Empty;
     public string DressStyle { get; set; } = string.Empty;
+    public int SellerId { get; init; }
     
     public List<ProductSizeDetailResponseDto> SizeDetails { get; init; } = new();
 }

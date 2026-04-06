@@ -13,8 +13,6 @@ public class BaseModel
     public DateTime? UpdatedOn { get; set; }
     public bool IsDeleted { get; set; } = false;
     public bool IsActive { get; set; } = true;
-
-
     public ApplicationUser CreatedBy { get; set; } = default!;
     public ApplicationUser? UpdatedBy { get; set; }
 
