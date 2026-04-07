@@ -76,14 +76,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         foreach (var entityEntry in entries)
         {
-            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId()!;
+            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
             if (entityEntry.State == EntityState.Added)
             {
-                entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+                if (string.IsNullOrEmpty((string?)entityEntry.Property(x => x.CreatedById).CurrentValue) && currentUserId != null)
+                {
+                    entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+                }
             }
             else if (entityEntry.State == EntityState.Modified)
             {
-                entityEntry.Property(x => x.UpdatedById).CurrentValue = currentUserId;
+                if (currentUserId != null)
+                {
+                    entityEntry.Property(x => x.UpdatedById).CurrentValue = currentUserId;
+                }
                 entityEntry.Property(x => x.UpdatedOn).CurrentValue = DateTime.UtcNow;
             }
         }

@@ -4,7 +4,6 @@
     {
         public int Id { get; set; }
         public DateTime OrderTime { get; set; } 
-        public Address PickUpAddress { get; set; }
         public Address DeliveryAddress { get; set; }
         public decimal Price { get; set; }
         public ShipmentStatus ShipmentStatus { get; set; }

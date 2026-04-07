@@ -9,7 +9,6 @@
         public string CustomerName { get; set; }
         public string CustomerPhoneNumber { get; set; }
         public string? DriverName { get; set; } 
-        public string PickUpCity { get; set; }
         public string DeliveryCity { get; set; }
     }
 }
