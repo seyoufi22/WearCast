@@ -9,7 +9,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
         IMapper mapper,
         EmailHelper emailHelper,
         ILogger<CreateShippingCompanyManagerHandler> logger
-        ) : IRequestHandler<CreateShippingCompanyManagerRequest, Result>
+        ) : IRequestHandler<CreateShippingCompanyManagerRequest, Result<CreateShippingCompanyManagerResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
@@ -17,11 +17,11 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
         private readonly EmailHelper _emailHelper = emailHelper;
         private readonly ILogger<CreateShippingCompanyManagerHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateShippingCompanyManagerRequest request, CancellationToken cancellationToken)
+        public async Task<Result<CreateShippingCompanyManagerResponse>> Handle(CreateShippingCompanyManagerRequest request, CancellationToken cancellationToken)
         {
             var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == request.ShippingCompanyId, cancellationToken);
             if (!companyExists)
-                return Result.Failure(ShippingCompanyErrors.CompanyNotFound);
+                return Result.Failure<CreateShippingCompanyManagerResponse>(ShippingCompanyErrors.CompanyNotFound);
 
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber)
@@ -31,9 +31,9 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
             if (existingUser != null)
             {
                 if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(UserErrors.DublicatedEmail);
+                    return Result.Failure<CreateShippingCompanyManagerResponse>(UserErrors.DublicatedEmail);
 
-                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<CreateShippingCompanyManagerResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
             var user = _mapper.Map<ApplicationUser>(request);
@@ -49,7 +49,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
                 if (!createUserResult.Succeeded)
                 {
                     var error = createUserResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateShippingCompanyManagerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompanyManager);
@@ -57,7 +57,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
                 {
                     await transaction.RollbackAsync(cancellationToken);
                     var error = roleResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateShippingCompanyManagerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var companyManager = new ShippingCompanyManager
@@ -75,7 +75,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
             {
                 await transaction.RollbackAsync(cancellationToken);
                 _logger.LogError(ex, "Failed to create shipping company manager for email {Email}", request.Email);
-                return Result.Failure(new Error("Creation.Failed", "An error occurred while creating the shipping company manager.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("Creation.Failed", "An error occurred while creating the shipping company manager.", StatusCodes.Status500InternalServerError));
             }
 
             try
@@ -87,7 +87,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompanyManager
                 _logger.LogWarning(ex, "Manager created but failed to send confirmation email to {Email}", request.Email);
             }
 
-            return Result.Success();
+            return Result.Success(new CreateShippingCompanyManagerResponse(user.Id));
         }
     }
 }

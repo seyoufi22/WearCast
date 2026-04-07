@@ -10,7 +10,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
         IMapper mapper,
         EmailHelper emailHelper,
         ILogger<CreateFactoryHandler> logger
-        ) : IRequestHandler<CreateFactoryRequest, Result>
+        ) : IRequestHandler<CreateFactoryRequest, Result<CreateFactoryResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
@@ -19,7 +19,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
         private readonly EmailHelper _emailHelper = emailHelper;
         private readonly ILogger<CreateFactoryHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateFactoryRequest request, CancellationToken cancellationToken)
+        public async Task<Result<CreateFactoryResponse>> Handle(CreateFactoryRequest request, CancellationToken cancellationToken)
         {
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
@@ -29,9 +29,9 @@ namespace WearCast.Api.Features.Factories.CreateFactory
             if (existingUser != null)
             {
                 if (existingUser.Email.Equals(request.ManagerEmail?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(UserErrors.DublicatedEmail);
+                    return Result.Failure<CreateFactoryResponse>(UserErrors.DublicatedEmail);
 
-                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<CreateFactoryResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
             var factoryLogoUrl = await _imageService.UploadAsync(request.FactoryLogo);
@@ -50,7 +50,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                 {
                     await _imageService.DeleteAsync(factoryLogoUrl);
                     var error = createUserResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateFactoryResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.FactoryManager);
@@ -59,7 +59,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                     await _imageService.DeleteAsync(factoryLogoUrl);
                     await transaction.RollbackAsync(cancellationToken);
                     var error = roleResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateFactoryResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var factory = _mapper.Map<Factory>(request);
@@ -86,7 +86,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
 
                 _logger.LogError(ex, "Failed to create factory for email {Email}", request.ManagerEmail);
 
-                return Result.Failure(new Error("Creation.Failed", "An error occurred while Creating the Factory.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<CreateFactoryResponse>(new Error("Creation.Failed", "An error occurred while Creating the Factory.", StatusCodes.Status500InternalServerError));
             }
 
             try
@@ -98,7 +98,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
                 _logger.LogWarning(ex, "Factory created but failed to send email to {Email}", request.ManagerEmail);
             }
 
-            return Result.Success();
+            return Result.Success(new CreateFactoryResponse(user.Id));
         }
     }
 }
