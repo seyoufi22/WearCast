@@ -66,6 +66,13 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
         
         dbContext.CartItems.RemoveRange(cartItemsToClear);
 
+        var customerId = orders.First().CustomerId;
+        var cartItemsToClear = await dbContext.CartItems
+            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
+            .ToListAsync(cancellationToken);
+        
+        dbContext.CartItems.RemoveRange(cartItemsToClear);
+
         // Find a default shipping company
         var shippingCompany = await dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
         if (shippingCompany != null)
