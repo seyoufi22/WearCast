@@ -34,6 +34,7 @@ public class CartItem : BaseModel
                 });
             }
         }
+
         var sortedSizes = Sizes.OrderBy(s => s.Size).ToList();
 
         Sizes.Clear();

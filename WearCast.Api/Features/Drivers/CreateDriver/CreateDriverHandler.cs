@@ -11,7 +11,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
         IMapper mapper,
         EmailHelper emailHelper,
         ILogger<Driver> logger
-        ) : IRequestHandler<CreateDriverRequest, Result>
+        ) : IRequestHandler<CreateDriverRequest, Result<CreateDriverResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
@@ -20,11 +20,11 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
         private readonly EmailHelper _emailHelper = emailHelper;
         private readonly ILogger<Driver> _logger = logger;
 
-        public async Task<Result> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
+        public async Task<Result<CreateDriverResponse>> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
             var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == request.ShippingCompanyId, cancellationToken);
             if (!companyExists)
-                return Result.Failure(ShippingCompanyErrors.CompanyNotFound);
+                return Result.Failure<CreateDriverResponse>(ShippingCompanyErrors.CompanyNotFound);
 
             var existingUser = await _userManager.Users
                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
@@ -34,9 +34,9 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
             if (existingUser != null)
             {
                 if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(UserErrors.DublicatedEmail);
+                    return Result.Failure<CreateDriverResponse>(UserErrors.DublicatedEmail);
 
-                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<CreateDriverResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
             var nationalIdExists = await _context.Drivers
@@ -44,7 +44,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
             if (nationalIdExists)
             {
-                return Result.Failure(DriverErrors.DublicatedNationalId);
+                return Result.Failure<CreateDriverResponse>(DriverErrors.DuplicatedNationalId);
             }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
@@ -67,7 +67,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
                     await _imageService.DeleteAsync(profileImageUrl);
 
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateDriverResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.Driver);
@@ -80,7 +80,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
                     await transaction.RollbackAsync(cancellationToken);
 
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateDriverResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var driver = _mapper.Map<Driver>(request);
@@ -102,7 +102,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
                 await _imageService.DeleteAsync(profileImageUrl);
 
 
-                return Result.Failure(new Error("Creating.Failed", "An error occurred while Creating the driver.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<CreateDriverResponse>(new Error("Creating.Failed", "An error occurred while Creating the driver.", StatusCodes.Status500InternalServerError));
             }
             try
             {
@@ -113,7 +113,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
                 _logger.LogWarning(ex, "Driver registered but failed to send confirmation email to {Email}", request.Email);
             }
 
-            return Result.Success();
+            return Result.Success(new CreateDriverResponse(user.Id));
         }
     }
 }

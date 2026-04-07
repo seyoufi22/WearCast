@@ -1,4 +1,7 @@
-﻿namespace WearCast.Api.Entities.BusinessActors
+﻿using WearCast.Api.Entities.Identity;
+using WearCast.Api.Entities.Shipping;
+
+namespace WearCast.Api.Entities.BusinessActors
 {
     public class ShippingCompany : ISoftDeletable
     {
@@ -15,12 +18,15 @@
 
         public string LogoUrl { get; set; } = string.Empty;
 
+        public decimal DeliveryFee { get; set; }
+
         public Address Address { get; set; } = new Address();
 
         public bool IsDeleted { get; set; }
 
         public ICollection<ShippingCompanyManager> Managers { get; set; } = new List<ShippingCompanyManager>();
         public ICollection<Driver> Drivers { get; set; } = new List<Driver>();
+        public List<Shipment> Shipments { get; set; } = new List<Shipment>();
 
     }
 }

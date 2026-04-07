@@ -20,5 +20,5 @@
         string BuildingNumber,
 
         int ShippingCompanyId
-        ) : IRequest<Result>;
+        ) : IRequest<Result<CreateDriverResponse>>;
 }

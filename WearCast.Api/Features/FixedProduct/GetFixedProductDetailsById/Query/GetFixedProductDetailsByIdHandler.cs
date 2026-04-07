@@ -39,6 +39,7 @@ public class GetFixedProductDetailsByIdHandler : IRequestHandler<GetFixedProduct
             Price = product.Price,
             Description = product.Description,
             TargetAudience = product.TargetAudience.ToString(),
+            SellerId = product.SellerId,
             Category = new ProductDetailsCategoryDto
             {
                 Id = product.Category.Id,

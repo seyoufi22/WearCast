@@ -3,6 +3,7 @@
     [Route("api/customers/me/designs")]
     [ApiController]
     [Authorize(Roles = DefaultRoles.Customer)]
+    [Tags("Customer Design")]
     public class AddCustomerDesignEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

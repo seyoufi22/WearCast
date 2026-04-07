@@ -9,5 +9,5 @@
         string ConfirmPassword,
 
         int ShippingCompanyId
-        ) : IRequest<Result>;
+        ) : IRequest<Result<CreateShippingCompanyManagerResponse>>;
 }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using WearCast.Api.Features.FixedProduct.DeleteFixedProduct.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.DeleteFixedProduct;
@@ -14,10 +15,22 @@ public class DeleteFixedProductEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
+    [Authorize(Roles = "SellerManager,SuperAdmin")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] DeleteFixedProductRequest request, CancellationToken cancellationToken)
     {
+        var Role = User.FindFirstValue(ClaimTypes.Role);
+        if (Role == "SuperAdmin")
+            request.isAdminRequest = true;
+        else
+        {
+            var sellerId = User.FindFirstValue("SellerId");
+
+            if (string.IsNullOrEmpty(sellerId))
+                return Unauthorized();
+            request.SellerId = int.Parse(sellerId);
+        }
+
         var result = await _sender.Send(request, cancellationToken);
         
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
