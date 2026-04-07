@@ -19,6 +19,6 @@
         string Street,
         string BuildingNumber,
 
-        int ShippingCompanyId
+        int? ProvidedShippingCompanyId = null
         ) : IRequest<Result<CreateDriverResponse>>;
 }

@@ -64,6 +64,9 @@
                 .NotEmpty().WithMessage("Description is required.")
                 .Length(20, 500).WithMessage("Description must be between 20 and 500 characters.");
 
+            RuleFor(x => x.DeliveryFee)
+                .GreaterThanOrEqualTo(0).WithMessage("Delivery fee cannot be negative.");
+
             RuleFor(x => x.CompanyLogo)
                 .NotNull()
                 .IsValidImage();

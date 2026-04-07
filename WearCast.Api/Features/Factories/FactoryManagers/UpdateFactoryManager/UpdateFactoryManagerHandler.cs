@@ -1,13 +1,13 @@
-﻿namespace WearCast.Api.Features.Sellers.SellerManagers.UpdateSellerManager
+﻿namespace WearCast.Api.Features.Factories.FactoryManagers.UpdateFactoryManager
 {
-    public class UpdateSellerManagerHandler(
+    public class UpdateFactoryManagerHandler(
         ApplicationDbContext context,
         IHttpContextAccessor httpContextAccessor
-        ) : IRequestHandler<UpdateSellerManagerRequest, Result>
+        ) : IRequestHandler<UpdateFactoryManagerRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        public async Task<Result> Handle(UpdateSellerManagerRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateFactoryManagerRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
@@ -24,15 +24,14 @@
             }
             else
             {
-                targetManagerId = user.GetSellerManagerId()!.Value;
+                targetManagerId = user.GetFactoryManagerId()!.Value;
             }
-
             var managerUser = await _context.Users
-                .FirstOrDefaultAsync(x => x.SellerManager.Id == targetManagerId, cancellationToken);
+                .FirstOrDefaultAsync(u => u.FactoryManager.Id == targetManagerId, cancellationToken);
 
             if (managerUser == null)
             {
-                return Result.Failure(SellerManagerErrors.NotFound);
+                return Result.Failure(FactoryManagerErrors.NotFound);
             }
 
             managerUser.FirstName = request.FirstName;
@@ -42,7 +41,6 @@
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
-
         }
     }
 }

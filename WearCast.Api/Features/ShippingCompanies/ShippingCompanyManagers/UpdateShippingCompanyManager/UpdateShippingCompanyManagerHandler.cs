@@ -1,13 +1,14 @@
-﻿namespace WearCast.Api.Features.Sellers.SellerManagers.UpdateSellerManager
+﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.UpdateShippingCompanyManager
 {
-    public class UpdateSellerManagerHandler(
-        ApplicationDbContext context,
-        IHttpContextAccessor httpContextAccessor
-        ) : IRequestHandler<UpdateSellerManagerRequest, Result>
+    public class UpdateShippingCompanyManagerHandler(
+         ApplicationDbContext context,
+         IHttpContextAccessor httpContextAccessor
+        ) : IRequestHandler<UpdateShippingCompanyManagerRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        public async Task<Result> Handle(UpdateSellerManagerRequest request, CancellationToken cancellationToken)
+
+        public async Task<Result> Handle(UpdateShippingCompanyManagerRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
@@ -24,15 +25,15 @@
             }
             else
             {
-                targetManagerId = user.GetSellerManagerId()!.Value;
+                targetManagerId = user.GetShippingCompanyManagerId()!.Value;
             }
 
             var managerUser = await _context.Users
-                .FirstOrDefaultAsync(x => x.SellerManager.Id == targetManagerId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ShippingCompanyManager.Id == targetManagerId, cancellationToken);
 
             if (managerUser == null)
             {
-                return Result.Failure(SellerManagerErrors.NotFound);
+                return Result.Failure(ShippingCompanyManagerErrors.NotFound);
             }
 
             managerUser.FirstName = request.FirstName;
@@ -42,7 +43,6 @@
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
-
         }
     }
 }

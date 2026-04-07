@@ -14,6 +14,7 @@
           string CommercialRegisterNumber,
           string TaxIdNumber,
           string Description,
+          decimal DeliveryFee,
           IFormFile CompanyLogo,
 
           string CompanyState,
