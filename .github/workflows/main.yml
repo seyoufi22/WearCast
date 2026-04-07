@@ -30,9 +30,10 @@ jobs:
         run: |
           $path = "./publish/appsettings.json"
           $json = Get-Content $path -Raw | ConvertFrom-Json
-          $json.StripeSettings.SecretKey = "${{ secrets.STRIPE_API_KEY }}"
-          $json.StripeSettings.PublishableKey = "${{ secrets.STRIPE_PUB_KEY }}"
-          $json.StripeSettings.WebhookSecret = "${{ secrets.STRIPE_WEBHOOK }}"
+          if (-not $json.StripeSettings) { $json | Add-Member -MemberType NoteProperty -Name 'StripeSettings' -Value @{} }
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "SecretKey" -Value "${{ secrets.STRIPE_API_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "PublishableKey" -Value "${{ secrets.STRIPE_PUB_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "WebhookSecret" -Value "${{ secrets.STRIPE_WEBHOOK }}" -Force
           $json | ConvertTo-Json -Depth 10 | Set-Content $path
 
       - name: Deploy to MonsterASP.NET via MSDeploy (Safe Sync)
