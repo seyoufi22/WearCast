@@ -69,9 +69,30 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         var sellers = await _dbContext.Sellers
             .Where(s => sellerIds.Contains(s.Id))
             .ToDictionaryAsync(s => s.Id, cancellationToken);
+
+        // Load a shipping company to retrieve the delivery fee
+        var shippingCompany = await _dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
             
         var orders = new List<Order>();
         var stripeLineItems = new List<SessionLineItemOptions>();
+
+        // Add delivery fee as a dedicated Stripe line item (once per session)
+        if (shippingCompany != null && shippingCompany.DeliveryFee > 0)
+        {
+            stripeLineItems.Add(new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = "egp",
+                    UnitAmountDecimal = shippingCompany.DeliveryFee * 100,
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = "Delivery Fee"
+                    }
+                },
+                Quantity = 1
+            });
+        }
 
         foreach (var sellerGroup in itemsBySeller)
         {

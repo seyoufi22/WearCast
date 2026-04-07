@@ -1,13 +1,11 @@
 using WearCast.Api.Common.Extensions;
 using WearCast.Api.Features.Orders.GetOrderItemsByOrderId.Query;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WearCast.Api.Features.Orders.GetOrderItemsByOrderId;
 
 [Route("api/Orders")]
 [ApiController]
+[Tags("Order")]
 public class GetOrderItemsByOrderIdEndpoint : ControllerBase
 {
     private readonly ISender _sender;
