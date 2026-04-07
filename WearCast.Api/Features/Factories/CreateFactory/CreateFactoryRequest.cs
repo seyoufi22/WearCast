@@ -21,5 +21,5 @@
         string FactoryStreet,
         string FactoryBuildingNumber
 
-        ) : IRequest<Result>;
+        ) : IRequest<Result<CreateFactoryResponse>>;
 }

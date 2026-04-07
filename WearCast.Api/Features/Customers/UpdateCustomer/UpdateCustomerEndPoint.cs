@@ -1,19 +1,20 @@
-﻿namespace WearCast.Api.Features.Customers.CutomerImage.UpdateCusomerImage
+﻿namespace WearCast.Api.Features.Customers.UpdateCustomer
 {
     [Route("api/customers")]
     [ApiController]
     [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
     [Tags("Customer Profile")]
-    [Consumes("multipart/form-data")]
-    public class UpdateCustomerImageEndPoint(IMediator mediator) : ControllerBase
+    public class UpdateCustomerEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        [HttpPut("profile-image")]
-        public async Task<IActionResult> Update([FromForm] UpdateCustomerImageRequest request, CancellationToken cancellationToken)
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateCustomerRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
 
             return result.ToResponse();
         }
+
     }
 }

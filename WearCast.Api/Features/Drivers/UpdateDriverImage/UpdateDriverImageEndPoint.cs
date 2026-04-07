@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.Drivers.UpdateDriverImage
 {
-    [Route("api/driver/profile-image")]
+    [Route("api/drivers/profile-image")]
     [ApiController]
     [Authorize(Roles = $"{DefaultRoles.Driver},{DefaultRoles.SuperAdmin}")]
     [Tags("Driver Profile")]

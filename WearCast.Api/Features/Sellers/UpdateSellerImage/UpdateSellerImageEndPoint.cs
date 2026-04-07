@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.Sellers.UpdateSellerImage
 {
-    [Route("api/seller/profile-image")]
+    [Route("api/sellers/profile-image")]
     [ApiController]
     [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
     [Tags("Seller Profile")]

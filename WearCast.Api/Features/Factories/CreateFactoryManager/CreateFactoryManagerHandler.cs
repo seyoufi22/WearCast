@@ -8,18 +8,18 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
         UserManager<ApplicationUser> userManager,
         IMapper mapper,
         ILogger<CreateFactoryManagerHandler> logger
-        ) : IRequestHandler<CreateFactoryManagerRequest, Result>
+        ) : IRequestHandler<CreateFactoryManagerRequest, Result<CreateFactoryManagerResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<CreateFactoryManagerHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateFactoryManagerRequest request, CancellationToken cancellationToken)
+        public async Task<Result<CreateFactoryManagerResponse>> Handle(CreateFactoryManagerRequest request, CancellationToken cancellationToken)
         {
             var factoryExists = await _context.Factories.AnyAsync(x => x.Id == request.FactoryId, cancellationToken);
             if (!factoryExists)
-                return Result.Failure(FactoryErrors.FactoryNotFound);
+                return Result.Failure<CreateFactoryManagerResponse>(FactoryErrors.FactoryNotFound);
 
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber)
@@ -29,9 +29,9 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
             if (existingUser != null)
             {
                 if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(UserErrors.DublicatedEmail);
+                    return Result.Failure<CreateFactoryManagerResponse>(UserErrors.DublicatedEmail);
 
-                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<CreateFactoryManagerResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
@@ -49,7 +49,7 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
                 if (!createUserResult.Succeeded)
                 {
                     var error = createUserResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateFactoryManagerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.FactoryManager);
@@ -58,7 +58,7 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
                     await transaction.RollbackAsync(cancellationToken);
 
                     var error = roleResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateFactoryManagerResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var factoryManager = new FactoryManager
@@ -72,7 +72,7 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
 
                 await transaction.CommitAsync(cancellationToken);
 
-                return Result.Success();
+                return Result.Success(new CreateFactoryManagerResponse(user.Id));
             }
             catch (Exception ex)
             {
@@ -80,7 +80,7 @@ namespace WearCast.Api.Features.Factories.CreateFactoryManager
 
                 _logger.LogError(ex, "Failed to create factory manager for email {Email}", request.Email);
 
-                return Result.Failure(new Error("Creation.Failed", "An error occurred while creating the factory manager.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<CreateFactoryManagerResponse>(new Error("Creation.Failed", "An error occurred while creating the factory manager.", StatusCodes.Status500InternalServerError));
             }
         }
     }

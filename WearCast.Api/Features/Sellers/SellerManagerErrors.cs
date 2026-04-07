@@ -16,5 +16,10 @@
             new("Manager.EmailNotConfirmed",
                 "The manager's email address has not been confirmed.",
                 StatusCodes.Status400BadRequest);
+
+        public static readonly Error NotFound =
+            new("SellerManager.NotFound",
+            "The specified seller manager was not found.",
+            StatusCodes.Status404NotFound);
     }
 }
