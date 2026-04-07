@@ -195,10 +195,6 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
 
         _dbContext.Orders.AddRange(orders);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        _dbContext.Orders.AddRange(orders);
-        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new CreateCheckoutSessionResponseDto
         {
