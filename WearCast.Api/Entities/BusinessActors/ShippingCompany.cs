@@ -18,6 +18,8 @@ namespace WearCast.Api.Entities.BusinessActors
 
         public string LogoUrl { get; set; } = string.Empty;
 
+        public decimal DeliveryFee { get; set; }
+
         public Address Address { get; set; } = new Address();
 
         public bool IsDeleted { get; set; }

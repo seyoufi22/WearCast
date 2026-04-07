@@ -16,8 +16,12 @@ public class Order : BaseModel
     public string RecipientPhoneNumber { get; set; } = string.Empty;
     public string? RecipientAdditionalPhoneNumber { get; set; }
     public Address ShippingAddress { get; set; } = new();
+    public Address PickUpAddress { get; set; } = new();
 
     public Customer Customer { get; set; } = null!;
     public Seller Seller { get; set; } = null!;
     public ICollection<FixedProductOrderItem> FixedProductItems { get; set; } = new List<FixedProductOrderItem>();
+
+    public int? ShipmentId { get; set; }
+    public Shipping.Shipment? Shipment { get; set; }
 }

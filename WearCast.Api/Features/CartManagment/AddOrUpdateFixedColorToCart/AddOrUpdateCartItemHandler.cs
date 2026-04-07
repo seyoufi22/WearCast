@@ -1,7 +1,12 @@
 ﻿using WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart.DTOs;
+using WearCast.Api.Persistence;
+
 namespace WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart;
 
-public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepository, IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository)
+public class AddOrUpdateCartItemHandler(
+    IRepository<CartItem> _cartItemRepository,
+    IRepository<Entities.FixedProduct.FixedProductColor> _colorRepository,
+    ApplicationDbContext _dbContext)
     : IRequestHandler<AddOrUpdateFixedColorToCartCommand, Result>
 {
     public async Task<Result> Handle(AddOrUpdateFixedColorToCartCommand command, CancellationToken cancellationToken)
@@ -48,7 +53,9 @@ public class AddOrUpdateCartItemHandler(IRepository<CartItem> _cartItemRepositor
             }
             else
             {
-                await _cartItemRepository.UpdateAsync(cartItem);
+                // Force EF Core to correctly track the JSON state sequence update without corrupting the generic parent object tracking
+                _dbContext.Entry(cartItem).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
         }
 

@@ -1,3 +1,4 @@
+using Stripe;
 using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Repository;
 using WearCast.Api.Common.Settings;
@@ -45,15 +46,58 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 new Error("Checkout.EmptyCart", "Your cart has no products to checkout.", StatusCodes.Status400BadRequest));
         }
 
+        var existingPendingOrders = await _dbContext.Orders
+            .Include(o => o.FixedProductItems)
+            .Where(o => o.CustomerId == request.CustomerId && o.Status == OrderStatus.Pending)
+            .ToListAsync(cancellationToken);
+
+        if (existingPendingOrders.Any())
+        {
+            var existingItems = existingPendingOrders.SelectMany(o => o.FixedProductItems).ToList();
+            if (existingItems.Any())
+            {
+                _dbContext.FixedProductOrderItems.RemoveRange(existingItems);
+            }
+            // Just mark them for deletion in the EF Tracker to batch it later
+            _dbContext.Orders.RemoveRange(existingPendingOrders);
+        }
+
         // 2. Group cart items by seller
         var itemsBySeller = cartItems.GroupBy(c => c.FixedColor!.Product.SellerId);
 
+        var sellerIds = itemsBySeller.Select(g => g.Key).ToList();
+        var sellers = await _dbContext.Sellers
+            .Where(s => sellerIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, cancellationToken);
+
+        // Load a shipping company to retrieve the delivery fee
+        var shippingCompany = await _dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
+            
         var orders = new List<Order>();
         var stripeLineItems = new List<SessionLineItemOptions>();
+
+        // Add delivery fee as a dedicated Stripe line item (once per session)
+        if (shippingCompany != null && shippingCompany.DeliveryFee > 0)
+        {
+            stripeLineItems.Add(new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = "egp",
+                    UnitAmountDecimal = shippingCompany.DeliveryFee * 100,
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = "Delivery Fee"
+                    }
+                },
+                Quantity = 1
+            });
+        }
 
         foreach (var sellerGroup in itemsBySeller)
         {
             var sellerId = sellerGroup.Key;
+            var seller = sellers[sellerId];
             var orderItems = new List<FixedProductOrderItem>();
 
             foreach (var cartItem in sellerGroup)
@@ -117,21 +161,34 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 RecipientName = request.ShippingInfo.RecipientName,
                 RecipientPhoneNumber = request.ShippingInfo.PhoneNumber,
                 RecipientAdditionalPhoneNumber = request.ShippingInfo.AdditionalPhoneNumber,
-                ShippingAddress = new Address
+                ShippingAddress = new WearCast.Api.Common.ValueObjects.Address
                 {
                     State = request.ShippingInfo.State,
                     City = request.ShippingInfo.City,
                     Street = request.ShippingInfo.Street,
                     BuildingNumber = request.ShippingInfo.BuildingNumber
+                },
+                PickUpAddress = new WearCast.Api.Common.ValueObjects.Address
+                {
+                    State = seller.Address.State,
+                    City = seller.Address.City,
+                    Street = seller.Address.Street,
+                    BuildingNumber = seller.Address.BuildingNumber
                 }
             };
             orders.Add(order);
         }
 
         // 4. Create Stripe Checkout Session
+        var customerService = new CustomerService();
+        var stripeCustomers = await customerService.ListAsync(
+            new CustomerListOptions { Email = request.CustomerEmail }, 
+            cancellationToken: cancellationToken);
+        
+        var existingCustomer = stripeCustomers.FirstOrDefault();
+
         var sessionOptions = new SessionCreateOptions
         {
-            CustomerEmail = request.CustomerEmail,
             PaymentMethodTypes = new List<string> { "card" },
             LineItems = stripeLineItems,
             Mode = "payment",
@@ -139,21 +196,26 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             CancelUrl = _stripeSettings.Value.CancelUrl
         };
 
+        if (existingCustomer != null)
+        {
+            sessionOptions.Customer = existingCustomer.Id;
+        }
+        else
+        {
+            sessionOptions.CustomerEmail = request.CustomerEmail;
+            sessionOptions.CustomerCreation = "always";
+        }
+
         var service = new SessionService();
         var session = await service.CreateAsync(sessionOptions, cancellationToken: cancellationToken);
 
-        // 5. Save StripeSessionId on all orders and persist
         foreach (var order in orders)
         {
             order.StripeSessionId = session.Id;
-            await _orderRepo.CreateAsync(order);
         }
 
-        // 6. Clear the customer's fixed-product cart items
-        foreach (var cartItem in cartItems)
-        {
-            await _cartRepo.HardDeleteAsync(cartItem);
-        }
+        _dbContext.Orders.AddRange(orders);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new CreateCheckoutSessionResponseDto
         {
