@@ -32,6 +32,7 @@ public class GetFixedProductByIdHandler : IRequestHandler<GetFixedProductByIdQue
             Description = product.Description,
             TargetAudience = product.TargetAudience.ToString(),
             DressStyle = product.DressStyle.ToString(),
+            SellerId = product.SellerId,
             SizeDetails = product.SizeDetails.Select(sd => new ProductSizeDetailResponseDto
             {
                 Size = sd.Size.ToString(),

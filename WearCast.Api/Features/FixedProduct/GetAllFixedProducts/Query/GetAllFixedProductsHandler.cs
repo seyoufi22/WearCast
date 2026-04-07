@@ -76,7 +76,7 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             Description = x.Product.Description,
             TargetAudience = x.Product.TargetAudience,
             colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
-            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null
+            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null,
         });
 
         var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);

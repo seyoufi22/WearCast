@@ -13,3 +13,4 @@ public record GetAllFixedProductsResponseDto
     public TargetAudience? TargetAudience { get; init; } = null;
     public string? MainImageUrl { get; init; }
 }
+
