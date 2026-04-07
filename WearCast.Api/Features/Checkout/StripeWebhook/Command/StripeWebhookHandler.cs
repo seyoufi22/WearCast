@@ -20,6 +20,13 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
         if (!orders.Any())
             return Result.Failure<bool>(new Error("Orders.NotFound", $"No orders found for session {request.StripeSessionId}", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
 
+        if (!request.IsSuccess)
+        {
+            dbContext.Orders.RemoveRange(orders);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return Result<bool>.Success(true);
+        }
+
         foreach (var order in orders)
         {
             if (order.Status == OrderStatus.Paid) continue;
@@ -46,6 +53,13 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                 }
             }
         }
+
+        var customerId = orders.First().CustomerId;
+        var cartItemsToClear = await dbContext.CartItems
+            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
+            .ToListAsync(cancellationToken);
+        
+        dbContext.CartItems.RemoveRange(cartItemsToClear);
 
         // Find a default shipping company
         var shippingCompany = await dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);

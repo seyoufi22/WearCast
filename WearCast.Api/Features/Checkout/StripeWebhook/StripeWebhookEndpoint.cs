@@ -35,12 +35,13 @@ public class StripeWebhookEndpoint : ControllerBase
                 throwOnApiVersionMismatch: false
             );
 
-            if (stripeEvent.Type == EventTypes.CheckoutSessionCompleted)
+            if (stripeEvent.Type is EventTypes.CheckoutSessionCompleted or EventTypes.CheckoutSessionExpired or EventTypes.CheckoutSessionAsyncPaymentFailed)
             {
                 var session = stripeEvent.Data.Object as Session;
                 if (session != null)
                 {
-                    var result = await _sender.Send(new StripeWebhookRequestDto(session.Id), cancellationToken);
+                    bool isSuccess = stripeEvent.Type == EventTypes.CheckoutSessionCompleted;
+                    var result = await _sender.Send(new StripeWebhookRequestDto(session.Id, isSuccess), cancellationToken);
                     if (result.IsFailure)
                     {
                         Console.WriteLine($"Webhook failed: {result.Error.Code} - {result.Error.Description}");

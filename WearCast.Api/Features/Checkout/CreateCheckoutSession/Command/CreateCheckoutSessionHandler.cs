@@ -45,6 +45,17 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 new Error("Checkout.EmptyCart", "Your cart has no products to checkout.", StatusCodes.Status400BadRequest));
         }
 
+        // 1.5. Aggressively clean up previous abandoned checkouts from the database
+        var existingPendingOrders = await _dbContext.Orders
+            .Where(o => o.CustomerId == request.CustomerId && o.Status == OrderStatus.Pending)
+            .ToListAsync(cancellationToken);
+
+        if (existingPendingOrders.Any())
+        {
+            // Just mark them for deletion in the EF Tracker to batch it later
+            _dbContext.Orders.RemoveRange(existingPendingOrders);
+        }
+
         // 2. Group cart items by seller
         var itemsBySeller = cartItems.GroupBy(c => c.FixedColor!.Product.SellerId);
 
@@ -155,18 +166,14 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         var service = new SessionService();
         var session = await service.CreateAsync(sessionOptions, cancellationToken: cancellationToken);
 
-        // 5. Save StripeSessionId on all orders and persist
+        // 5. Save StripeSessionId on all orders and persist everything in one bulk database hit
         foreach (var order in orders)
         {
             order.StripeSessionId = session.Id;
-            await _orderRepo.CreateAsync(order);
         }
 
-        // 6. Clear the customer's fixed-product cart items
-        foreach (var cartItem in cartItems)
-        {
-            await _cartRepo.HardDeleteAsync(cartItem);
-        }
+        _dbContext.Orders.AddRange(orders);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new CreateCheckoutSessionResponseDto
         {
