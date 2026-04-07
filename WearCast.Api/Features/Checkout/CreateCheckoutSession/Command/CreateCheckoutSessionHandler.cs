@@ -1,3 +1,4 @@
+using Stripe;
 using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Repository;
 using WearCast.Api.Common.Settings;
@@ -43,6 +44,22 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         {
             return Result.Failure<CreateCheckoutSessionResponseDto>(
                 new Error("Checkout.EmptyCart", "Your cart has no products to checkout.", StatusCodes.Status400BadRequest));
+        }
+
+        var existingPendingOrders = await _dbContext.Orders
+            .Include(o => o.FixedProductItems)
+            .Where(o => o.CustomerId == request.CustomerId && o.Status == OrderStatus.Pending)
+            .ToListAsync(cancellationToken);
+
+        if (existingPendingOrders.Any())
+        {
+            var existingItems = existingPendingOrders.SelectMany(o => o.FixedProductItems).ToList();
+            if (existingItems.Any())
+            {
+                _dbContext.FixedProductOrderItems.RemoveRange(existingItems);
+            }
+            // Just mark them for deletion in the EF Tracker to batch it later
+            _dbContext.Orders.RemoveRange(existingPendingOrders);
         }
 
         // 2. Group cart items by seller
@@ -142,9 +159,15 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         }
 
         // 4. Create Stripe Checkout Session
+        var customerService = new CustomerService();
+        var stripeCustomers = await customerService.ListAsync(
+            new CustomerListOptions { Email = request.CustomerEmail }, 
+            cancellationToken: cancellationToken);
+        
+        var existingCustomer = stripeCustomers.FirstOrDefault();
+
         var sessionOptions = new SessionCreateOptions
         {
-            CustomerEmail = request.CustomerEmail,
             PaymentMethodTypes = new List<string> { "card" },
             LineItems = stripeLineItems,
             Mode = "payment",
@@ -152,21 +175,26 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             CancelUrl = _stripeSettings.Value.CancelUrl
         };
 
+        if (existingCustomer != null)
+        {
+            sessionOptions.Customer = existingCustomer.Id;
+        }
+        else
+        {
+            sessionOptions.CustomerEmail = request.CustomerEmail;
+            sessionOptions.CustomerCreation = "always";
+        }
+
         var service = new SessionService();
         var session = await service.CreateAsync(sessionOptions, cancellationToken: cancellationToken);
 
-        // 5. Save StripeSessionId on all orders and persist
         foreach (var order in orders)
         {
             order.StripeSessionId = session.Id;
-            await _orderRepo.CreateAsync(order);
         }
 
-        // 6. Clear the customer's fixed-product cart items
-        foreach (var cartItem in cartItems)
-        {
-            await _cartRepo.HardDeleteAsync(cartItem);
-        }
+        _dbContext.Orders.AddRange(orders);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new CreateCheckoutSessionResponseDto
         {
