@@ -13,8 +13,13 @@ public record UpdateFixedProductRequestDto : IRequest<Result<UpdateFixedProductR
     public string Name { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
+    public DressStyle DressStyle { get; init; }
     public TargetAudience TargetAudience { get; init; }
     public List<UpdateProductSizeDetailDto> SizeDetails { get; init; } = new();
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int SellerId { get; set; } = 0;
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool isAdminRequest { get; set; } = false; 
 }
 
 public record UpdateProductSizeDetailDto
@@ -43,8 +48,21 @@ public class UpdateFixedProductValidator : AbstractValidator<UpdateFixedProductR
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Description is required.");
-            
+
+        RuleFor(x => x.DressStyle)
+            .IsInEnum().WithMessage("Invalid DressStyle selected.");
+
         RuleFor(x => x.TargetAudience)
-            .IsInEnum().WithMessage("Valid TargetAudience is required.");
+            .IsInEnum().WithMessage("Invalid TargetAudience selected.");
+
+        RuleFor(x => x.SizeDetails)
+            .Must(list => list.Select(d => d.Size).Distinct().Count() == list.Count)
+            .WithMessage("Duplicate sizes are not allowed.");
+
+        RuleForEach(x => x.SizeDetails).ChildRules(detail =>
+        {
+            detail.RuleFor(d => d.Size)
+                .IsInEnum().WithMessage("Invalid size value.");
+        });
     }
 }

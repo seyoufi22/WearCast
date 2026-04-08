@@ -19,6 +19,9 @@ public class FixedProductConfiguration : BaseModelConfiguration<Entities.FixedPr
             .HasMaxLength(1000);
 
         builder.Property(p => p.TargetAudience)
+            .IsRequired();
+
+        builder.Property(p => p.DressStyle)
             .IsRequired()
             .HasConversion<string>()
             .HasMaxLength(20);

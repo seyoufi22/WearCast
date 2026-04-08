@@ -10,7 +10,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
         ImageService imageService,
         EmailHelper emailHelper,
         ILogger<CreateShippingCompanyHandler> logger
-        ) : IRequestHandler<CreateShippingCompanyRequest, Result>
+        ) : IRequestHandler<CreateShippingCompanyRequest, Result<CreateShippingCompanyResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
@@ -19,9 +19,9 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
         private readonly EmailHelper _emailHelper = emailHelper;
         private readonly ILogger<CreateShippingCompanyHandler> _logger = logger;
 
-        public async Task<Result> Handle(CreateShippingCompanyRequest request, CancellationToken cancellationToken)
+        public async Task<Result<CreateShippingCompanyResponse>> Handle(CreateShippingCompanyRequest request, CancellationToken cancellationToken)
         {
-            var existingUser = await _context.Users
+            var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -29,9 +29,9 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
             if (existingUser != null)
             {
                 if (existingUser.Email.Equals(request.ManagerEmail?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure(UserErrors.DublicatedEmail);
+                    return Result.Failure<CreateShippingCompanyResponse>(UserErrors.DublicatedEmail);
 
-                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+                return Result.Failure<CreateShippingCompanyResponse>(UserErrors.DublicatedPhoneNumber);
             }
 
             var companyLogoUrl = await _imageService.UploadAsync(request.CompanyLogo);
@@ -51,7 +51,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
                     await _imageService.DeleteAsync(companyLogoUrl);
 
                     var error = createUserResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateShippingCompanyResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(user, DefaultRoles.ShippingCompanyManager);
@@ -62,7 +62,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
                     await transaction.RollbackAsync(cancellationToken);
 
                     var error = roleResult.Errors.First();
-                    return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+                    return Result.Failure<CreateShippingCompanyResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
                 }
 
                 var shippingCompany = _mapper.Map<ShippingCompany>(request);
@@ -88,7 +88,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
 
                 await transaction.RollbackAsync(cancellationToken);
 
-                return Result.Failure(new Error("Creation.Failed", "An error occurred while Creating the Shipping Company.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<CreateShippingCompanyResponse>(new Error("Creation.Failed", "An error occurred while Creating the Shipping Company.", StatusCodes.Status500InternalServerError));
             }
             try
             {
@@ -99,7 +99,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
                 _logger.LogWarning(ex, "Shipping Company created but failed to send email to {Email}", request.ManagerEmail);
             }
 
-            return Result.Success();
+            return Result.Success(new CreateShippingCompanyResponse(user.Id));
         }
     }
 }

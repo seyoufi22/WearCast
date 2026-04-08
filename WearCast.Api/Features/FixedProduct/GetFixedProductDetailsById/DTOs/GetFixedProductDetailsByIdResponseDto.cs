@@ -9,6 +9,7 @@ public record GetFixedProductDetailsByIdResponseDto
     public decimal Price { get; init; }
     public string Description { get; init; } = string.Empty;
     public string TargetAudience { get; init; } = string.Empty;
+    public int SellerId { get; init; }
     public ProductDetailsCategoryDto Category { get; init; } = null!;
     public List<ProductDetailsColorDto> Colors { get; init; } = new();
     public List<ProductSizeDetailResponseDto> SizeDetails { get; init; } = new();

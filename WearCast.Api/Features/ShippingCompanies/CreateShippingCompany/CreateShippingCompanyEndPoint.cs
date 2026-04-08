@@ -1,6 +1,8 @@
 ﻿namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
 {
+    [ApiController]
     [Route("api/shipping-companies")]
+    [Tags("Shipping Company Profile")]
     public class CreateShippingCompanyEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

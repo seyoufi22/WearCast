@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.AddFactoryProductColor
 {
-    [Route("api/factory/products")]
+    [Route("api/factories/products")]
     [ApiController]
+    [Tags("Factory Product Color")]
     public class AddFactoryProductColorEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

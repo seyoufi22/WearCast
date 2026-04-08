@@ -14,7 +14,6 @@ public class GetFixedProductByIdEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
     {

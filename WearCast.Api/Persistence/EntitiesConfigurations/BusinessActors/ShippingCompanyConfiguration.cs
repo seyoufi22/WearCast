@@ -5,6 +5,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
     {
         public void Configure(EntityTypeBuilder<ShippingCompany> builder)
         {
+            builder.HasKey(c => c.Id);
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
 
             builder.Property(x => x.Email).IsRequired().HasMaxLength(256);
@@ -17,6 +18,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
 
             builder.Property(x => x.Description).IsRequired().HasMaxLength(1000);
             builder.Property(x => x.LogoUrl).IsRequired().HasMaxLength(500);
+            builder.Property(x => x.DeliveryFee).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
 
             builder.OwnsOne(x => x.Address, address =>
             {

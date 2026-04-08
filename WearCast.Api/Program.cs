@@ -10,7 +10,12 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
-app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    options.EnablePersistAuthorization();
+});
+
 
 app.UseHttpsRedirection();
 
@@ -33,5 +38,11 @@ app.UseExceptionHandler();
 app.MapControllers();
 
 app.UseStaticFiles();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<WearCast.Api.Persistence.ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 app.Run();
