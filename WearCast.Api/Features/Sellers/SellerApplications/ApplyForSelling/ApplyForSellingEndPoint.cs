@@ -2,6 +2,7 @@
 {
     [Route("api/seller-applications")]
     [ApiController]
+    [Tags("Seller Applications")]
     public class ApplyForSellingEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

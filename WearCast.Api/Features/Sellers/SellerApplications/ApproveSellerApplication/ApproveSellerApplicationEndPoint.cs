@@ -4,6 +4,7 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApproveSellerApplicat
 {
     [Route("api/seller-applications")]
     [ApiController]
+    [Tags("Seller Applications")]
     public class ApproveSellerApplicationEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

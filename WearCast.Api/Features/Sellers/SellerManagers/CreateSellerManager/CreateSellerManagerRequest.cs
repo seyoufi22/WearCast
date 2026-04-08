@@ -8,6 +8,6 @@
         string Password,
         string ConfirmPassword,
 
-        int SellerId
+        int? ProvidedSellerId = null
         ) : IRequest<Result>;
 }

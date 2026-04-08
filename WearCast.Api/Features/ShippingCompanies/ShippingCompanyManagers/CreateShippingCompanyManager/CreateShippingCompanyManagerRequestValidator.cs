@@ -1,13 +1,13 @@
-﻿namespace WearCast.Api.Features.Sellers.SellerManagers.CreateSellerManager
+﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager
 {
-    public class CreateSellerManagerRequestValidator : AbstractValidator<CreateSellerManagerRequest>
+    public class CreateShippingCompanyManagerRequestValidator : AbstractValidator<CreateShippingCompanyManagerRequest>
     {
-        public CreateSellerManagerRequestValidator()
+        public CreateShippingCompanyManagerRequestValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Invalid email format.")
-               .MaximumLength(256).WithMessage("Email must not exceed 256 characters.");
+               .NotEmpty().WithMessage("Email is required.")
+               .EmailAddress().WithMessage("Invalid email format.")
+              .MaximumLength(256).WithMessage("Email must not exceed 256 characters.");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.")
@@ -30,6 +30,7 @@
             RuleFor(x => x.ConfirmPassword)
                .NotEmpty().WithMessage("Password confirmation is required.")
                .Equal(x => x.Password).WithMessage("Passwords do not match.");
+
         }
     }
 }
