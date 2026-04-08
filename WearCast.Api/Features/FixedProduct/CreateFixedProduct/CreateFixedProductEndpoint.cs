@@ -15,7 +15,7 @@ public class CreateFixedProductEndpoint : ControllerBase
     {
         _sender = sender;
     }
-    [Authorize(Roles = "SellerManager")]
+    [Authorize(Roles = DefaultRoles.SellerManager)]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateFixedProductRequestDto request, CancellationToken cancellationToken)
     {

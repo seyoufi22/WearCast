@@ -17,7 +17,7 @@ public class GetOrdersBySellerIdEndpoint : ControllerBase
     }
 
     [HttpGet("seller")]
-    [Authorize(Roles = "Seller")]
+    [Authorize(Roles = DefaultRoles.SellerManager)]
     public async Task<IActionResult> Get(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
