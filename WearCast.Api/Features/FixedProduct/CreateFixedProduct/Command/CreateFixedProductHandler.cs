@@ -51,8 +51,10 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
             Name = request.Name,
             Price = request.Price,
             Description = request.Description,
+            DressStyle = request.DressStyle,
             TargetAudience = request.TargetAudience,
             CreatedById = request.CreatedById,
+            SellerId = request.SellerId,
             SizeDetails = request.SizeDetails.Select(sd => new ProductSizeDetail
             {
                 Size = sd.Size,

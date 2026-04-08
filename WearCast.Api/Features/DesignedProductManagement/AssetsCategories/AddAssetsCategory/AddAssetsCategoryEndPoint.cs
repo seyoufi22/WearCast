@@ -3,6 +3,7 @@
     [Route("api/assets-categories")]
     [ApiController]
     [Authorize]
+    [Tags("AssetsCategory")]
     public class AddAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

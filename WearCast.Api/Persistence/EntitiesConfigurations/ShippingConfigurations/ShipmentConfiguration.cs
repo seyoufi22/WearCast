@@ -23,7 +23,6 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.ShippingConfigurations
                    .IsRequired()
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.OwnsOne(s => s.PickUpAddress);
             builder.OwnsOne(s => s.DeliveryAddress);
         }
     }

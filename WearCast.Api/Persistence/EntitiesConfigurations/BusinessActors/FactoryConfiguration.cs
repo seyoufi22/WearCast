@@ -9,6 +9,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
 
             builder.Property(x => x.Email).IsRequired().HasMaxLength(256);
 
+
             builder.Property(x => x.CommercialRegisterNumber).IsRequired().HasMaxLength(20);
 
             builder.Property(x => x.TaxIdNumber).IsRequired().HasMaxLength(9);

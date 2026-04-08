@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.CreateDesignedProduct
 {
-    [Route("api/factory/products")]
+    [Route("api/factories/products")]
     [ApiController]
+    [Tags("Factory Product")]
     public class CreateDesignedProductEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

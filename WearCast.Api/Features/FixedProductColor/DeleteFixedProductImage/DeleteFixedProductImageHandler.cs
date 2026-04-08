@@ -1,11 +1,10 @@
-﻿using MediatR;
-using WearCast.Api.Common.Repository; // مسار الـ IRepository بتاعك
-using WearCast.Api.Entities.FixedProduct; // مسار الـ FixedProductImage
+﻿using WearCast.Api.Entities.FixedProduct; 
 using WearCast.Api.Features.FixedProductColor.DeleteFixedProductImage.DTOs;
+using WearCast.Api.Features.FixedProductColor.Errors;
 
 namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductImage;
 
-public class DeleteFixedProductImageHandler : IRequestHandler<DeleteFixedProductImageRequestDto, bool>
+public class DeleteFixedProductImageHandler : IRequestHandler<DeleteFixedProductImageRequestDto, Result>
 {
     private readonly IRepository<FixedProductImage> _imageRepository;
     private readonly ImageService _imageService;
@@ -15,19 +14,19 @@ public class DeleteFixedProductImageHandler : IRequestHandler<DeleteFixedProduct
         _imageService = imageService;
     }
 
-    public async Task<bool> Handle(DeleteFixedProductImageRequestDto request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeleteFixedProductImageRequestDto request, CancellationToken cancellationToken)
     {
-        var image = await _imageRepository.GetAsync(
-            img => img.Id == request.ImageId
-        );
+        var image = await _imageRepository.Get().Include(c => c.ProductColor).ThenInclude(c=>c.Product)
+            .FirstOrDefaultAsync(img => img.Id == request.ImageId);
 
-        if (image == null)
-        {
-            return false;
-        }
+        if (image is null) return Result.Failure(FixedProductColorErrors.ImageNotFound);
+
+        if(!request.isAdminRequest && image.ProductColor.Id != request.sellerId) 
+            return Result.Failure(AuthErrors.Forbidden);
+
         await _imageService.DeleteAsync(image.ImageUrl);
         await _imageRepository.HardDeleteAsync(image);
 
-        return true;
+        return Result.Success();
     }
 }

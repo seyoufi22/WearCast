@@ -26,13 +26,19 @@
 			</PackageReference>
 			<PackageReference Include="MimeKit" Version="4.15.1" />
 			<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+			<PackageReference Include="Stripe.net" Version="50.4.1" />
 			<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
 			<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.5" />
 		</ItemGroup>
     <ItemGroup>
-      <Folder Include="Features\DesignedProductManagement\CustomerCatalogAndWorkspace\" />
       <Folder Include="wwwroot\" />
       <Folder Include="wwwroot\uploads\" />
     </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Templates\**\*.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
 </Project>

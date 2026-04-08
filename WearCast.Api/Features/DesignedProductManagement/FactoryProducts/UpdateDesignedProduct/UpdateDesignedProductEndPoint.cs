@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.UpdateDesignedProduct
 {
-    [Route("api/factory/products")]
+    [Route("api/factories/products")]
     [ApiController]
+    [Tags("Factory Product")]
     public class UpdateDesignedProductEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
@@ -13,7 +14,7 @@
                 Id,
                 body.Name,
                 body.Description,
-                body.TargetAudience,
+                body.TargetAudiences,
                 body.Price,
                 body.CanvasWidth,
                 body.CanvasHeight,
@@ -27,7 +28,7 @@
     public record UpdateProductBody(
         string Name,
         string Description,
-        TargetAudience TargetAudience,
+        List<TargetAudience> TargetAudiences,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,

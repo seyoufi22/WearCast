@@ -3,6 +3,7 @@
     [Route("api/customers/me/design-images")]
     [ApiController]
     [Authorize]
+    [Tags("Customer Uploaded Images")]
     public class UpdateCustomerUploadedImageEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

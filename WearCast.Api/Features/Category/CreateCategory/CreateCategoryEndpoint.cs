@@ -7,14 +7,18 @@ namespace WearCast.Api.Features.Category.CreateCategory;
 [ApiController]
 public class CreateCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpPost("CreateCategory", Name = "AddCategory")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromForm] CreateCategoryRequestDto request, CancellationToken cancellationToken)
     {
-        var category = await sender.Send(request);
-        return CreatedAtRoute("GetCategoryById", new { id = category.Id }, category);
+        var result = await sender.Send(request);
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "Category added successfully." });
     }
 }

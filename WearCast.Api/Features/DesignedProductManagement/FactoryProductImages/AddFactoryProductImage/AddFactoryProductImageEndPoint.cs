@@ -1,7 +1,8 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.AddFactoryProductImage
 {
-    [Route("api/factory/product-colors")]
+    [Route("api/factories/product-colors")]
     [ApiController]
+    [Tags("Factory Product Image")]
     public class AddFactoryProductImageEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

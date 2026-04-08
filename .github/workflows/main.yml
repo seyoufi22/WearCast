@@ -18,17 +18,37 @@ jobs:
           
       - name: Install dependencies
         run: dotnet restore
-        
+          
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
-        
-      - name: Deploy to MonsterASP.NET via WebDeploy
-        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
-        with:
-          website-name: ${{ secrets.WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SERVER_USERNAME }}
-          server-password: ${{ secrets.SERVER_PASSWORD }}
+          
+      - name: Inject Secrets into appsettings.json
+        shell: pwsh
+        run: |
+          $path = "./publish/appsettings.json"
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+          if (-not $json.StripeSettings) { $json | Add-Member -MemberType NoteProperty -Name 'StripeSettings' -Value @{} }
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "SecretKey" -Value "${{ secrets.STRIPE_API_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "PublishableKey" -Value "${{ secrets.STRIPE_PUB_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "WebhookSecret" -Value "${{ secrets.STRIPE_WEBHOOK }}" -Force
+          $json | ConvertTo-Json -Depth 10 | Set-Content $path
+
+      - name: Deploy to MonsterASP.NET via MSDeploy (Safe Sync)
+        shell: cmd
+        env:
+          WEBSITE_NAME: ${{ secrets.WEBSITE_NAME }}
+          SERVER_COMPUTER_NAME: ${{ secrets.SERVER_COMPUTER_NAME }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: >
+          "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
+          -verb:sync 
+          -source:contentPath="%GITHUB_WORKSPACE%\publish" 
+          -dest:contentPath="%WEBSITE_NAME%",ComputerName="%SERVER_COMPUTER_NAME%",UserName="%SERVER_USERNAME%",Password="%SERVER_PASSWORD%",AuthType="Basic" 
+          -enableRule:AppOffline
+          -skip:objectName=dirPath,absolutePath=".*\\wwwroot\\uploads.*" 
+          -skip:objectName=dirPath,absolutePath=".*\\.well-known.*" 
+          -allowUntrusted

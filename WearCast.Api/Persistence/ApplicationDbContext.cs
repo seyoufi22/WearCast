@@ -27,6 +27,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProduct> FixedProducts { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
+    public DbSet<Entities.FixedProduct.Favourite> Favourites { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
 
     public DbSet<DesignedProduct> DesignedProducts { get; set; }
@@ -37,6 +38,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CustomerDesign> CustomerDesigns { get; set; }
     public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
     public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
+    public DbSet<CartItem> CartItems { get; set; }
+    public DbSet<Entities.Order.Order> Orders { get; set; }
+    public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,14 +76,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         foreach (var entityEntry in entries)
         {
-            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId()!;
+            var currentUserId = _httpContextAccessor.HttpContext?.User.GetUserId();
             if (entityEntry.State == EntityState.Added)
             {
-                entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+                if (string.IsNullOrEmpty((string?)entityEntry.Property(x => x.CreatedById).CurrentValue) && currentUserId != null)
+                {
+                    entityEntry.Property(x => x.CreatedById).CurrentValue = currentUserId;
+                }
             }
             else if (entityEntry.State == EntityState.Modified)
             {
-                entityEntry.Property(x => x.UpdatedById).CurrentValue = currentUserId;
+                if (currentUserId != null)
+                {
+                    entityEntry.Property(x => x.UpdatedById).CurrentValue = currentUserId;
+                }
                 entityEntry.Property(x => x.UpdatedOn).CurrentValue = DateTime.UtcNow;
             }
         }

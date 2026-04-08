@@ -1,4 +1,5 @@
-using WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using WearCast.Api.Features.FixedProduct.CreateProduct.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.CreateProduct;
@@ -14,11 +15,18 @@ public class CreateFixedProductEndpoint : ControllerBase
     {
         _sender = sender;
     }
-
+    [Authorize(Roles = "SellerManager")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateFixedProductRequestDto request, CancellationToken cancellationToken)
     {
         request.CreatedById = User.GetUserId()!;
+        
+        var sellerId = User.GetSellerId();
+        if (sellerId == null)
+            return Unauthorized(new { Message = "SellerId claim is missing from the token." });
+
+        request.SellerId = sellerId.Value;
+
         var result = await _sender.Send(request, cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }

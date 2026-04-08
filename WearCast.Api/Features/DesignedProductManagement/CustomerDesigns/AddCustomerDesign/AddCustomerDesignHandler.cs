@@ -26,7 +26,7 @@
 
             if (!isValidProductAndColor)
             {
-                return Result.Failure<CustomerDesignResponse>(new Error("Design.InvalidProductOrColor", "The selected product or color does not exist.", 400));
+                return Result.Failure<CustomerDesignResponse>(new Error("Design.InvalidColor", "The selected color does not exist for this product.", 400));
             }
 
             var customerDesign = new CustomerDesign

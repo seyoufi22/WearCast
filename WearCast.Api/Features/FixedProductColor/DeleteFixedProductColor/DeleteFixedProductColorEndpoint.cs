@@ -1,4 +1,6 @@
-﻿using WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor.DTOs;
+﻿using System.Security.Claims;
+using WearCast.Api.Features.FixedProductColor.AdjustStockFixedProductSize.DTOs;
+using WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor.DTOs;
 
 namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor;
 
@@ -7,19 +9,28 @@ namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor;
 [ApiController]
 public class DeleteFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize] 
+    [Authorize(Roles = "SellerManager,SuperAdmin")]
     [HttpDelete("DeleteColor/{ColorId:int}", Name = "DeleteFixedProductColor")]
     public async Task<IActionResult> DeleteColor(int ColorId, CancellationToken cancellationToken)
     {
-        var request = new DeleteFixedProductColorRequestDto { ColorId = ColorId };
-
-        var isSuccess = await sender.Send(request, cancellationToken);
-
-        if (isSuccess)
+        Result result;
+        var Role = User.FindFirstValue(ClaimTypes.Role);
+        if (Role == "SuperAdmin")
+            result = await sender.Send(new DeleteFixedProductColorRequestDto(ColorId, 0, true));
+        else
         {
-            return Ok(new { Message = "Product color deleted successfully." });
+            var sellerId = User.FindFirstValue("SellerId");
+
+            if (string.IsNullOrEmpty(sellerId))
+                return Unauthorized();
+
+            result = await sender.Send(new DeleteFixedProductColorRequestDto(ColorId, int.Parse(sellerId), false));
         }
 
-        return NotFound(new { Message = "Product color not found." });
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
+        return Ok(new { Message = "Product color deleted successfully." });
     }
 }

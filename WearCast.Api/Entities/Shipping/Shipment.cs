@@ -2,7 +2,6 @@
 {
     public class Shipment : BaseModel
     {
-        public Address PickUpAddress { get; set; }
         public Address DeliveryAddress { get; set; }
         public decimal Price { get; set; }
         public int? DriverId { get; set; }
@@ -14,6 +13,8 @@
 
         public int CustomerID {get;set;}
         public Customer Customer { get; set; } = default;
+
+        public ICollection<Order.Order> Orders { get; set; } = new List<Order.Order>();
 
     }
 }

@@ -3,6 +3,7 @@
     [Route("api/admin/design-assets")]
     [ApiController]
     [Authorize]
+    [Tags("Assets")]
     public class AddAssetEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

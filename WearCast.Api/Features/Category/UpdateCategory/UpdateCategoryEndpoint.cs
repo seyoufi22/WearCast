@@ -7,18 +7,18 @@ namespace WearCast.Api.Features.Category.UpdateCategory;
 [ApiController]
 public class UpdateCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize]
-    [HttpPut("UpdateCategory/{id:int}", Name = "UpdateCategory")]
+    [Authorize(Roles = "SuperAdmin")]
+    [HttpPut("UpdateCategory", Name = "UpdateCategory")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> Update(int id, [FromForm] UpdateCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update( [FromForm] UpdateCategoryRequestDto request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateCategoryRequestDto(id, request.Name, request.Image));
-        if (!result)
-            return NotFound();
+        var result = await sender.Send(request);
+        if (result.IsFailure)
+        {
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+        }
         return NoContent();
     }
 }
-
-public record UpdateCategoryRequest(string Name, IFormFile? Image);

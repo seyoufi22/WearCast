@@ -22,7 +22,6 @@ namespace WearCast.Api.Features.Shipments.GetShipmentById.Handlers
                 .Select(s => new GetShipmentByIdResponseDTO
                 {
                     Id = s.Id,
-                    PickUpAddress = s.PickUpAddress,
                     DeliveryAddress = s.DeliveryAddress,
                     OrderTime = s.CreatedOn,
                     Price = s.Price,
