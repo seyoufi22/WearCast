@@ -14,7 +14,7 @@ public class GetShippingInfoEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [HttpGet("ShippingInfo")]
     public async Task<IActionResult> GetShippingInfo(CancellationToken cancellationToken)
     {

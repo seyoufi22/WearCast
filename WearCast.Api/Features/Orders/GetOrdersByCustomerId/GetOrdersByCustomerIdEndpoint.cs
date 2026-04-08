@@ -17,7 +17,7 @@ public class GetOrdersByCustomerIdEndpoint : ControllerBase
     }
 
     [HttpGet("customer")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = DefaultRoles.Customer)]
     public async Task<IActionResult> Get(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
