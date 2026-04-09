@@ -8,13 +8,31 @@
     {
         private readonly IMediator _mediator = mediator;
 
-        [HttpPut("{Id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int Id, [FromBody] UpdateCustomerDesignBody body, CancellationToken cancellationToken)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(
+            [FromRoute] int id,
+            [FromForm] UpdateCustomerDesignForm form,
+            CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new UpdateCustomerDesignRequest(Id, body.ViewDesignsJson, body.NewProductColorId));
+            var result = await _mediator.Send(
+                new UpdateCustomerDesignRequest(
+                    id,
+                    form.ViewDesignsJson,
+                    form.FrontImage,
+                    form.BackImage,
+                    form.RightImage,
+                    form.LeftImage),
+                cancellationToken);
 
             return result.ToResponse();
         }
-        public record UpdateCustomerDesignBody(string ViewDesignsJson, int NewProductColorId);
+
+        public record UpdateCustomerDesignForm(
+            string ViewDesignsJson,
+            IFormFile? FrontImage,
+            IFormFile? BackImage,
+            IFormFile? RightImage,
+            IFormFile? LeftImage
+        );
     }
 }

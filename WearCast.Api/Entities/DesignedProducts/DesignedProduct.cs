@@ -5,6 +5,7 @@
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public TargetAudience TargetAudience { get; set; }
+        public DressStyle DressStyle { get; set; }
         public decimal Price { get; set; }
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }

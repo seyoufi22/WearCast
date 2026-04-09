@@ -30,6 +30,9 @@
             RuleForEach(x => x.TargetAudiences)
                 .IsInEnum().WithMessage("Invalid target audience value.");
 
+            RuleFor(x => x.DressStyle)
+                .IsInEnum().WithMessage("Invalid dress style value.");
+
             /*
             RuleFor(x => x.SizeDetails)
                 .NotEmpty().WithMessage("You must add at least one size for the product.");
