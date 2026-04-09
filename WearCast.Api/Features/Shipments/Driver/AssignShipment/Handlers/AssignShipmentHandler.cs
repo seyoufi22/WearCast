@@ -1,7 +1,7 @@
 ﻿using WearCast.Api.Features.Drivers;
-using WearCast.Api.Features.Shipments.AssignShipment.DTOs;
+using WearCast.Api.Features.Shipments.Driver.AssignShipment.DTOs;
 
-namespace WearCast.Api.Features.Shipments.AssignShipment.Handlers
+namespace WearCast.Api.Features.Shipments.Driver.AssignShipment.Handlers
 {
     public class AssignShipmentHandler : IRequestHandler<AssignShipmentRequestDTO, Result>
     {
@@ -25,13 +25,20 @@ namespace WearCast.Api.Features.Shipments.AssignShipment.Handlers
                 return Result.Failure(ShipmentErrors.NotFound);
             }
 
-            if (shipment.ShipmentStatus != ShipmentStatus.UnAssigned)
+            if (shipment.ShipmentStatus != ShipmentStatus.Unassigned)
             {
-                return Result.Failure(ShipmentErrors.AlreadyAssigned);
+                if (shipment.ShipmentStatus == ShipmentStatus.Pending)
+                {
+                    return Result.Failure(ShipmentErrors.NotReady);
+                }
+                else
+                {
+                    return Result.Failure(ShipmentErrors.AlreadyAssigned);
+                }
             }
-                var driver = await _context.Drivers
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
+            var driver = await _context.Drivers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
 
             if (driver == null)
             {
@@ -45,7 +52,8 @@ namespace WearCast.Api.Features.Shipments.AssignShipment.Handlers
 
             shipment.DriverId = request.DriverId;
             shipment.ShipmentStatus = ShipmentStatus.Assigned;
-
+            shipment.UpdatedById = request.AssignerId;
+            shipment.UpdatedOn=DateTime.UtcNow;
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

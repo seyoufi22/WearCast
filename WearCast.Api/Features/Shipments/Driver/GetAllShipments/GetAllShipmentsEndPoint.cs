@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
-using WearCast.Api.Features.Shipments.GetAllShipments.DTOs;
+using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 
-namespace WearCast.Api.Features.Shipments.GetAllShipments
+namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments
 {
     [ApiController]
     [Tags("Shipments")]

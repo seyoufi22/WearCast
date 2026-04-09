@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using WearCast.Api.Features.Shipments.UpdateShipmentStatus.DTOs;
+using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
-namespace WearCast.Api.Features.Shipments.UpdateShipmentStatus
+namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus
 {
     [ApiController]
     [Tags("Shipments")]
@@ -16,20 +16,28 @@ namespace WearCast.Api.Features.Shipments.UpdateShipmentStatus
             _sender = sender;
         }
         [Authorize]
-        [HttpPut("{id}/status")]
+        [HttpPut("{ShipmentId}/status")]
         public async Task<IActionResult> UpdateStatus(
-            [FromRoute] int id,
+            [FromRoute] int ShipmentId,
             [FromBody] UpdateShipmentStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
-            request.ShipmentId = id;
+            var UpdaterId = User.GetUserId();
+            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin() && !User.IsDriver())
+            {
+                return Unauthorized(new { Message = "You are not allowed to do this action" });
+            }
+
+            request.ShipmentId = ShipmentId;
+            request.UpdaterId = UpdaterId!;
+            request.IsAdmin = !User.IsDriver();
             var result = await _sender.Send(request, cancellationToken);
             if (result.IsSuccess)
             {
                 return NoContent();
             }
 
-            return StatusCode(result.Error.StatusCode.Value, result.Error);
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
         }
     }
 }

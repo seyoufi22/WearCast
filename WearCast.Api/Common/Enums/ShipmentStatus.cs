@@ -2,9 +2,11 @@
 {
     public enum ShipmentStatus
     {
-        UnAssigned = 1,
-        Assigned = 2,
-        OutForDelivery = 3,
-        Delivered = 4 
+        Pending = 1,
+        Unassigned = 2,
+        Assigned = 3,
+        PickingUp = 4,
+        OutForDelivery = 5,
+        Delivered = 6
     }
 }

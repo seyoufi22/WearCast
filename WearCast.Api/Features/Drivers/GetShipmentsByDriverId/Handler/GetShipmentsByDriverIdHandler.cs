@@ -1,6 +1,5 @@
 ﻿using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
 using WearCast.Api.Features.Drivers.GetShipmentsByDriverId.DTOs;
-using WearCast.Api.Features.Shipments.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetShipmentsByDriverId.Handler
 {
@@ -34,7 +33,6 @@ namespace WearCast.Api.Features.Drivers.GetShipmentsByDriverId.Handler
                     ShipmentStatus = s.ShipmentStatus,
                     CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
                     CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber,
-                    PickUpCity = s.PickUpAddress.City,
                     DeliveryCity = s.DeliveryAddress.City
                 })
                 .ToListAsync(cancellationToken);

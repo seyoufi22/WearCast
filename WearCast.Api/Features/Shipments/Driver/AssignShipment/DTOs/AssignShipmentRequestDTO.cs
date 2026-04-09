@@ -1,11 +1,14 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WearCast.Api.Features.Shipments.AssignShipment.DTOs
+namespace WearCast.Api.Features.Shipments.Driver.AssignShipment.DTOs
 {
     public class AssignShipmentRequestDTO : IRequest<Result>
     {
         [JsonIgnore]
         public int ShipmentId { get; set; }
+        [JsonIgnore]
+        public string? AssignerId { get; set; } = null;
+
         public int DriverId { get; set; }
     }
     public class AssignShipmentValidator : AbstractValidator<AssignShipmentRequestDTO>

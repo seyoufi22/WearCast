@@ -44,7 +44,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
 
                 foreach (var shipment in assignedShipments)
                 {
-                    shipment.ShipmentStatus = ShipmentStatus.UnAssigned;
+                    shipment.ShipmentStatus = ShipmentStatus.Unassigned;
                     shipment.DriverId = null;
                 }
                 /*
@@ -56,7 +56,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
                 s.ShipmentStatus == ShipmentStatus.Assigned)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(x => x.DriverId, (int?)null)
-                .SetProperty(x => x.ShipmentStatus, ShipmentStatus.UnAssigned),
+                .SetProperty(x => x.ShipmentStatus, ShipmentStatus.Unassigned),
                 cancellationToken);
                 */
             }

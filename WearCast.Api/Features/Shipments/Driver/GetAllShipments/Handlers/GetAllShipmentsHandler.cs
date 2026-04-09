@@ -1,8 +1,8 @@
-﻿using WearCast.Api.Features.Shipments.GetAllShipments.DTOs;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 
-namespace WearCast.Api.Features.Shipments.GetAllShipments.Handlers
+namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.Handlers
 {
     public class GetAllShipmentsHandler : IRequestHandler<GetAllShipmentsRequestDTO, Result<IEnumerable<GetAllShipmentsResponseDTO>>>
     {
