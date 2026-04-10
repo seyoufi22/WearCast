@@ -25,6 +25,17 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
           
+      - name: Inject Secrets into appsettings.json
+        shell: pwsh
+        run: |
+          $path = "./publish/appsettings.json"
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+          if (-not $json.StripeSettings) { $json | Add-Member -MemberType NoteProperty -Name 'StripeSettings' -Value @{} }
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "SecretKey" -Value "${{ secrets.STRIPE_API_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "PublishableKey" -Value "${{ secrets.STRIPE_PUB_KEY }}" -Force
+          $json.StripeSettings | Add-Member -MemberType NoteProperty -Name "WebhookSecret" -Value "${{ secrets.STRIPE_WEBHOOK }}" -Force
+          $json | ConvertTo-Json -Depth 10 | Set-Content $path
+
       - name: Deploy to MonsterASP.NET via MSDeploy (Safe Sync)
         shell: cmd
         env:
@@ -32,9 +43,6 @@ jobs:
           SERVER_COMPUTER_NAME: ${{ secrets.SERVER_COMPUTER_NAME }}
           SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-          StripeSettings__SecretKey: ${{ secrets.STRIPE_API_KEY }}
-          StripeSettings__PublishableKey: ${{ secrets.STRIPE_PUB_KEY }}
-          StripeSettings__WebhookSecret: ${{ secrets.STRIPE_WEBHOOK }}
         run: >
           "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
           -verb:sync 

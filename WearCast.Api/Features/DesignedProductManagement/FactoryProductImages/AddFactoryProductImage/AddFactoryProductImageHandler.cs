@@ -48,7 +48,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.A
 
             if (string.IsNullOrEmpty(imageUrl))
             {
-                return Result.Failure<FactoryProductImagesResponse>(new Error("Image.UploadFailed", "Failed to upload the image.", StatusCodes.Status500InternalServerError));
+                return Result.Failure<FactoryProductImagesResponse>(ImageErrors.UploadFailed);
             }
 
             var productImage = new DesignedProductImage

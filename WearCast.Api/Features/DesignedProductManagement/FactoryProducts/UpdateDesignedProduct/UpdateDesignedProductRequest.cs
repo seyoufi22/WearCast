@@ -5,6 +5,7 @@
         string Name,
         string Description,
         List<TargetAudience> TargetAudiences,
+        DressStyle DressStyle,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
