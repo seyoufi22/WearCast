@@ -39,10 +39,4 @@ app.MapControllers();
 
 app.UseStaticFiles();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<WearCast.Api.Persistence.ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
-
 app.Run();
