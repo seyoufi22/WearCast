@@ -30,9 +30,6 @@
             RuleFor(x => x.ConfirmPassword)
                .NotEmpty().WithMessage("Password confirmation is required.")
                .Equal(x => x.Password).WithMessage("Passwords do not match.");
-
-            RuleFor(x => x.SellerId)
-               .NotEmpty().WithMessage("Seller Id is required.");
         }
     }
 }

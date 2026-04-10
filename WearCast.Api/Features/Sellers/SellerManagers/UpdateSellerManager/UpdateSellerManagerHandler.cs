@@ -2,13 +2,11 @@
 {
     public class UpdateSellerManagerHandler(
         ApplicationDbContext context,
-        IHttpContextAccessor httpContextAccessor,
-        IMapper mapper
+        IHttpContextAccessor httpContextAccessor
         ) : IRequestHandler<UpdateSellerManagerRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IMapper _mapper = mapper;
         public async Task<Result> Handle(UpdateSellerManagerRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
@@ -36,7 +34,10 @@
             {
                 return Result.Failure(SellerManagerErrors.NotFound);
             }
-            _mapper.Map(request, managerUser);
+
+            managerUser.FirstName = request.FirstName;
+            managerUser.LastName = request.LastName;
+            managerUser.PhoneNumber = request.PhoneNumber;
 
             await _context.SaveChangesAsync(cancellationToken);
 

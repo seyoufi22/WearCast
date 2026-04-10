@@ -2,6 +2,7 @@
 {
     [Route("api/seller-managers")]
     [ApiController]
+    [Tags("Seller Manager Profile")]
     public class CreateSellerManagerEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
