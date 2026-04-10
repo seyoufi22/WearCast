@@ -25,6 +25,7 @@
         int Id,
         string Name,
         string HexCode,
+        string MainImageUrl,
         List<ImageResponse> Images
     );
 

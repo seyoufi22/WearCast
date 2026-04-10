@@ -48,6 +48,12 @@
                 return Result.Failure<CreateDesignedProductResponse>(AuthErrors.Forbidden);
             }
 
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+            if (!categoryExists)
+            {
+                return Result.Failure<CreateDesignedProductResponse>(new Error("Category.NotFound", "The specified category does not exist.", StatusCodes.Status404NotFound));
+            }
+
             var product = _mapper.Map<DesignedProduct>(request);
 
             product.TargetAudience = request.TargetAudiences.Aggregate((current, next) => current | next);

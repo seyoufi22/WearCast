@@ -2,11 +2,15 @@
 {
     public class AddFactoryProductColorHandler(
         ApplicationDbContext context,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ImageService imageService,
+        ILogger<AddFactoryProductColorHandler> logger
         ) : IRequestHandler<AddFactoryProductColorRequest, Result<AddFactoryProductColorResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly ImageService _imageService = imageService;
+        private readonly ILogger<AddFactoryProductColorHandler> _logger = logger;
 
         public async Task<Result<AddFactoryProductColorResponse>> Handle(AddFactoryProductColorRequest request, CancellationToken cancellationToken)
         {
@@ -54,17 +58,42 @@
                 return Result.Failure<AddFactoryProductColorResponse>(FactoryProductColorErrors.ColorAlreadyExists);
             }
 
+            var imageUrl = await _imageService.UploadAsync(request.Image);
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                return Result.Failure<AddFactoryProductColorResponse>(ImageErrors.UploadFailed);
+            }
+
             var newProductColor = new DesignedProductColor
             {
                 Name = request.Name,
                 HexCode = request.HexCode,
+                MainImageUrl = imageUrl,
                 DesignedProductId = request.ProductId
             };
 
-            _context.DesignedProductColors.Add(newProductColor);
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                _context.DesignedProductColors.Add(newProductColor);
+                await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new AddFactoryProductColorResponse(newProductColor.Id));
+                return Result.Success(new AddFactoryProductColorResponse(newProductColor.Id));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save new product color to database. Rolling back uploaded image.");
+
+                try
+                {
+                    await _imageService.DeleteAsync(imageUrl);
+                }
+                catch (Exception deleteEx)
+                {
+                    _logger.LogCritical(deleteEx, "Storage Leak: Failed to delete image {ImageUrl} after DB save failed.", imageUrl);
+                }
+
+                return Result.Failure<AddFactoryProductColorResponse>(new("FactoryProductColor.CreationError", "An error occurred while creating the product color.", 500));
+            }
         }
     }
 }

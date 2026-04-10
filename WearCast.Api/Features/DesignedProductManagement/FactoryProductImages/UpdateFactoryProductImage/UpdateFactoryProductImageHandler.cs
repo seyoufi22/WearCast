@@ -50,8 +50,9 @@
             if (request.Image != null)
             {
                 var newImageUrl = await _imageService.UploadAsync(request.Image);
+
                 if (string.IsNullOrEmpty(newImageUrl))
-                    return Result.Failure<FactoryProductImagesResponse>(new Error("Image.UploadFailed", "Failed to upload image", 500));
+                    return Result.Failure<FactoryProductImagesResponse>(ImageErrors.UploadFailed);
 
                 await _imageService.DeleteAsync(data.Entity.ImageUrl);
                 data.Entity.ImageUrl = newImageUrl;

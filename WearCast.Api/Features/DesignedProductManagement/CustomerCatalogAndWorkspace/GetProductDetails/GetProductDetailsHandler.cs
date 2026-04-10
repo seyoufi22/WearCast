@@ -33,7 +33,9 @@
                 product.CanvasWidth,
                 product.CanvasHeight,
 
-                product.SizeDetails.Select(s => new SizeDetailsResponse(
+                product.SizeDetails
+                .OrderBy(s => s.Size)
+                .Select(s => new SizeDetailsResponse(
                     s.Size.ToString(),
                     s.A,
                     s.B,
@@ -44,6 +46,7 @@
                     c.Id,
                     c.Name,
                     c.HexCode,
+                    c.MainImageUrl,
                     c.Images.Select(img => new ImageResponse(
                         img.ImageUrl,
                         img.ViewSide.ToString()
