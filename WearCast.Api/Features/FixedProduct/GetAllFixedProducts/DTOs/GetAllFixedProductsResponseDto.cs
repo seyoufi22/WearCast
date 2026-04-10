@@ -24,3 +24,4 @@ public record ProductSizeDetailGetAllResponseDto
     public decimal? B { get; init; }
     public decimal? C { get; init; }
 }
+

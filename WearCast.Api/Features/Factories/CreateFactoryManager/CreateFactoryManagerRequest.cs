@@ -9,5 +9,5 @@
         string ConfirmPassword,
 
         int FactoryId
-       ) : IRequest<Result>;
+       ) : IRequest<Result<CreateFactoryManagerResponse>>;
 }

@@ -32,6 +32,9 @@ jobs:
           SERVER_COMPUTER_NAME: ${{ secrets.SERVER_COMPUTER_NAME }}
           SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+          StripeSettings__SecretKey: ${{ secrets.STRIPE_API_KEY }}
+          StripeSettings__PublishableKey: ${{ secrets.STRIPE_PUB_KEY }}
+          StripeSettings__WebhookSecret: ${{ secrets.STRIPE_WEBHOOK }}
         run: >
           "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" 
           -verb:sync 
