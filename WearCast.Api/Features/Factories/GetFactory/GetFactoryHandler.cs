@@ -38,6 +38,7 @@ public class GetFactoryHandler(
                 x.CommercialRegisterNumber,
                 x.TaxIdNumber,
                 x.Description,
+                x.LogoUrl,
                 x.Address != null ? new AddressDto(
                     x.Address.State,
                     x.Address.City,

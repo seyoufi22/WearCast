@@ -8,5 +8,6 @@ public record GetFactoryResponse(
     string CommercialRegisterNumber,
     string TaxIdNumber,
     string Description,
+    string? LogoUrl,
     AddressDto? Address
 );
