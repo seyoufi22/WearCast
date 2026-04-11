@@ -1,6 +1,6 @@
-﻿namespace WearCast.Api.Features.Sellers.GetSeller;
+﻿namespace WearCast.Api.Features.ShippingCompanies.GetShippingCompany;
 
-public record GetSellerResponse(
+public record GetShippingCompanyResponse(
     int Id,
     string Name,
     string Email,
@@ -8,6 +8,7 @@ public record GetSellerResponse(
     string CommercialRegisterNumber,
     string TaxIdNumber,
     string Description,
+    decimal DeliveryFee,
     string? LogoUrl,
     AddressDto? Address
 );
