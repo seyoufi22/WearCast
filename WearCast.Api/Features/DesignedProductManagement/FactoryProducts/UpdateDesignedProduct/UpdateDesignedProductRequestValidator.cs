@@ -35,6 +35,8 @@
 
             RuleFor(x => x.DressStyle)
                 .IsInEnum().WithMessage("Invalid dress style value.");
+
+
         }
     }
 }

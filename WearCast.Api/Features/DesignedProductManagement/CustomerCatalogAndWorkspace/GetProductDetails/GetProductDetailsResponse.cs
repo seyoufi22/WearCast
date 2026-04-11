@@ -6,20 +6,15 @@
         string Description,
         List<string> TargetAudience,
         decimal Price,
-
+        int SalesCount,
         int CanvasWidth,
         int CanvasHeight,
-
         List<SizeDetailsResponse> SizeDetails,
+
         List<ColorVariantResponse> Colors
     );
 
-    public record SizeDetailsResponse(
-        string Size,
-        decimal? A,
-        decimal? B,
-        decimal? C
-    );
+    public record SizeDetailsResponse(string Size, decimal? A, decimal? B, decimal? C);
 
     public record ColorVariantResponse(
         int Id,
@@ -29,8 +24,5 @@
         List<ImageResponse> Images
     );
 
-    public record ImageResponse(
-        string ImageUrl,
-        string ViewSide
-    );
+    public record ImageResponse(string ImageUrl, string ViewSide);
 }

@@ -3,6 +3,7 @@
     public record ResetPasswordRequest(
         string Email,
         string Code,
-        string NewPassword
+        string NewPassword,
+        string ConfirmNewPassword
         ) : IRequest<Result>;
 }
