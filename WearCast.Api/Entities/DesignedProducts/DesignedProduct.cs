@@ -10,6 +10,11 @@
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }
 
+        public int SalesCount { get; set; } = 0;
+
+        public int? DefaultColorId { get; set; }
+        public DesignedProductColor? DefaultColor { get; set; }
+
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
 

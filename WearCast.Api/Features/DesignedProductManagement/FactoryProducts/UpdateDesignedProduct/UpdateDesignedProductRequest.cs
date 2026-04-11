@@ -9,6 +9,7 @@
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
-        int CategoryId
+        int CategoryId,
+        int? DefaultColorId
         ) : IRequest<Result>;
 }

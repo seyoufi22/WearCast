@@ -19,7 +19,8 @@
                 body.Price,
                 body.CanvasWidth,
                 body.CanvasHeight,
-                body.CategoryId
+                body.CategoryId,
+                body.DefaultColorId
                 );
             var result = await mediator.Send(request, cancellationToken);
 
@@ -34,6 +35,7 @@
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
-        int CategoryId
+        int CategoryId,
+        int? DefaultColorId
         );
 }
