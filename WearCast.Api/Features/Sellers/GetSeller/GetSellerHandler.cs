@@ -15,6 +15,7 @@ public class GetSellerHandler(ApplicationDbContext context) : IRequestHandler<Ge
 
                 s.TaxIdNumber,
                 s.Description,
+                s.LogoUrl,
                 s.Address == null ? null : new AddressDto(
                     s.Address.State,
                     s.Address.City,

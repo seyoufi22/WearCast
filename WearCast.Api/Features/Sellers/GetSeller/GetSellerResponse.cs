@@ -7,4 +7,5 @@ public record GetSellerResponse(
         string CommercialRegisterNumber,
         string TaxIdNumber,
         string Description,
+        string? logoUrl,
         AddressDto? Address);

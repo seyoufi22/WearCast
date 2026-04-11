@@ -8,7 +8,7 @@ public class GetSellerEndpoint(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [HttpGet("{id:int?}")]
+    [HttpGet("profileById/{id:int?}")]
     public async Task<IActionResult> GetSeller(int? id, CancellationToken cancellationToken)
     {
         int targetId;
