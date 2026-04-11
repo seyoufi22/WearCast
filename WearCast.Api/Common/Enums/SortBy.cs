@@ -5,5 +5,6 @@ public enum SortBy
     MostPopular,
     Newest,
     PriceAsc,
-    PriceDesc
+    PriceDesc,
+    BestSeller
 }

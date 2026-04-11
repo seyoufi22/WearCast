@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Common.Consts;
-
-namespace WearCast.Api.Features.AccountManagement.ChangePassword
+﻿namespace WearCast.Api.Features.AccountManagement.ChangePassword
 {
     public class ChangePasswordRequestValidator : AbstractValidator<ChangePasswordRequest>
     {
@@ -15,6 +13,10 @@ namespace WearCast.Api.Features.AccountManagement.ChangePassword
                 .WithMessage("Password should be at least 8 digits and should contains Lowercase, NonAlphanumeric and Uppercase")
                 .NotEqual(x => x.CurrentPassword)
                 .WithMessage("New password can't be same as the current password");
+
+            RuleFor(x => x.ConfirmNewPassword)
+               .NotEmpty().WithMessage("Password confirmation is required.")
+               .Equal(x => x.NewPassword).WithMessage("Password and confirmation password do not match.");
         }
     }
 }

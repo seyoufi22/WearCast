@@ -7,22 +7,34 @@
         public async Task<Result<GetProductDetailsResponse>> Handle(GetProductDetailsRequest request, CancellationToken cancellationToken)
         {
             var product = await _context.DesignedProducts
-                .Include(p => p.Colors) // فلترة الـ Soft Delete جوه الـ Include (أدائها أعلى في EF Core)
-                    .ThenInclude(c => c.Images)
-                .Include(p => p.SizeDetails)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+                            .Include(p => p.Colors.Where(c => !c.IsDeleted))
+                                .ThenInclude(c => c.Images)
+                            .Include(p => p.SizeDetails)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(p => p.Id == request.ProductId && !p.IsDeleted, cancellationToken);
 
             if (product == null)
             {
                 return Result.Failure<GetProductDetailsResponse>(
-                   new Error(
-                       "Catalog.ProductNotFound",
-                       "The requested product was not found or is no longer available.",
-                       StatusCodes.Status404NotFound
-                   )
-               );
+                   new Error("Catalog.ProductNotFound", "The requested product was not found or is no longer available.", StatusCodes.Status404NotFound));
             }
+
+
+            int targetColorId = request.DefaultColorId
+                ?? product.DefaultColorId
+                ?? product.Colors.FirstOrDefault()?.Id
+                ?? 0;
+
+            var orderedColors = product.Colors
+                .OrderByDescending(c => c.Id == targetColorId)
+                .ThenBy(c => c.Id)
+                .Select(c => new ColorVariantResponse(
+                    c.Id,
+                    c.Name,
+                    c.HexCode,
+                    c.MainImageUrl,
+                    c.Images.Select(img => new ImageResponse(img.ImageUrl, img.ViewSide.ToString())).ToList()
+                )).ToList();
 
             var response = new GetProductDetailsResponse(
                 product.Id,
@@ -30,28 +42,16 @@
                 product.Description,
                 product.TargetAudience.ToString().Split(", ").ToList(),
                 product.Price,
+                product.SalesCount,
                 product.CanvasWidth,
                 product.CanvasHeight,
 
                 product.SizeDetails
-                .OrderBy(s => s.Size)
-                .Select(s => new SizeDetailsResponse(
-                    s.Size.ToString(),
-                    s.A,
-                    s.B,
-                    s.C
-                )).ToList(),
+                    .OrderBy(s => s.Size)
+                    .Select(s => new SizeDetailsResponse(s.Size.ToString(), s.A, s.B, s.C))
+                    .ToList(),
 
-                product.Colors.Select(c => new ColorVariantResponse(
-                    c.Id,
-                    c.Name,
-                    c.HexCode,
-                    c.MainImageUrl,
-                    c.Images.Select(img => new ImageResponse(
-                        img.ImageUrl,
-                        img.ViewSide.ToString()
-                    )).ToList()
-                )).ToList()
+                orderedColors
             );
 
             return Result.Success(response);

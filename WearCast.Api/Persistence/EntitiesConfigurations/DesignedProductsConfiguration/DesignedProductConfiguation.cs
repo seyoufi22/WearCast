@@ -1,4 +1,5 @@
-﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿
+namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class DesignedProductConfiguation : BaseModelConfiguration<DesignedProduct>
     {
@@ -28,6 +29,11 @@
             builder.HasOne(x => x.Category)
                    .WithMany(c => c.DesignedProducts)
                    .HasForeignKey(x => x.CategoryId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.DefaultColor)
+                   .WithMany()
+                   .HasForeignKey(p => p.DefaultColorId)
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }
