@@ -2,6 +2,7 @@
 {
     public record ChangePasswordRequest(
         string CurrentPassword,
-        string NewPassword
+        string NewPassword,
+        string ConfirmNewPassword
         ) : IRequest<Result>;
 }
