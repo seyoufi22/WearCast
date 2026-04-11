@@ -1,6 +1,6 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.GetShippingCompany
+﻿namespace WearCast.Api.Features.ShippingCompanies.GetShippingCompany;
+
+public class GetShippingCompanyRequest : IRequest<Result<GetShippingCompanyResponse>>
 {
-    public class GetShippingCompanyRequest
-    {
-    }
+    public int? ProvidedCompanyId { get; set; }
 }

@@ -1,6 +1,6 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetShippingCompanyManager
+﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetShippingCompanyManager;
+
+public class GetShippingCompanyManagerRequest : IRequest<Result<GetShippingCompanyManagerResponse>>
 {
-    public class GetShippingCompanyManagerRequest
-    {
-    }
+    public int? ProvidedManagerId { get; set; }
 }
