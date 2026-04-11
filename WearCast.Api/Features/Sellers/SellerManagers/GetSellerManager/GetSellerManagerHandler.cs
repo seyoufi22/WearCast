@@ -1,14 +1,14 @@
-﻿namespace WearCast.Api.Features.Factories.FactoryManagers.GetFactoryManager;
+﻿namespace WearCast.Api.Features.Sellers.SellerManagers.GetSellerManager;
 
-public class GetFactoryManagerHandler(
+public class GetSellerManagerHandler(
     ApplicationDbContext context,
     IHttpContextAccessor httpContextAccessor
-    ) : IRequestHandler<GetFactoryManagerRequest, Result<GetFactoryManagerResponse>>
+    ) : IRequestHandler<GetSellerManagerRequest, Result<GetSellerManagerResponse>>
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public async Task<Result<GetFactoryManagerResponse>> Handle(GetFactoryManagerRequest request, CancellationToken cancellationToken)
+    public async Task<Result<GetSellerManagerResponse>> Handle(GetSellerManagerRequest request, CancellationToken cancellationToken)
     {
         var user = _httpContextAccessor.HttpContext!.User;
         int targetManagerId;
@@ -17,21 +17,21 @@ public class GetFactoryManagerHandler(
         {
             if (!request.ProvidedManagerId.HasValue)
             {
-                return Result.Failure<GetFactoryManagerResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target ManagerId to get.", StatusCodes.Status400BadRequest));
+                return Result.Failure<GetSellerManagerResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target ManagerId to get.", StatusCodes.Status400BadRequest));
             }
 
             targetManagerId = request.ProvidedManagerId.Value;
         }
         else
         {
-            targetManagerId = user.GetFactoryManagerId()!.Value;
+            targetManagerId = user.GetSellerManagerId()!.Value;
         }
 
         var response = await _context.Users
             .AsNoTracking()
-            .Where(u => u.FactoryManager != null && u.FactoryManager.Id == targetManagerId)
-            .Select(u => new GetFactoryManagerResponse(
-                u.FactoryManager!.Id,
+            .Where(u => u.SellerManager != null && u.SellerManager.Id == targetManagerId)
+            .Select(u => new GetSellerManagerResponse(
+                u.SellerManager!.Id,
                 u.FirstName,
                 u.LastName,
                 u.PhoneNumber
@@ -40,7 +40,7 @@ public class GetFactoryManagerHandler(
 
         if (response == null)
         {
-            return Result.Failure<GetFactoryManagerResponse>(FactoryManagerErrors.NotFound);
+            return Result.Failure<GetSellerManagerResponse>(SellerManagerErrors.NotFound);
         }
 
         return Result.Success(response);
