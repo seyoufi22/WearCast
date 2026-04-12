@@ -1,13 +1,25 @@
-﻿namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWorkspace.GetProductDetails
+﻿using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Tracking.Models;
+
+namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWorkspace.GetProductDetails
 {
-    public class GetProductDetailsHandler(ApplicationDbContext context) : IRequestHandler<GetProductDetailsRequest, Result<GetProductDetailsResponse>>
+    public class GetProductDetailsHandler(
+        ApplicationDbContext context,
+        ITrackingService trackingService,
+        IHttpContextAccessor httpContextAccessor
+        ) : IRequestHandler<GetProductDetailsRequest, Result<GetProductDetailsResponse>>
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly ITrackingService _trackingService = trackingService;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result<GetProductDetailsResponse>> Handle(GetProductDetailsRequest request, CancellationToken cancellationToken)
         {
+            var user = _httpContextAccessor.HttpContext!.User;
+
             var product = await _context.DesignedProducts
-                            .Include(p => p.Colors.Where(c => !c.IsDeleted))
+                            .Include(p => p.Category)
+                            .Include(p => p.Colors)
                                 .ThenInclude(c => c.Images)
                             .Include(p => p.SizeDetails)
                             .AsNoTracking()
@@ -46,6 +58,11 @@
                 product.CanvasWidth,
                 product.CanvasHeight,
 
+                new CategoryResponse(
+                    product.Category.Name,
+                    product.Category.ImageUrl
+                ),
+
                 product.SizeDetails
                     .OrderBy(s => s.Size)
                     .Select(s => new SizeDetailsResponse(s.Size.ToString(), s.A, s.B, s.C))
@@ -53,6 +70,30 @@
 
                 orderedColors
             );
+
+
+            if (user.IsCustomer())
+            {
+                var userId = user.GetUserId();
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var clickEvent = new ClickEvent
+                    {
+                        UserId = userId,
+                        ProductDetails = new ProductDetails
+                        {
+                            Price = product.Price,
+                            TargetAudience = product.TargetAudience.ToString().Split(", ").ToList(),
+                            DressStyle = product.DressStyle.ToString(),
+                            CategoryName = product.Category?.Name,
+                            SellerId = null
+                        }
+                    };
+
+                    _trackingService.TrackClick(clickEvent);
+                }
+            }
 
             return Result.Success(response);
         }

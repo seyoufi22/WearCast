@@ -10,6 +10,10 @@
             RuleFor(x => x.ViewDesignsJson)
                 .NotEmpty();
 
+            RuleFor(x => x.AssetCount)
+               .NotNull()
+               .GreaterThanOrEqualTo(0);
+
         }
     }
 }

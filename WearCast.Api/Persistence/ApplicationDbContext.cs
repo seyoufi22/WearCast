@@ -41,6 +41,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Entities.Order.Order> Orders { get; set; }
     public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }
+    public DbSet<UserActivityLog> UserActivityLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
