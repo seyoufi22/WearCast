@@ -9,6 +9,9 @@
             builder.Property(x => x.ViewDesignsJson)
                    .IsRequired();
 
+            builder.Property(x => x.TotalPrice)
+                .HasColumnType("decimal(18,2)");
+
             builder.HasOne(x => x.DesignedProduct)
                    .WithMany()
                    .HasForeignKey(x => x.DesignedProductId)

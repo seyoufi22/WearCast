@@ -9,6 +9,10 @@
         public string? RightImageUrl { get; set; }
         public string? LeftImageUrl { get; set; }
 
+        public int AssetCount { get; set; }
+
+        public decimal TotalPrice { get; set; }
+
         public int CustomerId { get; set; }
         public Customer Customer { get; set; } = default!;
 
@@ -21,5 +25,11 @@
         public int? CartItemId { get; set; }
         public CartItem? CartItem { get; set; }
 
+        public void CalculateAndSetTotalPrice(decimal templatePrice, decimal fixedAssetPrice)
+        {
+
+            TotalPrice = templatePrice + (AssetCount * fixedAssetPrice);
+
+        }
     }
 }
