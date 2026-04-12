@@ -1,6 +1,6 @@
-﻿namespace WearCast.Api.Features.Sellers.GetSeller;
+﻿namespace WearCast.Api.Features.Factories.GetFactory;
 
-public record GetSellerResponse(
+public record GetFactoryResponse(
     int Id,
     string Name,
     string Email,

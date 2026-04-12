@@ -1,39 +1,19 @@
-﻿namespace WearCast.Api.Features.Sellers.GetSeller;
-
-[Route("api/sellers")]
-[ApiController]
-[Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
-[Tags("Seller Profile")]
-public class GetSellerEndpoint(IMediator mediator) : ControllerBase
+﻿namespace WearCast.Api.Features.Sellers.GetSeller
 {
-    private readonly IMediator _mediator = mediator;
-
-    [HttpGet("{id:int?}")]
-    public async Task<IActionResult> GetSeller(int? id, CancellationToken cancellationToken)
+    [Route("api/sellers")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
+    [Tags("Seller Profile")]
+    public class GetSellerEndpoint(IMediator mediator) : ControllerBase
     {
-        int targetId;
+        private readonly IMediator _mediator = mediator;
 
-        if (User.IsInRole("SuperAdmin"))
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile([FromQuery] GetSellerRequest request, CancellationToken cancellationToken)
         {
-            if (!id.HasValue)
-            {
-                return BadRequest(new { message = "SuperAdmin must provide a Seller ID in the route." });
-            }
-            targetId = id.Value;
+            var result = await _mediator.Send(request, cancellationToken);
+
+            return result.ToResponse();
         }
-        else
-        {
-            var sellerIdClaim = User.FindFirst("SellerId")?.Value;
-
-            if (string.IsNullOrEmpty(sellerIdClaim) || !int.TryParse(sellerIdClaim, out targetId))
-            {
-                return Unauthorized(new { message = "SellerId is missing or invalid in the token." });
-            }
-        }
-
-        var result = await _mediator.Send(new GetSellerRequest(targetId), cancellationToken);
-
-        return result.ToResponse();
     }
 }
-
