@@ -9,6 +9,7 @@
             builder.Property(x => x.ViewDesignsJson)
                    .IsRequired();
 
+
             builder.HasOne(x => x.DesignedProduct)
                    .WithMany()
                    .HasForeignKey(x => x.DesignedProductId)

@@ -9,6 +9,7 @@
         int SalesCount,
         int CanvasWidth,
         int CanvasHeight,
+        CategoryResponse Category,
         List<SizeDetailsResponse> SizeDetails,
 
         List<ColorVariantResponse> Colors
@@ -25,4 +26,5 @@
     );
 
     public record ImageResponse(string ImageUrl, string ViewSide);
+    public record CategoryResponse(string Name, string ImageUrl);
 }
