@@ -22,16 +22,21 @@
                 return Result.Failure<CustomerDesignResponse>(AuthErrors.Forbidden);
             }
 
-            var isValidProductAndColor = await _context.DesignedProductColors
-                .AnyAsync(c =>
+            var productData = await _context.DesignedProductColors
+                .Where(c =>
                     c.Id == request.ProductColorId &&
-                    c.DesignedProductId == request.ProductId,
-                cancellationToken);
+                    c.DesignedProductId == request.ProductId)
+                .Select(c => new
+                {
+                    TemplatePrice = c.DesignedProduct.Price
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (!isValidProductAndColor)
+            if (productData == null)
             {
                 return Result.Failure<CustomerDesignResponse>(new Error("Design.InvalidColor", "The selected color does not exist for this product.", 400));
             }
+
             var uploadedUrls = new List<string>();
 
             try
@@ -62,6 +67,7 @@
                     if (!string.IsNullOrEmpty(leftUrl)) uploadedUrls.Add(leftUrl);
                 }
 
+                // إنشاء التصميم الجديد بدون تحديد TotalPrice هنا
                 var newDesign = new CustomerDesign
                 {
                     CustomerId = customerId.Value,
@@ -71,8 +77,13 @@
                     FrontImageUrl = frontUrl,
                     BackImageUrl = backUrl,
                     RightImageUrl = rightUrl,
-                    LeftImageUrl = leftUrl
+                    LeftImageUrl = leftUrl,
+                    AssetCount = request.AssetCount.Value
                 };
+
+                decimal fixedAssetPrice = 5.0m;
+
+                newDesign.CalculateAndSetTotalPrice(productData.TemplatePrice, fixedAssetPrice);
 
                 _context.CustomerDesigns.Add(newDesign);
                 await _context.SaveChangesAsync(cancellationToken);

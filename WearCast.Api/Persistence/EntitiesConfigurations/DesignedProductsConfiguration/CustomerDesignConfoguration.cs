@@ -9,6 +9,11 @@
             builder.Property(x => x.ViewDesignsJson)
                    .IsRequired();
 
+<<<<<<< HEAD
+=======
+            builder.Property(x => x.TotalPrice)
+                .HasColumnType("decimal(18,2)");
+>>>>>>> 77b3b6565bae540371f7321998414a8d9608eab3
 
             builder.HasOne(x => x.DesignedProduct)
                    .WithMany()

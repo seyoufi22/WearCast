@@ -8,6 +8,8 @@
         string? FrontImageUrl,
         string? BackImageUrl,
         string? RightImageUrl,
-        string? LeftImageUrl
+        string? LeftImageUrl,
+        int AssetCount,
+        decimal TotalPrice
      );
 }

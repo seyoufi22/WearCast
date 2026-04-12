@@ -12,6 +12,10 @@
 
             RuleFor(x => x.ProductColorId)
                 .GreaterThan(0).WithMessage("Invalid Product Color Id");
+
+            RuleFor(x => x.AssetCount)
+                .NotNull()
+                .GreaterThanOrEqualTo(0);
         }
     }
 }

@@ -16,6 +16,7 @@
                     form.BackImage,
                     form.RightImage,
                     form.LeftImage,
+                    form.AssetCount,
                     form.ProductId,
                     form.ProductColorId);
 
@@ -29,6 +30,7 @@
             IFormFile? BackImage,
             IFormFile? RightImage,
             IFormFile? LeftImage,
+            int AssetCount,
             int ProductId,
             int ProductColorId
         );
