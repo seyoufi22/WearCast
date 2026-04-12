@@ -31,6 +31,7 @@
 			<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.5" />
 		</ItemGroup>
     <ItemGroup>
+      <Folder Include="Features\Shipments\Customer\GetAllShipments\" />
       <Folder Include="wwwroot\" />
       <Folder Include="wwwroot\uploads\" />
     </ItemGroup>

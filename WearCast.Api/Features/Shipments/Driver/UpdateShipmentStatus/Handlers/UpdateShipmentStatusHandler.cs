@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
-namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handler
+namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
 {
     public class UpdateShipmentStatusHandler : IRequestHandler<UpdateShipmentStatusRequestDTO, Result>
     {

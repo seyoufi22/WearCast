@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WearCast.Api.Features.Shipments.Driver.AssignShipment.DTOs
+namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.DTOs
 {
     public class AssignShipmentRequestDTO : IRequest<Result>
     {

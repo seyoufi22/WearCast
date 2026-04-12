@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.Driver.AssignShipment.DTOs;
+using WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.DTOs;
 
-namespace WearCast.Api.Features.Shipments.Driver.AssignShipment
+namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment
 {
     [ApiController]
     [Tags("Shipments")]

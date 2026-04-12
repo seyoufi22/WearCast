@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Features.Drivers;
-using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
-using WearCast.Api.Features.Shipments.Driver.GetShipmentById.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.GetShipmentById.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById.Handlers
 {
@@ -23,7 +21,6 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById.Handlers
                 .Select(s => new GetDriverShipmentByIdResponseDTO
                 {
                     Id = s.Id,
-                    Price = s.Price,
                     ShipmentStatus = s.ShipmentStatus,
                     OrderedAt= s.CreatedOn,
                     ReadyForPickupAt = s.ReadyForPickupAt,
@@ -36,7 +33,7 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById.Handlers
 
                     DeliveryAddress =s.DeliveryAddress,
  
-                    Orders = s.Orders.Select(o => new OrderSummaryDTO
+                    Orders = s.Orders.Select(o => new GetDriverShipmentByIdOrderSummaryDTO
                     {
                         OrderId = o.Id,
                         StoreName = o.Seller.Name,

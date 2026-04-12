@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
-using WearCast.Api.Features.Shipments.Driver.GetShipmentById.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.GetShipmentById.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById
 {
     [ApiController]
     [Tags("Shipments")]
-    [Route("api/drivers/shipments")]
+    [Route("api/drivers")]
     public class GetDriverShipmentByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -18,7 +15,7 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById
         }
 
         [Authorize]
-        [HttpGet("{ShipmentId}")]
+        [HttpGet("shipments/{ShipmentId}")]
         public async Task<IActionResult> GetById([FromRoute] int ShipmentId, CancellationToken cancellationToken)
         {
             var DriverId = User.GetDriverId();

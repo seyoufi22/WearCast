@@ -1,7 +1,7 @@
 ﻿using WearCast.Api.Features.Drivers;
-using WearCast.Api.Features.Shipments.Driver.AssignShipment.DTOs;
+using WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.DTOs;
 
-namespace WearCast.Api.Features.Shipments.Driver.AssignShipment.Handlers
+namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handlers
 {
     public class AssignShipmentHandler : IRequestHandler<AssignShipmentRequestDTO, Result>
     {
@@ -53,7 +53,7 @@ namespace WearCast.Api.Features.Shipments.Driver.AssignShipment.Handlers
             shipment.DriverId = request.DriverId;
             shipment.ShipmentStatus = ShipmentStatus.Assigned;
             shipment.UpdatedById = request.AssignerId;
-            shipment.UpdatedOn=DateTime.UtcNow;
+            shipment.UpdatedOn = DateTime.UtcNow;
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
