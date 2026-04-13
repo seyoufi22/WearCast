@@ -85,9 +85,9 @@
 
                 design.ViewDesignsJson = request.ViewDesignsJson;
 
-                if (request.AssetCount.HasValue && design.AssetCount != request.AssetCount.Value)
+                if (design.AssetCount != request.AssetCount)
                 {
-                    design.AssetCount = request.AssetCount.Value;
+                    design.AssetCount = request.AssetCount;
 
                     decimal fixedAssetPrice = 5.0m;
 

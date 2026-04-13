@@ -67,7 +67,6 @@
                     if (!string.IsNullOrEmpty(leftUrl)) uploadedUrls.Add(leftUrl);
                 }
 
-                // إنشاء التصميم الجديد بدون تحديد TotalPrice هنا
                 var newDesign = new CustomerDesign
                 {
                     CustomerId = customerId.Value,
@@ -78,7 +77,7 @@
                     BackImageUrl = backUrl,
                     RightImageUrl = rightUrl,
                     LeftImageUrl = leftUrl,
-                    AssetCount = request.AssetCount.Value
+                    AssetCount = request.AssetCount
                 };
 
                 decimal fixedAssetPrice = 5.0m;

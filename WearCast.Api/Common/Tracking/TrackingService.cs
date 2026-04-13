@@ -31,7 +31,8 @@ namespace WearCast.Api.Common.Tracking
             db.UserActivityLogs.Add(new UserActivityLog
             {
                 UserId = userId,
-                Payload = payload
+                Payload = payload,
+                CreatedAt = DateTime.UtcNow
             });
 
             await db.SaveChangesAsync();
