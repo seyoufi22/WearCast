@@ -7,7 +7,6 @@ namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs
 {
     public class GetAllDriverShipmentsRequestDTO : IRequest<Result<PagingViewModel<GetAllDriverShipmentsResponseDTO>>>
     {
-        [JsonIgnore]
         public int DriverId { get; set; }
 
         public int PageIndex { get; set; } = 1;
@@ -44,6 +43,22 @@ namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs
                 .IsInEnum()
                 .When(x => x.ShipmentStatus.HasValue)
                 .WithMessage("Invalid status value.");
+
+            RuleFor(x => x.DeliveryCity)
+                .MaximumLength(100).WithMessage("City name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DeliveryCity));
+
+            RuleFor(x => x.DeliveryStreet)
+                .MaximumLength(100).WithMessage("Street name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DeliveryStreet));
+
+            RuleFor(x => x.CustomerFirstName)
+                .MaximumLength(100).WithMessage("Customer first name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.CustomerFirstName));
+
+            RuleFor(x => x.CustomerLastName)
+                .MaximumLength(100).WithMessage("Customer last name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.CustomerLastName));
         }
     }
 }
