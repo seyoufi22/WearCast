@@ -22,8 +22,7 @@
                     form.BackImage,
                     form.RightImage,
                     form.LeftImage,
-                    form.AssetCount,
-                    form.TotalPrice),
+                    form.AssetCount),
                 cancellationToken);
 
             return result.ToResponse();
@@ -35,8 +34,7 @@
             IFormFile? BackImage,
             IFormFile? RightImage,
             IFormFile? LeftImage,
-            int AssetCount,
-            decimal TotalPrice
+            int AssetCount
         );
     }
 }
