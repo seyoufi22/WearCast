@@ -6,6 +6,7 @@
         IFormFile? BackImage,
         IFormFile? RightImage,
         IFormFile? LeftImage,
+        int AssetCount,
         int ProductId,
         int ProductColorId
         ) : IRequest<Result<CustomerDesignResponse>>;

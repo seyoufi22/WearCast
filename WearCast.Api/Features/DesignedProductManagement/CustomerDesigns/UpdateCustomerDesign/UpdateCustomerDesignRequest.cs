@@ -6,6 +6,7 @@
         IFormFile? FrontImage,
         IFormFile? BackImage,
         IFormFile? RightImage,
-        IFormFile? LeftImage
+        IFormFile? LeftImage,
+        int AssetCount
         ) : IRequest<Result<CustomerDesignResponse>>;
 }

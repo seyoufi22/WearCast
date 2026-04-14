@@ -17,16 +17,22 @@
             var customerId = _httpContextAccessor.HttpContext?.User?.GetCustomerId();
             if (customerId == null) return Result.Failure<CustomerDesignResponse>(AuthErrors.Forbidden);
 
-            var design = await _context.CustomerDesigns
-                .FirstOrDefaultAsync(d =>
-                    d.Id == request.Id &&
-                    d.CustomerId == customerId.Value,
-                cancellationToken);
+            var queryResult = await _context.CustomerDesigns
+                .Where(d => d.Id == request.Id && d.CustomerId == customerId.Value)
+                .Select(d => new
+                {
+                    Design = d,
+                    TemplatePrice = d.DesignedProduct.Price
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (design == null)
+            if (queryResult == null)
             {
                 return Result.Failure<CustomerDesignResponse>(CustomerDesignErrors.DesignNotFound);
             }
+
+            var design = queryResult.Design;
+            var templatePrice = queryResult.TemplatePrice;
 
             var newUploadedUrls = new List<string>();
             var oldUrlsToDelete = new List<string>();
@@ -78,6 +84,15 @@
                 }
 
                 design.ViewDesignsJson = request.ViewDesignsJson;
+
+                if (design.AssetCount != request.AssetCount)
+                {
+                    design.AssetCount = request.AssetCount;
+
+                    decimal fixedAssetPrice = 5.0m;
+
+                    design.CalculateAndSetTotalPrice(templatePrice, fixedAssetPrice);
+                }
 
                 await _context.SaveChangesAsync(cancellationToken);
 

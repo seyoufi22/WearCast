@@ -38,7 +38,9 @@
                     design.FrontImageUrl,
                     design.BackImageUrl,
                     design.RightImageUrl,
-                    design.LeftImageUrl
+                    design.LeftImageUrl,
+                    design.AssetCount,
+                    design.TotalPrice
                 );
 
                 return Result.Success(response);
