@@ -16,4 +16,5 @@ public class GetOrderItemsByOrderIdResponseDto
     public Address ShippingAddress { get; set; } = new();
 
     public List<OrderItemDto> Items { get; set; } = new();
+    public List<DesignedOrderItemDto> DesignedItems { get; set; } = new();
 }
