@@ -18,7 +18,7 @@ public class DeleteFavouriteItemEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [HttpDelete]
     public async Task<IActionResult> DeleteFavouriteItem([FromBody] DeleteFavouriteItemRequestDto request, CancellationToken cancellationToken = default)
     {
