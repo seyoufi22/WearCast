@@ -38,6 +38,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CustomerDesign> CustomerDesigns { get; set; }
     public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
     public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
+    public DbSet<DesignedProductReview> DesignedProductReviews { get; set; }
+
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Entities.Order.Order> Orders { get; set; }
     public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }

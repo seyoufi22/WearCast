@@ -44,6 +44,8 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                 SortBy.PriceAsc => query.OrderBy(p => p.Price),
                 SortBy.PriceDesc => query.OrderByDescending(p => p.Price),
                 SortBy.BestSeller => query.OrderByDescending(p => p.SalesCount),
+                SortBy.MostPopular => query.OrderByDescending(p => p.AverageRating)
+                                           .ThenByDescending(p => p.ReviewCount),
                 SortBy.Newest => query.OrderByDescending(p => p.CreatedOn),
                 _ => query.OrderByDescending(p => p.CreatedOn)
             };
@@ -59,7 +61,10 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                 DefaultColorId = p.DefaultColorId,
                 MainImageUrl = p.DefaultColor != null
                     ? p.DefaultColor.MainImageUrl
-                    : p.Colors.Select(c => c.MainImageUrl).FirstOrDefault()
+                    : p.Colors.Select(c => c.MainImageUrl).FirstOrDefault(),
+
+                AverageRating = p.AverageRating,
+                ReviewCount = p.ReviewCount
             });
 
             var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
