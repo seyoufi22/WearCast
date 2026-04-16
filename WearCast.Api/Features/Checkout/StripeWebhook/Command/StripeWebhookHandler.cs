@@ -4,6 +4,7 @@ using WearCast.Api.Features.Checkout.StripeWebhook.DTOs;
 using WearCast.Api.Persistence;
 using WearCast.Api.Entities.Shipping;
 using WearCast.Api.Entities.BusinessActors;
+using WearCast.Api.Entities.DesignedProducts;
 using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Checkout.StripeWebhook.Command;
@@ -14,6 +15,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
     {
         var orders = await dbContext.Orders
             .Include(o => o.FixedProductItems)
+            .Include(o => o.DesignedProductItems)
             .Where(o => o.StripeSessionId == request.StripeSessionId)
             .ToListAsync(cancellationToken);
 
@@ -22,11 +24,14 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
 
         if (!request.IsSuccess)
         {
-            var existingItems = orders.SelectMany(o => o.FixedProductItems).ToList();
-            if (existingItems.Any())
-            {
-                dbContext.FixedProductOrderItems.RemoveRange(existingItems);
-            }
+            var existingFixedItems = orders.SelectMany(o => o.FixedProductItems).ToList();
+            if (existingFixedItems.Any())
+                dbContext.FixedProductOrderItems.RemoveRange(existingFixedItems);
+
+            var existingDesignedItems = orders.SelectMany(o => o.DesignedProductItems).ToList();
+            if (existingDesignedItems.Any())
+                dbContext.CustomerDesignedOrderItems.RemoveRange(existingDesignedItems);
+
             dbContext.Orders.RemoveRange(orders);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Result<bool>.Success(true);
@@ -38,7 +43,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
             
             order.Status = OrderStatus.Paid;
 
-            // Decrement quantities now that payment is successful
+            // Decrement quantities for fixed product items
             foreach (var item in order.FixedProductItems)
             {
                 var color = await dbContext.FixedProductColors
@@ -57,11 +62,31 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                     dbContext.Entry(color).State = EntityState.Modified;
                 }
             }
+
+            // Increment sales count for designed product items
+            foreach (var item in order.DesignedProductItems)
+            {
+                var customerDesign = await dbContext.CustomerDesigns
+                    .FirstOrDefaultAsync(cd => cd.Id == item.CustomerDesignId, cancellationToken);
+
+                if (customerDesign != null)
+                {
+                    var designedProduct = await dbContext.DesignedProducts
+                        .FirstOrDefaultAsync(dp => dp.Id == customerDesign.DesignedProductId, cancellationToken);
+
+                    if (designedProduct != null)
+                    {
+                        designedProduct.SalesCount += item.Quantity;
+                    }
+                }
+            }
         }
 
         var customerId = orders.First().CustomerId;
+
+        // Clear both fixed and designed cart items
         var cartItemsToClear = await dbContext.CartItems
-            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
+            .Where(c => c.CustomerId == customerId)
             .ToListAsync(cancellationToken);
         
         dbContext.CartItems.RemoveRange(cartItemsToClear);
@@ -87,11 +112,10 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                 DeliveryAddress = deliveryAddress,
                 ShipmentStatus = ShipmentStatus.UnAssigned,
                 ShippingCompanyId = shippingCompany.Id,
-                CreatedById = firstOrder.CreatedById, // Inherit user mapping
+                CreatedById = firstOrder.CreatedById,
                 Orders = orders.Where(o => o.Status == OrderStatus.Paid).ToList()
             };
             
-            // Re-fetch customer to ensure tracking or use CustomerID mapping, EF takes care of it natively
             dbContext.Shipments.Add(shipment);
         }
 
@@ -99,8 +123,3 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
         return Result<bool>.Success(true);
     }
 }
-
-
-
-
-

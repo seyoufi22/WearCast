@@ -15,7 +15,7 @@ public class CreateCheckoutSessionEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [HttpPost]
     public async Task<IActionResult> Checkout([FromBody] CreateCheckoutSessionRequestDto request, CancellationToken cancellationToken)
     {
