@@ -38,6 +38,7 @@ public class GetCustomerHandler(
                     x.ApplicationUser!.FirstName,
                     x.ApplicationUser.LastName,
                     x.ApplicationUser.PhoneNumber ?? string.Empty,
+                    x.ProfileImageUrl ?? string.Empty,
                     x.Address != null ? new AddressDto(
                         x.Address.State,        
                         x.Address.City,           
