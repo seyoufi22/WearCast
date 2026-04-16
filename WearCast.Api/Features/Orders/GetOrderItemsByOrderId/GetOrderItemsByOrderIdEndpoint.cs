@@ -21,8 +21,9 @@ public class GetOrderItemsByOrderIdEndpoint : ControllerBase
     {
         int? customerId = User.IsInRole(DefaultRoles.Customer) ? User.GetCustomerId() : null;
         int? sellerId = User.IsInRole(DefaultRoles.SellerManager) ? User.GetSellerId() : null;
+        int? factoryId = User.IsInRole(DefaultRoles.FactoryManager) ? User.GetFactoryId() : null;
 
-        var request = new GetOrderItemsByOrderIdQuery(orderId, customerId, sellerId);
+        var request = new GetOrderItemsByOrderIdQuery(orderId, customerId, sellerId, factoryId);
         var result = await _sender.Send(request);
 
         if (result.IsFailure)

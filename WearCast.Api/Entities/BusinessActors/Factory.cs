@@ -20,5 +20,6 @@
         public ICollection<FactoryManager> Managers { get; set; } = [];
 
         public ICollection<DesignedProduct> DesignedProducts { get; set; } = [];
+        public ICollection<Order.Order> Orders { get; set; } = [];
     }
 }
