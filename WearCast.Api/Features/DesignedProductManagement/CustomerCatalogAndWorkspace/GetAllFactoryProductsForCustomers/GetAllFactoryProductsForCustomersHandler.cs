@@ -30,15 +30,12 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                                          p.Description.ToLower().Contains(search));
             }
 
-            // متغير عشان نحفظ فيه اسم الكاتيجوري للـ Tracking لو اليوزر فلتر بيه
             string? categoryNameToTrack = null;
 
             if (request.CategoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == request.CategoryId.Value);
 
-                // جلب اسم الكاتيجوري عشان الـ AI يفهمه كـ String بدل Int
-                // افترضت إن جدول الكاتيجوريز اسمه Categories، عدله لو مختلف عندك
                 categoryNameToTrack = await _context.Categories
                     .Where(c => c.Id == request.CategoryId.Value)
                     .Select(c => c.Name)
@@ -65,6 +62,8 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                 SortBy.PriceAsc => query.OrderBy(p => p.Price),
                 SortBy.PriceDesc => query.OrderByDescending(p => p.Price),
                 SortBy.BestSeller => query.OrderByDescending(p => p.SalesCount),
+                SortBy.MostPopular => query.OrderByDescending(p => p.AverageRating)
+                                           .ThenByDescending(p => p.ReviewCount),
                 SortBy.Newest => query.OrderByDescending(p => p.CreatedOn),
                 _ => query.OrderByDescending(p => p.CreatedOn)
             };
@@ -80,7 +79,10 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                 DefaultColorId = p.DefaultColorId,
                 MainImageUrl = p.DefaultColor != null
                     ? p.DefaultColor.MainImageUrl
-                    : p.Colors.Select(c => c.MainImageUrl).FirstOrDefault()
+                    : p.Colors.Select(c => c.MainImageUrl).FirstOrDefault(),
+
+                AverageRating = p.AverageRating,
+                ReviewCount = p.ReviewCount
             });
 
             var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);

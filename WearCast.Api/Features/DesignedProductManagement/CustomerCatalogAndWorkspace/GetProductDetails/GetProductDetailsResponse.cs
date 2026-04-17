@@ -7,6 +7,8 @@
         List<string> TargetAudience,
         decimal Price,
         int SalesCount,
+        decimal AverageRating,
+        int ReviewCount,
         int CanvasWidth,
         int CanvasHeight,
         CategoryResponse Category,
