@@ -33,6 +33,8 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
 
+app.UseCors("AllowAll");
+
 app.UseExceptionHandler();
 
 app.MapControllers();
