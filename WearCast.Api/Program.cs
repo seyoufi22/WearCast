@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercel",
-        policy => policy.WithOrigins("https://wear-cast-frontend-graduation-proje-theta.vercel.app/")
+        policy => policy.WithOrigins("https://wear-cast-frontend-graduation-proje-theta.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
