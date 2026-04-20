@@ -23,18 +23,7 @@ namespace WearCast.Api
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
 
-<<<<<<< HEAD
-services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
-=======
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -45,7 +34,6 @@ services.AddCors(options =>
                         .AllowAnyHeader();
                 });
             });
->>>>>>> aa634bba9665011c148290cd8999d482b368127f
             services.AddAuthConfig(configuration);
 
             var connectionString = configuration.GetConnectionString("DefaultConnection") ??
