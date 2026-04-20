@@ -32,6 +32,7 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
     DashboardTitle = "Survey Basket Dashboard",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
+app.UseCors("AllowAll");
 
 app.UseExceptionHandler();
 

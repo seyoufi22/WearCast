@@ -34,6 +34,7 @@
                     design.Id,
                     design.DesignedProductId,
                     design.DesignedProductColorId,
+                    design.Name,
                     design.ViewDesignsJson,
                     design.FrontImageUrl,
                     design.BackImageUrl,
