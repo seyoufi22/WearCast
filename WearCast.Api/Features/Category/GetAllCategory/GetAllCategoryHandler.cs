@@ -15,7 +15,7 @@ public class GetAllCategoryHandler : IRequestHandler<GetAllCategoryRequestDto, L
         var categories = await _categoryRepo.GetAllAsync();
 
         return categories
-            .Select(c => new GetAllCategoryResponseDto(c.Id, c.Name))
+            .Select(c => new GetAllCategoryResponseDto(c.Id, c.Name, c.ImageUrl))
             .ToList();
     }
 }
