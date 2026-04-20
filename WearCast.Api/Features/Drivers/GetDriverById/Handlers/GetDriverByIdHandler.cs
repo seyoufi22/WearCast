@@ -31,6 +31,7 @@ namespace WearCast.Api.Features.Drivers.GetDriverById.Handlers
                     VehiclePlateNumber = d.VehiclePlateNumber,
                     Status = d.Status,
                     Address= d.Address,
+                    IsDeleted= d.IsDeleted,
                 })
                 .FirstOrDefaultAsync(cancellationToken);
             if (driver == null)

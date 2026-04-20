@@ -22,12 +22,11 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus
             [FromBody] UpdateShipmentStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
-            var UpdaterId = User.GetUserId();
             if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin() && !User.IsDriver())
             {
                 return Unauthorized(new { Message = "You are not allowed to do this action" });
             }
-
+            var UpdaterId = User.GetUserId();
             request.ShipmentId = ShipmentId;
             request.UpdaterId = UpdaterId!;
             request.IsAdmin = !User.IsDriver();

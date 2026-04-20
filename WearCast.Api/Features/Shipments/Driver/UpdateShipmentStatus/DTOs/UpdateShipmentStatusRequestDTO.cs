@@ -22,6 +22,10 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs
 
             RuleFor(x => x.NewStatus)
                 .IsInEnum().WithMessage("Invalid shipment status.");
+
+            RuleFor(x => x.DeliveryCode)
+                .MaximumLength(6).WithMessage("Delivery Code cannot exceed 6 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DeliveryCode));
         }
     }
 }

@@ -26,13 +26,6 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                 return Result.Failure(ShipmentErrors.NotFound);
             }
 
-            if (shipment.ShipmentStatus == ShipmentStatus.Delivered
-              || shipment.ShipmentStatus == ShipmentStatus.Unassigned
-              || shipment.ShipmentStatus == ShipmentStatus.Pending)
-            {
-                return Result.Failure(ShipmentErrors.InvalidTransition);
-            }
-
             if (!request.IsAdmin)
             {
                 if (shipment.Driver == null || shipment.Driver.UserId != request.UpdaterId)
@@ -40,7 +33,14 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                     return Result.Failure(ShipmentErrors.UnAuthorized);
                 }
             }
-           
+
+            if (shipment.ShipmentStatus == ShipmentStatus.Delivered
+              || shipment.ShipmentStatus == ShipmentStatus.Unassigned
+              || shipment.ShipmentStatus == ShipmentStatus.Pending)
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
+            }
+
             if (shipment.ShipmentStatus == ShipmentStatus.Assigned)
             {
                 if (request.NewStatus == ShipmentStatus.Unassigned)

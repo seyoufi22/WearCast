@@ -1,4 +1,5 @@
 ﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
+using WearCast.Api.Features.Shipments;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
 {
@@ -20,47 +21,42 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
             {
                 return Result.Failure(DriverErrors.NotFound);
             }
+
+            if (!request.IsAdmin)
+            {
+                if (driver.UserId != request.UpdaterId)
+                {
+                    return Result.Failure(DriverErrors.UnAuthorized);
+                }
+            }
+
             if (driver.Status == request.NewStatus)
             {
                 return Result.Success();
             }
             if (request.NewStatus == DriverStatus.NotAvailable)
             {
-                var hasOutForDelivery = await _context.Shipments
+                var hasActiveShipments = await _context.Shipments
                     .AnyAsync(s =>
                         s.DriverId == request.DriverId &&
-                        s.ShipmentStatus == ShipmentStatus.OutForDelivery,
+                        (s.ShipmentStatus == ShipmentStatus.OutForDelivery ||
+                        s.ShipmentStatus == ShipmentStatus.PickingUp),
                         cancellationToken);
-                if (hasOutForDelivery)
+                if (hasActiveShipments)
                 {
-                    return Result.Failure(DriverErrors.HasOutForDeliveryShipments);
+                    return Result.Failure(DriverErrors.HasActiveShipments);
                 }
 
-                var assignedShipments = await _context.Shipments
-                    .Where(s =>
-                        s.DriverId == request.DriverId &&
-                        s.ShipmentStatus == ShipmentStatus.Assigned)
-                    .ToListAsync(cancellationToken);
-
-                foreach (var shipment in assignedShipments)
-                {
-                    shipment.ShipmentStatus = ShipmentStatus.Unassigned;
-                    shipment.DriverId = null;
-                }
-                /*
-                 * another imp
-                 * 
-                 await _context.Shipments
-            .Where(s =>
-                s.DriverId == request.DriverId &&
-                s.ShipmentStatus == ShipmentStatus.Assigned)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(x => x.DriverId, (int?)null)
-                .SetProperty(x => x.ShipmentStatus, ShipmentStatus.Unassigned),
-                cancellationToken);
-                */
+                await _context.Shipments
+                    .Where(s => s.DriverId == request.DriverId &&
+                                s.ShipmentStatus == ShipmentStatus.Assigned)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(s => s.ShipmentStatus, ShipmentStatus.Unassigned)
+                        .SetProperty(s => s.DriverId, (int?)null)
+                        .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                        .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                        cancellationToken);
             }
-
             driver.Status = request.NewStatus;
 
             await _context.SaveChangesAsync(cancellationToken);

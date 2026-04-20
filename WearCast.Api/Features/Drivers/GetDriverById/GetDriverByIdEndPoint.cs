@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
-using WearCast.Api.Features.FixedProduct.GetFixedProductById.DTOs;
+﻿using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetDriverById
 {
@@ -21,6 +17,17 @@ namespace WearCast.Api.Features.Drivers.GetDriverById
         [HttpGet("{id}/GetById")]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
+            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin() && !User.IsDriver())
+            {
+                return Unauthorized(new { Message = "You are not allowed to do this action" });
+            }
+            if (User.IsDriver())
+            {
+                if (User.GetDriverId() != id)
+                {
+                    return Unauthorized(new { Message = "You are not allowed to do this action" });
+                }
+            }
             var result = await _sender.Send(new GetDriverByIdRequestDTO(id), cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
