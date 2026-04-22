@@ -4,15 +4,6 @@ using WearCast.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowVercel",
-        policy => policy.WithOrigins("https://wear-cast-frontend-graduation-proje-theta.vercel.app")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
 builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
@@ -28,7 +19,6 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// 3. إعدادات لوحة تحكم Hangfire
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =
