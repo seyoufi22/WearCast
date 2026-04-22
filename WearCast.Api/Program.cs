@@ -8,7 +8,6 @@ builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
@@ -16,9 +15,10 @@ app.UseSwaggerUI(options =>
     options.EnablePersistAuthorization();
 });
 
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
+// 3. إعدادات لوحة تحكم Hangfire
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =
@@ -29,15 +29,17 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
         }
     ],
-    DashboardTitle = "Survey Basket Dashboard",
+    DashboardTitle = "WearCast Background Jobs",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
+
 app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
-
-app.UseStaticFiles();
 
 app.Run();
