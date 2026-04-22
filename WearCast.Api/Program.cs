@@ -4,20 +4,9 @@ using WearCast.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowVercel",
-        policy => policy.WithOrigins("https://wear-cast-frontend-graduation-proje-theta.vercel.app")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
 builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
-
-app.UseCors("AllowVercel");
 
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
@@ -27,8 +16,8 @@ app.UseSwaggerUI(options =>
     options.EnablePersistAuthorization();
 });
 
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
@@ -40,14 +29,17 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
         }
     ],
-    DashboardTitle = "Survey Basket Dashboard",
+    DashboardTitle = "WearCast Background Jobs",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
+
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
-
-app.UseStaticFiles();
 
 app.Run();

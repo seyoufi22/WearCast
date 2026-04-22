@@ -11,6 +11,7 @@
         public async Task<IActionResult> Add([FromForm] AddCustomerDesignForm form, CancellationToken cancellationToken)
         {
             var request = new AddCustomerDesignRequest(
+                    form.Name,
                     form.ViewDesignsJson,
                     form.FrontImage,
                     form.BackImage,
@@ -26,13 +27,14 @@
         }
         public record AddCustomerDesignForm(
             string ViewDesignsJson,
-            IFormFile? FrontImage,
-            IFormFile? BackImage,
-            IFormFile? RightImage,
-            IFormFile? LeftImage,
             int AssetCount,
             int ProductId,
-            int ProductColorId
+            int ProductColorId,
+            string? Name = null,
+            IFormFile? FrontImage = null,
+            IFormFile? BackImage = null,
+            IFormFile? RightImage = null,
+            IFormFile? LeftImage = null
         );
     }
 }

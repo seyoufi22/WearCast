@@ -84,6 +84,7 @@
                 }
 
                 design.ViewDesignsJson = request.ViewDesignsJson;
+                design.Name = request.Name;
 
                 if (design.AssetCount != request.AssetCount)
                 {

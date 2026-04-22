@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.DesignedProductManagement.DesignedProductReviews.UpsertDesignedProductReview
+﻿using WearCast.Api.Entities.Order;
+
+namespace WearCast.Api.Features.DesignedProductManagement.DesignedProductReviews.UpsertDesignedProductReview
 {
 
     public class UpsertDesignedProductReviewHandler(
@@ -19,14 +21,15 @@
             if (product == null)
                 return Result.Failure<UpsertDesignedProductReviewResponse>(new("DesignedProductReview.ProductNotFound", "Product does not exist.", StatusCodes.Status404NotFound));
 
-            //var hasPurchased = await _context.Orders
-            //    .AnyAsync(o => o.CustomerId == customerId
-            //                && o.Status == OrderStatus.Delivered
-            //                && o.OrderItems.Any(oi => oi.DesignedProductId == request.DesignedProductId),
-            //              cancellationToken);
+            var hasPurchased = await context.Set<CustomerDesignedOrderItem>()
+                .AnyAsync(item =>
+                    item.Order.CustomerId == customerId.Value &&
+                    item.Order.Status == OrderStatus.PickedUp &&
+                    item.CustomerDesign.DesignedProductId == request.DesignedProductId,
+                cancellationToken);
 
-            //if (!hasPurchased)
-            //    return Result.Failure<UpsertDesignedProductReviewResponse>(new("DesignedProductReview.NotPurchased", "You can only review products you have purchased and received.", StatusCodes.Status403Forbidden));
+            if (!hasPurchased)
+                return Result.Failure<UpsertDesignedProductReviewResponse>(new("DesignedProductReview.NotPurchased", "You can only review products you have purchased and picked Up.", StatusCodes.Status403Forbidden));
 
             var existingReview = await _context.DesignedProductReviews
                 .FirstOrDefaultAsync(r => r.CustomerId == customerId

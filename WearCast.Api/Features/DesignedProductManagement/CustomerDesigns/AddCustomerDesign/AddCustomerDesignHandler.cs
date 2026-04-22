@@ -72,6 +72,7 @@
                     CustomerId = customerId.Value,
                     DesignedProductId = request.ProductId,
                     DesignedProductColorId = request.ProductColorId,
+                    Name = request.Name ?? string.Empty,
                     ViewDesignsJson = request.ViewDesignsJson,
                     FrontImageUrl = frontUrl,
                     BackImageUrl = backUrl,

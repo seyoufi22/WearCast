@@ -23,13 +23,15 @@ namespace WearCast.Api
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
 
-            builder.Services.AddCors(options =>
+            services.AddCors(options =>
             {
-                options.AddPolicy("AllowVercel",
-                    policy => policy.WithOrigins("https://wear-cast-frontend-graduation-proje-theta.vercel.app")
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+                        .AllowAnyHeader();
+                });
             });
             services.AddAuthConfig(configuration);
 
@@ -234,4 +236,3 @@ namespace WearCast.Api
 
     }
 }
-
