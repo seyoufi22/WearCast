@@ -1,16 +1,18 @@
 ﻿namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWorkspace.GetProductDetails
 {
-    [ApiController]
     [Route("api/catalog/designed-products")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
+    [Tags("Designed Product Catalog")]
     public class GetProductDetailsEndPoints(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
 
         [HttpGet("{id:int}")]
         [Authorize]
-        public async Task<IActionResult> Get([FromRoute] int Id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] int Id, [FromQuery] int? colorId, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetProductDetailsRequest(Id), cancellationToken);
+            var result = await _mediator.Send(new GetProductDetailsRequest(Id, colorId), cancellationToken);
 
             return result.ToResponse();
         }

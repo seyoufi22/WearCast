@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
+using WearCast.Api.Common.Tracking;
 
 
 
@@ -22,6 +23,16 @@ namespace WearCast.Api
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
             services.AddAuthConfig(configuration);
 
             var connectionString = configuration.GetConnectionString("DefaultConnection") ??
@@ -41,6 +52,8 @@ namespace WearCast.Api
 
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<EmailHelper>();
+
+            services.AddScoped<ITrackingService, TrackingService>();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -223,4 +236,3 @@ namespace WearCast.Api
 
     }
 }
-

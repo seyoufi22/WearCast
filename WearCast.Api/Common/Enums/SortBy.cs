@@ -8,5 +8,6 @@ public enum SortBy
     NumberOfOrdersAsc,
     NumberOfOrdersDesc,
     PriceAsc,
-    PriceDesc
+    PriceDesc,
+    BestSeller
 }

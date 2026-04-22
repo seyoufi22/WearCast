@@ -1,4 +1,10 @@
-﻿namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAssetsByCategory
+﻿using WearCast.Api.Common.Views;
+
+namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAssetsByCategory
 {
-    public record GetAssetsByCategoryRequest(int CategoryId) : IRequest<Result<IEnumerable<GetAssetsByCategoryResponse>>>;
+    public record GetAssetsByCategoryRequest(
+        int CategoryId,
+        int PageIndex = 1,
+        int PageSize = 10
+    ) : IRequest<Result<PagingViewModel<GetAssetsByCategoryResponse>>>;
 }

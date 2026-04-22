@@ -18,7 +18,7 @@ public class AddNewFavouriteItemEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [HttpPost]
     public async Task<IActionResult> AddNewFavouriteItem([FromBody] AddNewFavouriteItemRequestDto request, CancellationToken cancellationToken = default)
     {

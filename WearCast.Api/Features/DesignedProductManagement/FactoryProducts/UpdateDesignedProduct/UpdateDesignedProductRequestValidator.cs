@@ -32,6 +32,11 @@
             // بنتأكد إن كل عنصر جوه الليستة هو قيمة صحيحة في الـ Enum
             RuleForEach(x => x.TargetAudiences)
                 .IsInEnum().WithMessage("Invalid target audience value.");
+
+            RuleFor(x => x.DressStyle)
+                .IsInEnum().WithMessage("Invalid dress style value.");
+
+
         }
     }
 }

@@ -5,7 +5,8 @@ namespace WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 public record GetAllFixedProductsQuery(
     int PageIndex = 1,
     int PageSize = 100,
-    string? Category = null,
+    string? SearchTerm = null,
+    int? CategoryId = null,
     decimal? MinPrice = null,
     decimal? MaxPrice = null,
     DressStyle? DressStyle = null,
