@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WearCast.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -157,6 +157,7 @@ namespace WearCast.Api.Migrations
                     TaxIdNumber = table.Column<string>(type: "nvarchar(9)", maxLength: 9, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     LogoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DeliveryFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     State = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     City = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Street = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -166,6 +167,21 @@ namespace WearCast.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ShippingCompanies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserActivityLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Payload = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserActivityLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -466,13 +482,13 @@ namespace WearCast.Api.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Drivers_ShippingCompanies_ShippingCompanyId",
                         column: x => x.ShippingCompanyId,
                         principalTable: "ShippingCompanies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -493,61 +509,11 @@ namespace WearCast.Api.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ShippingCompanyManagers_ShippingCompanies_ShippingCompanyId",
                         column: x => x.ShippingCompanyId,
                         principalTable: "ShippingCompanies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DesignedProducts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    TargetAudience = table.Column<byte>(type: "tinyint", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CanvasWidth = table.Column<int>(type: "int", nullable: false),
-                    CanvasHeight = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    FactoryId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DesignedProducts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DesignedProducts_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DesignedProducts_AspNetUsers_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DesignedProducts_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DesignedProducts_Factories_FactoryId",
-                        column: x => x.FactoryId,
-                        principalTable: "Factories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -562,7 +528,8 @@ namespace WearCast.Api.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    TargetAudience = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TargetAudience = table.Column<int>(type: "int", nullable: false),
+                    DressStyle = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     SellerId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -681,66 +648,64 @@ namespace WearCast.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DesignedProductColors",
+                name: "Shipments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    HexCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    DesignedProductId = table.Column<int>(type: "int", nullable: false),
+                    DeliveryAddress_State = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeliveryAddress_City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeliveryAddress_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeliveryAddress_BuildingNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReadyForPickupAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TripStartedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    OutForDeliveryAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeliveredAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeliveryCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DriverId = table.Column<int>(type: "int", nullable: true),
+                    ShipmentStatus = table.Column<int>(type: "int", nullable: false),
+                    ShippingCompanyId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DesignedProductColors", x => x.Id);
+                    table.PrimaryKey("PK_Shipments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DesignedProductColors_AspNetUsers_CreatedById",
+                        name: "FK_Shipments_AspNetUsers_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DesignedProductColors_AspNetUsers_UpdatedById",
+                        name: "FK_Shipments_AspNetUsers_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Shipments_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DesignedProductColors_DesignedProducts_DesignedProductId",
-                        column: x => x.DesignedProductId,
-                        principalTable: "DesignedProducts",
+                        name: "FK_Shipments_Drivers_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "Drivers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DesignedProductSizeDetails",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Size = table.Column<byte>(type: "tinyint", nullable: false),
-                    A = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
-                    B = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
-                    C = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DesignedProductId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DesignedProductSizeDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DesignedProductSizeDetails_DesignedProducts_DesignedProductId",
-                        column: x => x.DesignedProductId,
-                        principalTable: "DesignedProducts",
+                        name: "FK_Shipments_ShippingCompanies_ShippingCompanyId",
+                        column: x => x.ShippingCompanyId,
+                        principalTable: "ShippingCompanies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -785,95 +750,74 @@ namespace WearCast.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerDesigns",
+                name: "Orders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ViewDesignsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
-                    DesignedProductId = table.Column<int>(type: "int", nullable: false),
-                    DesignedProductColorId = table.Column<int>(type: "int", nullable: false),
-                    CartItemId = table.Column<int>(type: "int", nullable: true),
+                    SellerId = table.Column<int>(type: "int", nullable: true),
+                    FactoryId = table.Column<int>(type: "int", nullable: true),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    StripeSessionId = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    StripePaymentIntentId = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    RecipientName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    RecipientPhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RecipientAdditionalPhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ShippingAddress_State = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShippingAddress_City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShippingAddress_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShippingAddress_BuildingNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PickUpAddress_State = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PickUpAddress_City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PickUpAddress_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PickUpAddress_BuildingNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShipmentId = table.Column<int>(type: "int", nullable: true),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerDesigns", x => x.Id);
+                    table.PrimaryKey("PK_Orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CustomerDesigns_AspNetUsers_CreatedById",
+                        name: "FK_Orders_AspNetUsers_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CustomerDesigns_AspNetUsers_UpdatedById",
+                        name: "FK_Orders_AspNetUsers_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_CustomerDesigns_Customers_CustomerId",
+                        name: "FK_Orders_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CustomerDesigns_DesignedProductColors_DesignedProductColorId",
-                        column: x => x.DesignedProductColorId,
-                        principalTable: "DesignedProductColors",
+                        name: "FK_Orders_Factories_FactoryId",
+                        column: x => x.FactoryId,
+                        principalTable: "Factories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CustomerDesigns_DesignedProducts_DesignedProductId",
-                        column: x => x.DesignedProductId,
-                        principalTable: "DesignedProducts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DesignedProductImages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ViewSide = table.Column<byte>(type: "tinyint", nullable: false),
-                    DesignedProductColorId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DesignedProductImages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DesignedProductImages_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "AspNetUsers",
+                        name: "FK_Orders_Sellers_SellerId",
+                        column: x => x.SellerId,
+                        principalTable: "Sellers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DesignedProductImages_AspNetUsers_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DesignedProductImages_DesignedProductColors_DesignedProductColorId",
-                        column: x => x.DesignedProductColorId,
-                        principalTable: "DesignedProductColors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Orders_Shipments_ShipmentId",
+                        column: x => x.ShipmentId,
+                        principalTable: "Shipments",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -939,6 +883,55 @@ namespace WearCast.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FixedProductOrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    FixedColorId = table.Column<int>(type: "int", nullable: false),
+                    ProductName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ColorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    SizeName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FixedProductOrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FixedProductOrderItems_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FixedProductOrderItems_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FixedProductOrderItems_FixedProductColors_FixedColorId",
+                        column: x => x.FixedColorId,
+                        principalTable: "FixedProductColors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FixedProductOrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CartItems",
                 columns: table => new
                 {
@@ -971,12 +964,6 @@ namespace WearCast.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CartItems_CustomerDesigns_CustomerDesignId",
-                        column: x => x.CustomerDesignId,
-                        principalTable: "CustomerDesigns",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_CartItems_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
@@ -988,6 +975,299 @@ namespace WearCast.Api.Migrations
                         principalTable: "FixedProductColors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerDesignedOrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    CustomerDesignId = table.Column<int>(type: "int", nullable: false),
+                    ProductName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ColorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SizeName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerDesignedOrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomerDesignedOrderItems_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomerDesignedOrderItems_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CustomerDesignedOrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerDesigns",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ViewDesignsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FrontImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BackImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RightImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LeftImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AssetCount = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    DesignedProductId = table.Column<int>(type: "int", nullable: false),
+                    DesignedProductColorId = table.Column<int>(type: "int", nullable: false),
+                    CartItemId = table.Column<int>(type: "int", nullable: true),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerDesigns", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomerDesigns_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CustomerDesigns_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CustomerDesigns_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DesignedProductColors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    HexCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DesignedProductId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignedProductColors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductColors_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductColors_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DesignedProductImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ViewSide = table.Column<byte>(type: "tinyint", nullable: false),
+                    DesignedProductColorId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignedProductImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductImages_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductImages_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductImages_DesignedProductColors_DesignedProductColorId",
+                        column: x => x.DesignedProductColorId,
+                        principalTable: "DesignedProductColors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DesignedProducts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    AverageRating = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ReviewCount = table.Column<int>(type: "int", nullable: false),
+                    TargetAudience = table.Column<byte>(type: "tinyint", nullable: false),
+                    DressStyle = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CanvasWidth = table.Column<int>(type: "int", nullable: false),
+                    CanvasHeight = table.Column<int>(type: "int", nullable: false),
+                    SalesCount = table.Column<int>(type: "int", nullable: false),
+                    DefaultColorId = table.Column<int>(type: "int", nullable: true),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    FactoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignedProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignedProducts_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProducts_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProducts_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProducts_DesignedProductColors_DefaultColorId",
+                        column: x => x.DefaultColorId,
+                        principalTable: "DesignedProductColors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProducts_Factories_FactoryId",
+                        column: x => x.FactoryId,
+                        principalTable: "Factories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DesignedProductReviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    DesignedProductId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignedProductReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductReviews_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductReviews_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DesignedProductReviews_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductReviews_DesignedProducts_DesignedProductId",
+                        column: x => x.DesignedProductId,
+                        principalTable: "DesignedProducts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DesignedProductSizeDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Size = table.Column<byte>(type: "tinyint", nullable: false),
+                    A = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
+                    B = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
+                    C = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DesignedProductId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DesignedProductSizeDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DesignedProductSizeDetails_DesignedProducts_DesignedProductId",
+                        column: x => x.DesignedProductId,
+                        principalTable: "DesignedProducts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -1006,7 +1286,7 @@ namespace WearCast.Api.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmationCode", "EmailConfirmationCodeExpiration", "EmailConfirmed", "FirstName", "IsDeleted", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ResetPasswordCode", "ResetPasswordCodeExpiration", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "fe83a0d2-cc41-4305-bcea-799fe7af0de2", 0, "5e7bb6ec-e063-4e6f-a929-1fbe81b3c4d0", "SuperAdmin@WearCast.com", null, null, true, "WearCast", false, "SuperAdmin", false, null, "SUPERADMIN@WEARCAST.COM", "SUPERADMIN@WEARCAST.COM", "AQAAAAIAAYagAAAAEMUmCAQmXNtHW5Kp6h6RdOydGsI7IJzbZUUKfARCZWU6IFANf0OWiY9342qjKcLYMg==", "01000000001", true, null, null, "DAE8F8342FB84409A3CF6B6BE8802BC8", false, "SuperAdmin@WearCast.com" });
+                values: new object[] { "fe83a0d2-cc41-4305-bcea-799fe7af0de2", 0, "5e7bb6ec-e063-4e6f-a929-1fbe81b3c4d0", "SuperAdmin@WearCast.com", null, null, true, "WearCast", false, "SuperAdmin", false, null, "SUPERADMIN@WEARCAST.COM", "SUPERADMIN@WEARCAST.COM", "AQAAAAIAAYagAAAAEA98gJ9lWcVcjZ9lCnZoXipdAX0y5rXs5qXSpeUancRA14KCHgDhsieq5JRRCTPPKg==", "01000000001", true, null, null, "DAE8F8342FB84409A3CF6B6BE8802BC8", false, "SuperAdmin@WearCast.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoleClaims",
@@ -1118,6 +1398,26 @@ namespace WearCast.Api.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_UpdatedById",
                 table: "Categories",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerDesignedOrderItems_CreatedById",
+                table: "CustomerDesignedOrderItems",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerDesignedOrderItems_CustomerDesignId",
+                table: "CustomerDesignedOrderItems",
+                column: "CustomerDesignId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerDesignedOrderItems_OrderId",
+                table: "CustomerDesignedOrderItems",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerDesignedOrderItems_UpdatedById",
+                table: "CustomerDesignedOrderItems",
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
@@ -1233,6 +1533,28 @@ namespace WearCast.Api.Migrations
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DesignedProductReviews_CreatedById",
+                table: "DesignedProductReviews",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignedProductReviews_CustomerId",
+                table: "DesignedProductReviews",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignedProductReviews_DesignedProductId_CustomerId",
+                table: "DesignedProductReviews",
+                columns: new[] { "DesignedProductId", "CustomerId" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignedProductReviews_UpdatedById",
+                table: "DesignedProductReviews",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DesignedProducts_CategoryId",
                 table: "DesignedProducts",
                 column: "CategoryId");
@@ -1241,6 +1563,11 @@ namespace WearCast.Api.Migrations
                 name: "IX_DesignedProducts_CreatedById",
                 table: "DesignedProducts",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DesignedProducts_DefaultColorId",
+                table: "DesignedProducts",
+                column: "DefaultColorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DesignedProducts_FactoryId",
@@ -1321,6 +1648,26 @@ namespace WearCast.Api.Migrations
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FixedProductOrderItems_CreatedById",
+                table: "FixedProductOrderItems",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FixedProductOrderItems_FixedColorId",
+                table: "FixedProductOrderItems",
+                column: "FixedColorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FixedProductOrderItems_OrderId",
+                table: "FixedProductOrderItems",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FixedProductOrderItems_UpdatedById",
+                table: "FixedProductOrderItems",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FixedProducts_CategoryId",
                 table: "FixedProducts",
                 column: "CategoryId");
@@ -1338,6 +1685,36 @@ namespace WearCast.Api.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FixedProducts_UpdatedById",
                 table: "FixedProducts",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CreatedById",
+                table: "Orders",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CustomerId",
+                table: "Orders",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_FactoryId",
+                table: "Orders",
+                column: "FactoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_SellerId",
+                table: "Orders",
+                column: "SellerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_ShipmentId",
+                table: "Orders",
+                column: "ShipmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_UpdatedById",
+                table: "Orders",
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
@@ -1425,6 +1802,31 @@ namespace WearCast.Api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Shipments_CreatedById",
+                table: "Shipments",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_CustomerId",
+                table: "Shipments",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_DriverId",
+                table: "Shipments",
+                column: "DriverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_ShippingCompanyId",
+                table: "Shipments",
+                column: "ShippingCompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_UpdatedById",
+                table: "Shipments",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ShippingCompanyManagers_ShippingCompanyId",
                 table: "ShippingCompanyManagers",
                 column: "ShippingCompanyId");
@@ -1434,11 +1836,79 @@ namespace WearCast.Api.Migrations
                 table: "ShippingCompanyManagers",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CartItems_CustomerDesigns_CustomerDesignId",
+                table: "CartItems",
+                column: "CustomerDesignId",
+                principalTable: "CustomerDesigns",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CustomerDesignedOrderItems_CustomerDesigns_CustomerDesignId",
+                table: "CustomerDesignedOrderItems",
+                column: "CustomerDesignId",
+                principalTable: "CustomerDesigns",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CustomerDesigns_DesignedProductColors_DesignedProductColorId",
+                table: "CustomerDesigns",
+                column: "DesignedProductColorId",
+                principalTable: "DesignedProductColors",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CustomerDesigns_DesignedProducts_DesignedProductId",
+                table: "CustomerDesigns",
+                column: "DesignedProductId",
+                principalTable: "DesignedProducts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_DesignedProductColors_DesignedProducts_DesignedProductId",
+                table: "DesignedProductColors",
+                column: "DesignedProductId",
+                principalTable: "DesignedProducts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Categories_AspNetUsers_CreatedById",
+                table: "Categories");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Categories_AspNetUsers_UpdatedById",
+                table: "Categories");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_DesignedProductColors_AspNetUsers_CreatedById",
+                table: "DesignedProductColors");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_DesignedProductColors_AspNetUsers_UpdatedById",
+                table: "DesignedProductColors");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_DesignedProducts_AspNetUsers_CreatedById",
+                table: "DesignedProducts");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_DesignedProducts_AspNetUsers_UpdatedById",
+                table: "DesignedProducts");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_DesignedProducts_DesignedProductColors_DefaultColorId",
+                table: "DesignedProducts");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -1458,6 +1928,9 @@ namespace WearCast.Api.Migrations
                 name: "CartItems");
 
             migrationBuilder.DropTable(
+                name: "CustomerDesignedOrderItems");
+
+            migrationBuilder.DropTable(
                 name: "CustomerUploadedImages");
 
             migrationBuilder.DropTable(
@@ -1467,10 +1940,10 @@ namespace WearCast.Api.Migrations
                 name: "DesignedProductImages");
 
             migrationBuilder.DropTable(
-                name: "DesignedProductSizeDetails");
+                name: "DesignedProductReviews");
 
             migrationBuilder.DropTable(
-                name: "Drivers");
+                name: "DesignedProductSizeDetails");
 
             migrationBuilder.DropTable(
                 name: "FactoryManagers");
@@ -1480,6 +1953,9 @@ namespace WearCast.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "FixedProductImages");
+
+            migrationBuilder.DropTable(
+                name: "FixedProductOrderItems");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
@@ -1494,6 +1970,9 @@ namespace WearCast.Api.Migrations
                 name: "ShippingCompanyManagers");
 
             migrationBuilder.DropTable(
+                name: "UserActivityLogs");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -1506,31 +1985,40 @@ namespace WearCast.Api.Migrations
                 name: "FixedProductColors");
 
             migrationBuilder.DropTable(
-                name: "ShippingCompanies");
-
-            migrationBuilder.DropTable(
-                name: "Customers");
-
-            migrationBuilder.DropTable(
-                name: "DesignedProductColors");
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "FixedProducts");
 
             migrationBuilder.DropTable(
-                name: "DesignedProducts");
+                name: "Shipments");
 
             migrationBuilder.DropTable(
                 name: "Sellers");
+
+            migrationBuilder.DropTable(
+                name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "Drivers");
+
+            migrationBuilder.DropTable(
+                name: "ShippingCompanies");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "DesignedProductColors");
+
+            migrationBuilder.DropTable(
+                name: "DesignedProducts");
 
             migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Factories");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
         }
     }
 }

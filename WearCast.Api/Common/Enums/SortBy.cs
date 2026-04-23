@@ -7,6 +7,12 @@ public enum SortBy
     Oldest,
     NumberOfOrdersAsc,
     NumberOfOrdersDesc,
+    NumberOfAssignedShipmentsAsc,
+    NumberOfAssignedShipmentsDesc,
+    NumberOfActiveShipmentsAsc,
+    NumberOfActiveShipmentsDesc,
+    NumberOfDeliveredShipmentsAsc,
+    NumberOfDeliveredShipmentsDesc,
     PriceAsc,
     PriceDesc,
     BestSeller

@@ -19,6 +19,10 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
+            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin())
+            {
+                return Unauthorized(new { Message = "You are not authorized to do this action" });
+            }
             var result = await _sender.Send(new GetAllDriversRequestDTO(), cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);

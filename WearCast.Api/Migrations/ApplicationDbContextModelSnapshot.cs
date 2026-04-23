@@ -662,6 +662,10 @@ namespace WearCast.Api.Migrations
                     b.Property<string>("LeftImageUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RightImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -1547,7 +1551,7 @@ namespace WearCast.Api.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@WEARCAST.COM",
                             NormalizedUserName = "SUPERADMIN@WEARCAST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEI/Dz+yh2oLOQgGRoIeKPMVIfC5c31lzQJWDkn5iW1F4Fe1k4LYMjb8fmKActpVwUg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEA98gJ9lWcVcjZ9lCnZoXipdAX0y5rXs5qXSpeUancRA14KCHgDhsieq5JRRCTPPKg==",
                             PhoneNumber = "01000000001",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "DAE8F8342FB84409A3CF6B6BE8802BC8",
@@ -1918,8 +1922,14 @@ namespace WearCast.Api.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CustomerID")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeliveryCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DriverId")
                         .HasColumnType("int");
@@ -1930,14 +1940,23 @@ namespace WearCast.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("OutForDeliveryAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ReadyForPickupAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ShipmentStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("ShippingCompanyId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("TripStartedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedById")
                         .HasColumnType("nvarchar(450)");
@@ -1949,7 +1968,7 @@ namespace WearCast.Api.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("CustomerID");
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("DriverId");
 
@@ -3093,7 +3112,7 @@ namespace WearCast.Api.Migrations
 
                     b.HasOne("WearCast.Api.Entities.BusinessActors.Customer", "Customer")
                         .WithMany("Shipments")
-                        .HasForeignKey("CustomerID")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

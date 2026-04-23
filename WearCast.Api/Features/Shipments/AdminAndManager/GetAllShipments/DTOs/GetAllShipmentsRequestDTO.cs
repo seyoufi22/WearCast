@@ -38,22 +38,21 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs
         public GetAllShipmentsValidator()
         {
             RuleFor(x => x.PageIndex)
-           .GreaterThan(0)
-           .WithMessage("Page index must be greater than 0.");
+                .GreaterThan(0)
+                .WithMessage("Page index must be greater than 0.");
 
             RuleFor(x => x.PageSize)
                 .InclusiveBetween(1, 100)
                 .WithMessage("Page size must be between 1 and 100.");
 
             RuleFor(x => x.SortBy)
-           .IsInEnum()
-           .WithMessage("Invalid sort option.");
+                .IsInEnum()
+                .WithMessage("Invalid sort option.");
 
             RuleFor(x => x.ShipmentStatus)
-               .IsInEnum()
-               .When(x => x.ShipmentStatus.HasValue)
-               .WithMessage("Invalid status value.");
-
+                .IsInEnum()
+                .When(x => x.ShipmentStatus.HasValue)
+                .WithMessage("Invalid status value.");
 
             RuleFor(x => x.MinPrice)
                 .GreaterThanOrEqualTo(0)
@@ -75,23 +74,18 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs
                 .When(x => x.MaxNumberOfOrders.HasValue)
                 .WithMessage("Max number of orders must be greater than min number of orders.");
 
-            RuleFor(x => x.DriverNationalId)
-               .Length(14).WithMessage("National ID must be exactly 14 digits.")
-               .Matches(@"^\d{14}$").WithMessage("National ID must contain only numbers.")
-               .When(x => !string.IsNullOrWhiteSpace(x.DriverNationalId));
-
             RuleFor(x => x.EndDate)
-            .GreaterThanOrEqualTo(x => x.StartDate)
-            .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
-            .WithMessage("End date must be greater than or equal to start date.");
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
+                .WithMessage("End date must be greater than or equal to start date.");
 
             RuleFor(x => x.DeliveryState)
-              .MaximumLength(100).WithMessage("State name cannot exceed 100 characters.")
-              .When(x => !string.IsNullOrWhiteSpace(x.DeliveryState));
+                .MaximumLength(100).WithMessage("State name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DeliveryState));
 
             RuleFor(x => x.DeliveryCity)
-              .MaximumLength(100).WithMessage("City name cannot exceed 100 characters.")
-              .When(x => !string.IsNullOrWhiteSpace(x.DeliveryCity));
+                .MaximumLength(100).WithMessage("City name cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DeliveryCity));
 
             RuleFor(x => x.DeliveryStreet)
                 .MaximumLength(100).WithMessage("Street name cannot exceed 100 characters.")
@@ -112,6 +106,12 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs
             RuleFor(x => x.DriverLastName)
                 .MaximumLength(100).WithMessage("Driver last name cannot exceed 100 characters.")
                 .When(x => !string.IsNullOrWhiteSpace(x.DriverLastName));
+
+            RuleFor(x => x.DriverNationalId)
+                .Length(14).WithMessage("National ID must be exactly 14 digits.")
+                .Matches(@"^\d{14}$").WithMessage("National ID must contain only numbers.")
+                .When(x => !string.IsNullOrWhiteSpace(x.DriverNationalId));
+
         }
     }
 }

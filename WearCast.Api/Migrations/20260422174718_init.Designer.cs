@@ -12,8 +12,8 @@ using WearCast.Api.Persistence;
 namespace WearCast.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260411054533_HassibMigration")]
-    partial class HassibMigration
+    [Migration("20260422174718_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -624,6 +624,9 @@ namespace WearCast.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AssetCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("BackImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -662,8 +665,15 @@ namespace WearCast.Api.Migrations
                     b.Property<string>("LeftImageUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RightImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UpdatedById")
                         .HasColumnType("nvarchar(450)");
@@ -857,6 +867,9 @@ namespace WearCast.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("AverageRating")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("CanvasHeight")
                         .HasColumnType("int");
 
@@ -904,6 +917,9 @@ namespace WearCast.Api.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("int");
 
                     b.Property<int>("SalesCount")
                         .HasColumnType("int");
@@ -1045,6 +1061,60 @@ namespace WearCast.Api.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("DesignedProductImages");
+                });
+
+            modelBuilder.Entity("WearCast.Api.Entities.DesignedProducts.DesignedProductReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DesignedProductId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.HasIndex("DesignedProductId", "CustomerId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("DesignedProductReviews");
                 });
 
             modelBuilder.Entity("WearCast.Api.Entities.DesignedProducts.DesignedProductSizeDetails", b =>
@@ -1484,13 +1554,80 @@ namespace WearCast.Api.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@WEARCAST.COM",
                             NormalizedUserName = "SUPERADMIN@WEARCAST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOAeht9P2DH7wsmAbsyKj3IV4ulEfMxdTjX6vNlHpVzVCxLb0eY4wDswGfc6RqXUTg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEA98gJ9lWcVcjZ9lCnZoXipdAX0y5rXs5qXSpeUancRA14KCHgDhsieq5JRRCTPPKg==",
                             PhoneNumber = "01000000001",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "DAE8F8342FB84409A3CF6B6BE8802BC8",
                             TwoFactorEnabled = false,
                             UserName = "SuperAdmin@WearCast.com"
                         });
+                });
+
+            modelBuilder.Entity("WearCast.Api.Entities.Order.CustomerDesignedOrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerDesignId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SizeName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("CustomerDesignId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("CustomerDesignedOrderItems");
                 });
 
             modelBuilder.Entity("WearCast.Api.Entities.Order.FixedProductOrderItem", b =>
@@ -1583,6 +1720,9 @@ namespace WearCast.Api.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("FactoryId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -1603,7 +1743,7 @@ namespace WearCast.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("SellerId")
+                    b.Property<int?>("SellerId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ShipmentId")
@@ -1636,6 +1776,8 @@ namespace WearCast.Api.Migrations
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("FactoryId");
 
                     b.HasIndex("SellerId");
 
@@ -1783,8 +1925,14 @@ namespace WearCast.Api.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CustomerID")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeliveryCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DriverId")
                         .HasColumnType("int");
@@ -1795,14 +1943,23 @@ namespace WearCast.Api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("OutForDeliveryAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ReadyForPickupAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ShipmentStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("ShippingCompanyId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("TripStartedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedById")
                         .HasColumnType("nvarchar(450)");
@@ -1814,7 +1971,7 @@ namespace WearCast.Api.Migrations
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("CustomerID");
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("DriverId");
 
@@ -1823,6 +1980,30 @@ namespace WearCast.Api.Migrations
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("Shipments");
+                });
+
+            modelBuilder.Entity("WearCast.Api.Entities.UserActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserActivityLogs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -2461,6 +2642,39 @@ namespace WearCast.Api.Migrations
                     b.Navigation("UpdatedBy");
                 });
 
+            modelBuilder.Entity("WearCast.Api.Entities.DesignedProducts.DesignedProductReview", b =>
+                {
+                    b.HasOne("WearCast.Api.Entities.Identity.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.BusinessActors.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.DesignedProducts.DesignedProduct", "DesignedProduct")
+                        .WithMany()
+                        .HasForeignKey("DesignedProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.Identity.ApplicationUser", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("DesignedProduct");
+
+                    b.Navigation("UpdatedBy");
+                });
+
             modelBuilder.Entity("WearCast.Api.Entities.DesignedProducts.DesignedProductSizeDetails", b =>
                 {
                     b.HasOne("WearCast.Api.Entities.DesignedProducts.DesignedProduct", "DesignedProduct")
@@ -2673,6 +2887,39 @@ namespace WearCast.Api.Migrations
                     b.Navigation("RefreshTokens");
                 });
 
+            modelBuilder.Entity("WearCast.Api.Entities.Order.CustomerDesignedOrderItem", b =>
+                {
+                    b.HasOne("WearCast.Api.Entities.Identity.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.DesignedProducts.CustomerDesign", "CustomerDesign")
+                        .WithMany()
+                        .HasForeignKey("CustomerDesignId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.Order.Order", "Order")
+                        .WithMany("DesignedProductItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WearCast.Api.Entities.Identity.ApplicationUser", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("CustomerDesign");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("UpdatedBy");
+                });
+
             modelBuilder.Entity("WearCast.Api.Entities.Order.FixedProductOrderItem", b =>
                 {
                     b.HasOne("WearCast.Api.Entities.Identity.ApplicationUser", "CreatedBy")
@@ -2720,11 +2967,15 @@ namespace WearCast.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WearCast.Api.Entities.BusinessActors.Factory", "Factory")
+                        .WithMany("Orders")
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("WearCast.Api.Entities.BusinessActors.Seller", "Seller")
                         .WithMany("Orders")
                         .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WearCast.Api.Entities.Shipping.Shipment", "Shipment")
                         .WithMany("Orders")
@@ -2796,6 +3047,8 @@ namespace WearCast.Api.Migrations
 
                     b.Navigation("Customer");
 
+                    b.Navigation("Factory");
+
                     b.Navigation("PickUpAddress")
                         .IsRequired();
 
@@ -2862,7 +3115,7 @@ namespace WearCast.Api.Migrations
 
                     b.HasOne("WearCast.Api.Entities.BusinessActors.Customer", "Customer")
                         .WithMany("Shipments")
-                        .HasForeignKey("CustomerID")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2947,6 +3200,8 @@ namespace WearCast.Api.Migrations
                     b.Navigation("DesignedProducts");
 
                     b.Navigation("Managers");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("WearCast.Api.Entities.BusinessActors.Seller", b =>
@@ -3025,6 +3280,8 @@ namespace WearCast.Api.Migrations
 
             modelBuilder.Entity("WearCast.Api.Entities.Order.Order", b =>
                 {
+                    b.Navigation("DesignedProductItems");
+
                     b.Navigation("FixedProductItems");
                 });
 

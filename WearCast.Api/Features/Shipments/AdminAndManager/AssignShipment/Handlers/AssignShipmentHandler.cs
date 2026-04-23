@@ -45,7 +45,7 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
                 return Result.Failure(DriverErrors.NotFound);
             }
 
-            if (driver.Status != DriverStatus.Available)
+            if (driver.Status != DriverStatus.Available || driver.IsDeleted)
             {
                 return Result.Failure(DriverErrors.NotAvailable);
             }
