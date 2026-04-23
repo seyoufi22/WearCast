@@ -13,7 +13,6 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
         var order = await dbContext.Orders
             .Include(o => o.FixedProductItems)
             .Include(o => o.DesignedProductItems)
-                .ThenInclude(d => d.CustomerDesign)
             .Where(o => o.Id == request.OrderId && !o.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -64,11 +63,11 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
                 SizeName = d.SizeName,
                 Quantity = d.Quantity,
                 UnitPrice = d.UnitPrice,
-                FrontImageUrl = d.CustomerDesign.FrontImageUrl,
-                BackImageUrl = d.CustomerDesign.BackImageUrl,
-                RightImageUrl = d.CustomerDesign.RightImageUrl,
-                LeftImageUrl = d.CustomerDesign.LeftImageUrl,
-                ViewDesignsJson = d.CustomerDesign.ViewDesignsJson
+                FrontImageUrl = d.FrontImageUrl,
+                BackImageUrl = d.BackImageUrl,
+                RightImageUrl = d.RightImageUrl,
+                LeftImageUrl = d.LeftImageUrl,
+                ViewDesignsJson = d.ViewDesignsJson
             }).ToList()
         };
 
