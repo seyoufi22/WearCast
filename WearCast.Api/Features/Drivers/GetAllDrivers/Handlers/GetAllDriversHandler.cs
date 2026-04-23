@@ -56,9 +56,9 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
                 SortBy.NumberOfActiveShipmentsAsc => query.OrderBy(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery)),
                 SortBy.NumberOfActiveShipmentsDesc => query.OrderByDescending(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery)),
 
-                _ => query.OrderByDescending(d => d.Id)
+                _ => query.OrderBy(d => d.Id)
             };
-
+            query = query.Where(d => d.ApplicationUser.EmailConfirmed);
             var driverssquery = query
                 .Select(d => new GetAllDriversResponseDTO
                 {
