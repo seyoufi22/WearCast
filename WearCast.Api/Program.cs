@@ -8,6 +8,7 @@ builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
@@ -18,7 +19,6 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// 3. إعدادات لوحة تحكم Hangfire
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =

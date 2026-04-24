@@ -24,7 +24,7 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
                     Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
 
         // Security check: only the customer who owns this shipment can view it
-        if (shipment.CustomerID != request.CustomerId)
+        if (shipment.CustomerId != request.CustomerId)
             return Result.Failure<GetOrdersByShipmentIdResponseDto>(
                 new Error("Shipments.Forbidden", "You do not have permission to view this shipment.",
                     Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden));

@@ -31,6 +31,10 @@ namespace WearCast.Api.Features.Drivers.GetDriverById.Handlers
                     VehiclePlateNumber = d.VehiclePlateNumber,
                     Status = d.Status,
                     Address= d.Address,
+                    IsDeleted= d.IsDeleted,
+                    NumberOfAssignedShipments=d.Shipments.Count(s=>s.ShipmentStatus==ShipmentStatus.Assigned),
+                    NumberOfActiveShipments=d.Shipments.Count(s=>s.ShipmentStatus==ShipmentStatus.PickingUp|| s.ShipmentStatus == ShipmentStatus.OutForDelivery),
+                    NumberOfDeliveredShipments =d.Shipments.Count(s=>s.ShipmentStatus==ShipmentStatus.Delivered)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
             if (driver == null)

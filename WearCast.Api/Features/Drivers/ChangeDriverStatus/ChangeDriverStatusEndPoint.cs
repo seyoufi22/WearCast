@@ -16,22 +16,25 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpPatch("{id}/ChangeStatus")]
         public async Task<IActionResult> UpdateStatus(
             [FromRoute] int id,
             [FromBody] UpdateDriverStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
+            var UpdaterId = User.GetUserId();
             request.DriverId = id;
+            request.UpdaterId = UpdaterId!;
+            request.IsAdmin = !User.IsDriver();
             var result = await _sender.Send(request, cancellationToken);
 
-            if (result.IsFailure)
+            if (result.IsSuccess)
             {
-                return StatusCode(result.Error.StatusCode.Value, result.Error);
+                return NoContent();
             }
 
-            return NoContent();
+            return StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
         }
     }
 }

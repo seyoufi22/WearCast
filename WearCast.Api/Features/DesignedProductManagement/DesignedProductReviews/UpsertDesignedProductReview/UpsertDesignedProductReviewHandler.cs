@@ -25,7 +25,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.DesignedProductReviews
                 .AnyAsync(item =>
                     item.Order.CustomerId == customerId.Value &&
                     item.Order.Status == OrderStatus.PickedUp &&
-                    item.CustomerDesign.DesignedProductId == request.DesignedProductId,
+                    item.DesignedProductId == request.DesignedProductId,
                 cancellationToken);
 
             if (!hasPurchased)

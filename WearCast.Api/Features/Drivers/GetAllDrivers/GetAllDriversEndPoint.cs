@@ -1,4 +1,5 @@
 ﻿using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
+using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers
 {
@@ -15,11 +16,12 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] GetAllDriversRequestDTO request, CancellationToken cancellationToken)
         {
-            var result = await _sender.Send(new GetAllDriversRequestDTO(), cancellationToken);
+
+            var result = await _sender.Send(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }

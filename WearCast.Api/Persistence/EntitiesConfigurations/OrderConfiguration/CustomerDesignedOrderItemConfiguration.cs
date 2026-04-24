@@ -23,9 +23,16 @@ public class CustomerDesignedOrderItemConfiguration : IEntityTypeConfiguration<C
         builder.Property(i => i.UnitPrice)
             .HasColumnType("decimal(18,2)");
 
-        builder.HasOne(i => i.CustomerDesign)
-            .WithMany()
-            .HasForeignKey(i => i.CustomerDesignId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(i => i.FrontImageUrl)
+            .HasMaxLength(500);
+
+        builder.Property(i => i.BackImageUrl)
+            .HasMaxLength(500);
+
+        builder.Property(i => i.RightImageUrl)
+            .HasMaxLength(500);
+
+        builder.Property(i => i.LeftImageUrl)
+            .HasMaxLength(500);
     }
 }

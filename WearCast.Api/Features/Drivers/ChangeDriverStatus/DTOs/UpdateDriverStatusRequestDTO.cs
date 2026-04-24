@@ -6,7 +6,10 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs
     {
         [JsonIgnore]
         public int DriverId { get; set; }
-
+        [JsonIgnore]
+        public string? UpdaterId { get; set; } = null;
+        [JsonIgnore]
+        public bool IsAdmin { get; set; } = false;
         public DriverStatus NewStatus { get; set; }
     }
     public class UpdateDriverStatusValidator : AbstractValidator<UpdateDriverStatusRequestDTO>
