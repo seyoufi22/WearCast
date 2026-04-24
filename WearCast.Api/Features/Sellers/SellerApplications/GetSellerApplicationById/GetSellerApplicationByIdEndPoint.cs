@@ -14,7 +14,6 @@ namespace WearCast.Api.Features.SellerApplications.AdminAndManager.GetSellerAppl
             _sender = sender;
         }
 
-        // دمجت هنا الصلاحيات زي ما عملت في الـ Pattern بتاعك
         [Authorize(Roles = $"{DefaultRoles.SuperAdmin}")]
         [HttpGet("{ApplicationId}")]
         public async Task<IActionResult> GetById([FromRoute] int ApplicationId, CancellationToken cancellationToken)
