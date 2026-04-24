@@ -19,8 +19,11 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
         .AsNoTracking()
         .Where(p => p.Colors.Any(c => !c.IsDeleted));
 
-        if (!string.IsNullOrEmpty(request.Category))
-            query = query.Where(p => p.Category.Name == request.Category.Trim());
+        if(!string.IsNullOrEmpty(request.SearchTerm))
+            query = query.Where(p => p.Name.Contains(request.SearchTerm.Trim()));
+
+        if (request.CategoryId.HasValue)
+            query = query.Where(p => p.Category.Id == request.CategoryId.Value);
 
         if(request.DressStyle.HasValue)
             query = query.Where(p => p.DressStyle == request.DressStyle.Value);
@@ -73,22 +76,13 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             CategoryId = x.Product.CategoryId,
             Name = x.Product.Name,
             Price = x.Product.Price,
-            Description = x.Product.Description,
             TargetAudience = x.Product.TargetAudience,
             colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
-            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null,
-            SellerId = x.Product.SellerId,
-            SizeDetails = x.Product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
-            {
-                Size = sd.Size.ToString(),
-                A = sd.A,
-                B = sd.B,
-                C = sd.C
-            }).ToList()
+            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null
         });
 
         var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
         return Result.Success(pagedResult);
     }
-}
+}   

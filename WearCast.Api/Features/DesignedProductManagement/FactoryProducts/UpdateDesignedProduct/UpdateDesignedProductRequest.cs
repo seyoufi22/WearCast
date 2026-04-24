@@ -5,9 +5,11 @@
         string Name,
         string Description,
         List<TargetAudience> TargetAudiences,
+        DressStyle DressStyle,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
-        int CategoryId
+        int CategoryId,
+        int? DefaultColorId
         ) : IRequest<Result>;
 }

@@ -3,6 +3,10 @@
     public record UpdateCustomerDesignRequest(
         int Id,
         string ViewDesignsJson,
-        int NewProductColorId //new colorId to change the color
+        IFormFile? FrontImage,
+        IFormFile? BackImage,
+        IFormFile? RightImage,
+        IFormFile? LeftImage,
+        int AssetCount
         ) : IRequest<Result<CustomerDesignResponse>>;
 }

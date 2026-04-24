@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
+using WearCast.Api.Common.Tracking;
 
 
 
@@ -41,6 +42,8 @@ namespace WearCast.Api
 
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<EmailHelper>();
+
+            services.AddScoped<ITrackingService, TrackingService>();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();

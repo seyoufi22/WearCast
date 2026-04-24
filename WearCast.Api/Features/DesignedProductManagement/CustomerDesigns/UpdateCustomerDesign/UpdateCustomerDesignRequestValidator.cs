@@ -10,8 +10,10 @@
             RuleFor(x => x.ViewDesignsJson)
                 .NotEmpty();
 
-            RuleFor(x => x.NewProductColorId)
-                .GreaterThan(0).WithMessage("Invalid Product Color Id");
+            RuleFor(x => x.AssetCount)
+               .NotNull()
+               .GreaterThanOrEqualTo(0);
+
         }
     }
 }

@@ -15,10 +15,12 @@
                 body.Name,
                 body.Description,
                 body.TargetAudiences,
+                body.DressStyle,
                 body.Price,
                 body.CanvasWidth,
                 body.CanvasHeight,
-                body.CategoryId
+                body.CategoryId,
+                body.DefaultColorId
                 );
             var result = await mediator.Send(request, cancellationToken);
 
@@ -29,9 +31,11 @@
         string Name,
         string Description,
         List<TargetAudience> TargetAudiences,
+        DressStyle DressStyle,
         decimal Price,
         int CanvasWidth,
         int CanvasHeight,
-        int CategoryId
+        int CategoryId,
+        int? DefaultColorId
         );
 }

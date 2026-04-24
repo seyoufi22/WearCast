@@ -4,7 +4,7 @@
     {
         public GetProductDetailsRequestValidator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.ProductId)
                 .GreaterThan(0).WithMessage("Invalid Product Id");
         }
     }
