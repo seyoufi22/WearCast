@@ -14,18 +14,11 @@ namespace WearCast.Api.Features.Shipments.Customer.GetShipmentById
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.Customer}")]
         [HttpGet("shipments/{ShipmentId}")]
         public async Task<IActionResult> GetById([FromRoute] int ShipmentId, CancellationToken cancellationToken)
         {
-            var CustomerId = User.GetCustomerId();
-
-            if (!CustomerId.HasValue)
-            {
-                return Unauthorized(new { Message = "Customer Id claim is missing from the token." });
-            }
-
-            var result = await _sender.Send(new GetCustomerShipmentByIdRequestDTO(ShipmentId, CustomerId.Value), cancellationToken);
+            var result = await _sender.Send(new GetCustomerShipmentByIdRequestDTO(ShipmentId, User.GetCustomerId().Value), cancellationToken);
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
     }

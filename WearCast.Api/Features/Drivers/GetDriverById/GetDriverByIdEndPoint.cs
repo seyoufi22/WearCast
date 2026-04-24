@@ -13,21 +13,15 @@ namespace WearCast.Api.Features.Drivers.GetDriverById
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpGet("{id}/GetById")]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
-            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin() && !User.IsDriver())
+            if (User.IsDriver() && User.GetDriverId() != id)
             {
-                return Unauthorized(new { Message = "You are not allowed to do this action" });
+                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
             }
-            if (User.IsDriver())
-            {
-                if (User.GetDriverId() != id)
-                {
-                    return Unauthorized(new { Message = "You are not allowed to do this action" });
-                }
-            }
+
             var result = await _sender.Send(new GetDriverByIdRequestDTO(id), cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
