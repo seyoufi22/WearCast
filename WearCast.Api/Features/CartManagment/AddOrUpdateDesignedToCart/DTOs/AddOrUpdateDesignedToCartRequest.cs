@@ -1,4 +1,5 @@
 ﻿namespace WearCast.Api.Features.CartManagment.AddOrUpdateDesignedToCart.DTOs;
 
-public record AddOrUpdateDesignedToCartRequest(int DesignId, Size Size, int Quantity) : IRequest<AddOrUpdateDesignedToCartRequest>;
+public record SizeQuantityItem(Size Size, int Quantity);
+public record AddOrUpdateDesignedToCartRequest(int DesignId, List<SizeQuantityItem> Sizes) : IRequest<AddOrUpdateDesignedToCartRequest>;
 

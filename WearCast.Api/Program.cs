@@ -16,8 +16,8 @@ app.UseSwaggerUI(options =>
     options.EnablePersistAuthorization();
 });
 
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
@@ -29,14 +29,17 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
         }
     ],
-    DashboardTitle = "Survey Basket Dashboard",
+    DashboardTitle = "WearCast Background Jobs",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
+
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
-
-app.UseStaticFiles();
 
 app.Run();

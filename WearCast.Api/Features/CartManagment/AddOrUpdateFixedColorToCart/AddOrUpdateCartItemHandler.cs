@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart.DTOs;
-using WearCast.Api.Persistence;
 
 namespace WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart;
 
@@ -18,8 +17,18 @@ public class AddOrUpdateCartItemHandler(
         if (color == null)
             return Result.Failure(new Error("Color.NotFound", "The specified color does not exist.", 404));
 
-        if (!color.Sizes.Any(s => s.Size == command.Request.Size))
-            return Result.Failure(new Error("Color.SizeUnavailable", "This size is not available for this product.", 400));
+        // 1. استخراج المقاسات المطلوبة والمتاحة الموحدة للبرودكت
+        var requestedSizes = command.Request.Sizes.Select(s => s.Size).ToList();
+        var availableSizes = color.Sizes.Select(s => s.Size).ToList();
+
+        // 2. التحقق من وجود كل المقاسات 
+        var unavailableSizes = requestedSizes.Except(availableSizes).ToList();
+        if (unavailableSizes.Any())
+        {
+            var missingSizesStr = string.Join(", ", unavailableSizes);
+            // تعديل الرسالة لتوضيح أن المقاس غير متاح في الـ template الخاص بالبرودكت
+            return Result.Failure(new Error("Color.SizeUnavailable", $"The following sizes are not available for this product template: {missingSizesStr}", 400));
+        }
 
         var cartItem = await _cartItemRepository.Get()
         .Include(c => c.Sizes)
@@ -30,7 +39,9 @@ public class AddOrUpdateCartItemHandler(
 
         if (cartItem == null)
         {
-            if (command.Request.Quantity <= 0)
+            var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+
+            if (!validInitialSizes.Any())
                 return Result.Success();
 
             cartItem = new CartItem
@@ -39,13 +50,19 @@ public class AddOrUpdateCartItemHandler(
                 FixedColorId = command.Request.ColorId
             };
 
-            cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
+            foreach (var item in validInitialSizes)
+            {
+                cartItem.AddOrUpdateSize(item.Size, item.Quantity);
+            }
 
             await _cartItemRepository.CreateAsync(cartItem);
         }
         else
         {
-            cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
+            foreach (var item in command.Request.Sizes)
+            {
+                cartItem.AddOrUpdateSize(item.Size, item.Quantity);
+            }
 
             if (!cartItem.Sizes.Any())
             {
@@ -53,7 +70,7 @@ public class AddOrUpdateCartItemHandler(
             }
             else
             {
-                // Force EF Core to correctly track the JSON state sequence update without corrupting the generic parent object tracking
+                
                 _dbContext.Entry(cartItem).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }

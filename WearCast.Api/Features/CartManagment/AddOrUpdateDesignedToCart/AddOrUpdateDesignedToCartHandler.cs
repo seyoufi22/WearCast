@@ -6,28 +6,39 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
 {
     public async Task<Result> Handle(AddOrUpdateDesignedToCartCommand command, CancellationToken cancellationToken)
     {
-        var Design = await _designedRepository.Get().Include(c => c.DesignedProduct).ThenInclude(c=>c.SizeDetails)
+        var Design = await _designedRepository.Get()
+            .Include(c => c.DesignedProduct)
+            .ThenInclude(c => c.SizeDetails)
             .FirstOrDefaultAsync(c => c.Id == command.Request.DesignId && !c.IsDeleted, cancellationToken);
 
         if (Design == null)
             return Result.Failure(new Error("Design.NotFound", "The specified Design does not exist.", 404));
 
-        if(Design.CustomerId != command.CustomerId)
+        if (Design.CustomerId != command.CustomerId)
             return Result.Failure(AuthErrors.Forbidden);
 
-        if (!Design.DesignedProduct.SizeDetails.Any(s => s.Size == command.Request.Size))
-            return Result.Failure(new Error("Design.SizeUnavailable", "This size is not available for this product.", 400));
+        var requestedSizes = command.Request.Sizes.Select(s => s.Size).ToList();
+        var availableSizes = Design.DesignedProduct.SizeDetails.Select(s => s.Size).ToList();
+
+        var unavailableSizes = requestedSizes.Except(availableSizes).ToList();
+        if (unavailableSizes.Any())
+        {
+            var missingSizesStr = string.Join(", ", unavailableSizes);
+            return Result.Failure(new Error("Design.SizeUnavailable", $"The following sizes are not available for this product: {missingSizesStr}", 400));
+        }
 
         var cartItem = await _cartItemRepository.Get()
-        .Include(c => c.Sizes)
-        .FirstOrDefaultAsync(c =>
-            c.CustomerDesignId == command.Request.DesignId&&
-            c.CustomerId == command.CustomerId,
-            cancellationToken);
+            .Include(c => c.Sizes)
+            .FirstOrDefaultAsync(c =>
+                c.CustomerDesignId == command.Request.DesignId &&
+                c.CustomerId == command.CustomerId,
+                cancellationToken);
 
         if (cartItem == null)
         {
-            if (command.Request.Quantity <= 0)
+            var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+
+            if (!validInitialSizes.Any())
                 return Result.Success();
 
             cartItem = new CartItem
@@ -36,13 +47,19 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
                 CustomerDesignId = command.Request.DesignId
             };
 
-            cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
+            foreach (var item in validInitialSizes)
+            {
+                cartItem.AddOrUpdateSize(item.Size, item.Quantity);
+            }
 
             await _cartItemRepository.CreateAsync(cartItem);
         }
         else
         {
-            cartItem.AddOrUpdateSize(command.Request.Size, command.Request.Quantity);
+            foreach (var item in command.Request.Sizes)
+            {
+                cartItem.AddOrUpdateSize(item.Size, item.Quantity);
+            }
 
             if (!cartItem.Sizes.Any())
             {

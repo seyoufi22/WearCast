@@ -43,12 +43,23 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasOne(o => o.Seller)
             .WithMany(s => s.Orders)
             .HasForeignKey(o => o.SellerId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(o => o.Factory)
+            .WithMany(f => f.Orders)
+            .HasForeignKey(o => o.FactoryId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(o => o.FixedProductItems)
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(o => o.DesignedProductItems)
+            .WithOne(i => i.Order)
+            .HasForeignKey(i => i.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
-

@@ -19,7 +19,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.ShippingConfigurations
 
             builder.HasOne(s => s.Customer)
                    .WithMany(c => c.Shipments)
-                   .HasForeignKey(s => s.CustomerID)
+                   .HasForeignKey(s => s.CustomerId)
                    .IsRequired()
                    .OnDelete(DeleteBehavior.Restrict);
 

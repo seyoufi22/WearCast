@@ -15,12 +15,12 @@ public class DeleteFixedProductEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] DeleteFixedProductRequest request, CancellationToken cancellationToken)
     {
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin)
             request.isAdminRequest = true;
         else
         {

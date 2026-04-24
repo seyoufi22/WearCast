@@ -5,7 +5,7 @@
 
         public static readonly Error ApplicationPending =
             new("SellerApplication.Pending",
-                "An application with this email is currently pending review",
+                "An application with this email is currently Pending review",
                 StatusCodes.Status400BadRequest);
 
         public static readonly Error ApplicationNotFound =
@@ -15,7 +15,7 @@
 
         public static readonly Error ApplicationNotPending =
             new("SellerApplication.NotPending",
-                "Only pending applications can be approved",
+                "Only Pending applications can be approved",
                 StatusCodes.Status400BadRequest);
 
         public static readonly Error EmailNotConfirmed =

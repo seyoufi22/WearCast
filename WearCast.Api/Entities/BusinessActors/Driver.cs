@@ -17,7 +17,7 @@ namespace WearCast.Api.Entities.BusinessActors
         public bool IsDeleted { get; set; }
 
         public string UserId { get; set; }
-        public ApplicationUser? ApplicationUser { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
         public List<Shipment> Shipments { get; set; } = new List<Shipment>();
         public int ShippingCompanyId { get; set; }
         public ShippingCompany ShippingCompany { get; set; } = default!;

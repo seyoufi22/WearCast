@@ -2,6 +2,7 @@
 {
     public class CustomerDesign : BaseModel, ISoftDeletable
     {
+        public string Name { get; set; } = string.Empty;
         public string ViewDesignsJson { get; set; } = string.Empty;
 
         public string? FrontImageUrl { get; set; }

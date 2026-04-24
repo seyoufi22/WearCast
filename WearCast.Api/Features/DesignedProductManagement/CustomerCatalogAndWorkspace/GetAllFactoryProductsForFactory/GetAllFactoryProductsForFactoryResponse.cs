@@ -18,5 +18,8 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
 
         public int? DefaultColorId { get; init; }
         public string? MainImageUrl { get; init; }
+
+        public decimal AverageRating { get; init; }
+        public int ReviewCount { get; init; }
     }
 }

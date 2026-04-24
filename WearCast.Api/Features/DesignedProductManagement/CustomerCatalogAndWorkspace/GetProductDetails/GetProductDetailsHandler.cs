@@ -55,6 +55,8 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                 product.TargetAudience.ToString().Split(", ").ToList(),
                 product.Price,
                 product.SalesCount,
+                product.AverageRating,
+                product.ReviewCount,
                 product.CanvasWidth,
                 product.CanvasHeight,
 
