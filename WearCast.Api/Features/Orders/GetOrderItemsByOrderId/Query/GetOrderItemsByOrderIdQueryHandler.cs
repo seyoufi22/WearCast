@@ -43,32 +43,46 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
             RecipientPhoneNumber = order.RecipientPhoneNumber,
             RecipientAdditionalPhoneNumber = order.RecipientAdditionalPhoneNumber,
             ShippingAddress = order.ShippingAddress,
-            Items = order.FixedProductItems.Select(i => new OrderItemDto
-            {
-                Id = i.Id,
-                FixedColorId = i.FixedColorId,
-                ProductName = i.ProductName,
-                ColorName = i.ColorName,
-                SizeName = i.SizeName,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice,
-                ImageUrl = i.ImageUrl
-            }).ToList(),
-            DesignedItems = order.DesignedProductItems.Select(d => new DesignedOrderItemDto
-            {
-                Id = d.Id,
-                CustomerDesignId = d.CustomerDesignId,
-                ProductName = d.ProductName,
-                ColorName = d.ColorName,
-                SizeName = d.SizeName,
-                Quantity = d.Quantity,
-                UnitPrice = d.UnitPrice,
-                FrontImageUrl = d.FrontImageUrl,
-                BackImageUrl = d.BackImageUrl,
-                RightImageUrl = d.RightImageUrl,
-                LeftImageUrl = d.LeftImageUrl,
-                ViewDesignsJson = d.ViewDesignsJson
-            }).ToList()
+            Items = order.FixedProductItems
+                .GroupBy(i => i.FixedColorId)
+                .Select(g => new OrderItemDto
+                {
+                    FixedColorId = g.Key,
+                    ProductName = g.First().ProductName,
+                    ColorName = g.First().ColorName,
+                    UnitPrice = g.First().UnitPrice,
+                    ImageUrl = g.First().ImageUrl,
+                    TotalQuantity = g.Sum(i => i.Quantity),
+                    TotalPrice = g.Sum(i => i.UnitPrice * i.Quantity),
+                    Sizes = g.Select(i => new OrderItemSizeDto
+                    {
+                        Id = i.Id,
+                        SizeName = i.SizeName,
+                        Quantity = i.Quantity
+                    }).ToList()
+                }).ToList(),
+            DesignedItems = order.DesignedProductItems
+                .GroupBy(d => d.CustomerDesignId)
+                .Select(g => new DesignedOrderItemDto
+                {
+                    CustomerDesignId = g.Key,
+                    ProductName = g.First().ProductName,
+                    ColorName = g.First().ColorName,
+                    UnitPrice = g.First().UnitPrice,
+                    TotalQuantity = g.Sum(d => d.Quantity),
+                    TotalPrice = g.Sum(d => d.UnitPrice * d.Quantity),
+                    FrontImageUrl = g.First().FrontImageUrl,
+                    BackImageUrl = g.First().BackImageUrl,
+                    RightImageUrl = g.First().RightImageUrl,
+                    LeftImageUrl = g.First().LeftImageUrl,
+                    ViewDesignsJson = g.First().ViewDesignsJson,
+                    Sizes = g.Select(d => new OrderItemSizeDto
+                    {
+                        Id = d.Id,
+                        SizeName = d.SizeName,
+                        Quantity = d.Quantity
+                    }).ToList()
+                }).ToList()
         };
 
         return Result<GetOrderItemsByOrderIdResponseDto>.Success(detailsDto);
