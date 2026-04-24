@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WearCast.Api.Persistence;
 
@@ -11,9 +12,11 @@ using WearCast.Api.Persistence;
 namespace WearCast.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424125113_UpdateRoles")]
+    partial class UpdateRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1388,42 +1391,6 @@ namespace WearCast.Api.Migrations
                         },
                         new
                         {
-                            Id = "8b1912a5-4dc8-4f24-850d-830238fba901",
-                            ConcurrencyStamp = "e5d9c2e3-2e70-4f5a-a38f-a957b10284d7",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "OperationsAdmin",
-                            NormalizedName = "OPERATIONSADMIN"
-                        },
-                        new
-                        {
-                            Id = "4c2b97f0-0a14-4869-b541-bc2961e5ef0a",
-                            ConcurrencyStamp = "f19d273a-4a25-47e1-8812-70b3e5138f29",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "VendorAdmin",
-                            NormalizedName = "VENDORADMIN"
-                        },
-                        new
-                        {
-                            Id = "3f92b7c4-8a15-4d29-9e81-2c7b5a193f4e",
-                            ConcurrencyStamp = "b7e5c1a2-9d3f-482a-a1b4-5e9f8c2d7a31",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "CatalogAdmin",
-                            NormalizedName = "CATALOGADMIN"
-                        },
-                        new
-                        {
-                            Id = "d8a2c1f5-3e7b-491a-82d4-5c9f1b7a2e38",
-                            ConcurrencyStamp = "5d2e7a1b-9f3c-481a-a2b5-e6f9d8c7b1a2",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "CustomerServiceAdmin",
-                            NormalizedName = "CUSTOMERSERVICEADMIN"
-                        },
-                        new
-                        {
                             Id = "91756452-0c83-4c86-8129-88698116ee37",
                             ConcurrencyStamp = "fe83a0d2-cc41-4305-bcea-799fe7af0de2",
                             IsDefault = false,
@@ -1587,7 +1554,7 @@ namespace WearCast.Api.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@WEARCAST.COM",
                             NormalizedUserName = "SUPERADMIN@WEARCAST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFLnY6uxhzFmLBErOGGimNahM33HMY7KhReBW+HbqTG3QjUwzbRV1ERDhYgNzWTwTg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGlHfAEDOuxEtRxngyIbFuoC3fzRmNtcEjk4O9hugYRknT0qgykM3reLNQJJlKEAog==",
                             PhoneNumber = "01000000001",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "DAE8F8342FB84409A3CF6B6BE8802BC8",
