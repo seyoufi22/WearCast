@@ -91,7 +91,7 @@ namespace WearCast.Api.Features.Factories.CreateFactory
 
             try
             {
-                await _emailHelper.SendConfirmationEmail(user, code);
+                await _emailHelper.SendFactoryManagerConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {

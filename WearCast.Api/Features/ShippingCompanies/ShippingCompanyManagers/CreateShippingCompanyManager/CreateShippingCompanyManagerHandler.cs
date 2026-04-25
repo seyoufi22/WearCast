@@ -104,7 +104,7 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Create
 
             try
             {
-                await _emailHelper.SendConfirmationEmail(newManagerUser, code);
+                await _emailHelper.SendShippingCompanyManagerConfirmationEmail(newManagerUser, code);
             }
             catch (Exception ex)
             {

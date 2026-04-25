@@ -126,7 +126,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
             try
             {
-                await _emailHelper.SendConfirmationEmail(newDriverUser, code);
+                await _emailHelper.SendDriverConfirmationEmail(newDriverUser, code);
             }
             catch (Exception ex)
             {
