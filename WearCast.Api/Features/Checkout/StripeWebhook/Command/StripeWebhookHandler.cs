@@ -108,9 +108,9 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
 
             var shipment = new Shipment
             {
-                CustomerID = firstOrder.CustomerId,
+                CustomerId = firstOrder.CustomerId,
                 DeliveryAddress = deliveryAddress,
-                ShipmentStatus = ShipmentStatus.UnAssigned,
+                ShipmentStatus = ShipmentStatus.Unassigned,
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById,
                 Orders = orders.Where(o => o.Status == OrderStatus.Paid).ToList()

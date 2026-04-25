@@ -92,7 +92,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
             }
             try
             {
-                await _emailHelper.SendConfirmationEmail(user, code);
+                await _emailHelper.SendShippingCompanyManagerConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {

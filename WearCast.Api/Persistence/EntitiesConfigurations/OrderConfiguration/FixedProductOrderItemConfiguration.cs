@@ -26,10 +26,6 @@ public class FixedProductOrderItemConfiguration : IEntityTypeConfiguration<Fixed
 
         builder.Property(i => i.UnitPrice)
             .HasColumnType("decimal(18,2)");
-
-        builder.HasOne(i => i.FixedColor)
-            .WithMany()
-            .HasForeignKey(i => i.FixedColorId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }
+

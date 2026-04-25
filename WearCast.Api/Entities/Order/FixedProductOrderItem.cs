@@ -1,5 +1,3 @@
-using WearCast.Api.Entities.FixedProduct;
-
 namespace WearCast.Api.Entities.Order;
 
 public class FixedProductOrderItem : BaseModel
@@ -16,5 +14,4 @@ public class FixedProductOrderItem : BaseModel
     public decimal UnitPrice { get; set; }
 
     public Order Order { get; set; } = null!;
-    public FixedProductColor FixedColor { get; set; } = null!;
 }
