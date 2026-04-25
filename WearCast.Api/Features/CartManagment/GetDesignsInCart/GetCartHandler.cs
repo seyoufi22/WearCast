@@ -16,7 +16,7 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
                 CustomerDesignedId= c.CustomerDesignId,
                 ProductName = c.DesignedCustomer!.DesignedProduct.Name,
                 Price = c.DesignedCustomer.DesignedProduct.Price,
-                Image = c.DesignedCustomer.BackImageUrl??c.DesignedCustomer.FrontImageUrl??c.DesignedCustomer.LeftImageUrl??c.DesignedCustomer.RightImageUrl??
+                Image = c.DesignedCustomer.FrontImageUrl ?? c.DesignedCustomer.BackImageUrl??c.DesignedCustomer.LeftImageUrl??c.DesignedCustomer.RightImageUrl??
                 c.DesignedCustomer.DesignedProductColor.Images
                         .Select(img => img.ImageUrl)
                         .FirstOrDefault(),
