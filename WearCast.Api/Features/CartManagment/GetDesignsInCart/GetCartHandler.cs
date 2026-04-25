@@ -13,7 +13,7 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
             .Select(c => new GetCartItemResponseDto
             {
                 CartItemId = c.Id,
-                CustomerDesignedId= request.CustomerId,
+                CustomerDesignedId= c.CustomerDesignId,
                 ProductName = c.DesignedCustomer!.DesignedProduct.Name,
                 Price = c.DesignedCustomer.DesignedProduct.Price,
                 Image = c.DesignedCustomer.DesignedProductColor.Images
