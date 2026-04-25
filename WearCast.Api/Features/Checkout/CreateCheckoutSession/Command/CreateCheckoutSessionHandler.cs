@@ -216,11 +216,17 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                     var orderItem = new CustomerDesignedOrderItem
                     {
                         CustomerDesignId = design.Id,
+                        DesignedProductId = design.DesignedProductId,
                         ProductName = product.Name,
                         ColorName = color.Name,
                         SizeName = size.Size.ToString(),
                         Quantity = size.Quantity,
-                        UnitPrice = design.TotalPrice
+                        UnitPrice = design.TotalPrice,
+                        FrontImageUrl = design.FrontImageUrl,
+                        BackImageUrl = design.BackImageUrl,
+                        RightImageUrl = design.RightImageUrl,
+                        LeftImageUrl = design.LeftImageUrl,
+                        ViewDesignsJson = design.ViewDesignsJson
                     };
                     designedOrderItems.Add(orderItem);
 

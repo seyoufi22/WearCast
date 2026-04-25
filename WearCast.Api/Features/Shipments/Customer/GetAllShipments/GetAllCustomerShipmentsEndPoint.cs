@@ -17,18 +17,15 @@ namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Customer}")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllCustomerShipmentsRequestDTO request, CancellationToken cancellationToken)
         {
-            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin())
+            if (User.IsCustomer() && User.GetCustomerId() != request.CustomerId)
             {
-                var UserId = User.GetCustomerId();
-                if (!UserId.HasValue || UserId.Value != request.CustomerId)
-                {
-                    return Unauthorized(new { Message = "You are not authorized to do this action" });
-                }
+                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
             }
+
             var result = await _sender.Send(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);

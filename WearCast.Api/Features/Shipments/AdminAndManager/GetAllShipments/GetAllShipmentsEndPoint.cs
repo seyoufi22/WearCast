@@ -17,14 +17,10 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments
             _sender = sender;
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllShipmentsRequestDTO request, CancellationToken cancellationToken)
         {
-            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin())
-            {
-                return Unauthorized(new { Message = "You are not authorized to do this action" });
-            }
             var result = await _sender.Send(request, cancellationToken);
 
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);

@@ -1,8 +1,8 @@
-﻿namespace WearCast.Api.Features.Admins.CreateSuperAdmin
+﻿namespace WearCast.Api.Features.Admins.CreateAdmin
 {
-    public class CreateSuperAdminRequestValidator : AbstractValidator<CreateSuperAdminRequest>
+    public class CreateAdminRequestValidator : AbstractValidator<CreateAdminRequest>
     {
-        public CreateSuperAdminRequestValidator()
+        public CreateAdminRequestValidator()
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
@@ -30,6 +30,9 @@
             RuleFor(x => x.ConfirmPassword)
                .NotEmpty().WithMessage("Password confirmation is required.")
                .Equal(x => x.Password).WithMessage("Passwords do not match.");
+
+            RuleFor(x => x.Role)
+                .IsInEnum().WithMessage("Invalid role specified. Please select a valid Admin role.");
         }
     }
 }

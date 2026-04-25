@@ -15,7 +15,7 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment
         {
             _sender = sender;
         }
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpPut("{ShipmentId}/assign")]
         public async Task<IActionResult> AssignDriver(
             [FromRoute] int ShipmentId,
@@ -23,10 +23,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment
             CancellationToken cancellationToken)
         {
             var AssignerId = User.GetUserId();
-            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin())
-            {
-                return Unauthorized(new { Message = "You are not allowed to do this action" });
-            }
             request.ShipmentId = ShipmentId;
             request.AssignerId = AssignerId!;
 

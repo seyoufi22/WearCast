@@ -15,17 +15,13 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus
         {
             _sender = sender;
         }
-        [Authorize]
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpPut("{ShipmentId}/status")]
         public async Task<IActionResult> UpdateStatus(
             [FromRoute] int ShipmentId,
             [FromBody] UpdateShipmentStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
-            if (!User.IsShippingCompanyManager() && !User.IsSuperAdmin() && !User.IsDriver())
-            {
-                return Unauthorized(new { Message = "You are not allowed to do this action" });
-            }
             var UpdaterId = User.GetUserId();
             request.ShipmentId = ShipmentId;
             request.UpdaterId = UpdaterId!;
