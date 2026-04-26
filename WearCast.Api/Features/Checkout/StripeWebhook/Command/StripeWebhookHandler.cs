@@ -106,6 +106,9 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                 deliveryAddress.BuildingNumber = firstOrder.ShippingAddress.BuildingNumber;
             }
 
+            var paidOrders = orders.Where(o => o.Status == OrderStatus.Paid).ToList();
+            var ordersTotal = paidOrders.Sum(o => o.TotalAmount);
+
             var shipment = new Shipment
             {
                 CustomerId = firstOrder.CustomerId,
@@ -113,7 +116,8 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                 ShipmentStatus = ShipmentStatus.Unassigned,
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById,
-                Orders = orders.Where(o => o.Status == OrderStatus.Paid).ToList()
+                Price = ordersTotal + shippingCompany.DeliveryFee,
+                Orders = paidOrders
             };
             
             dbContext.Shipments.Add(shipment);
