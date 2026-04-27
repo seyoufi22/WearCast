@@ -1,5 +1,7 @@
 using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Enums;
+using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Features.Checkout.StripeWebhook.DTOs;
 using WearCast.Api.Persistence;
 using WearCast.Api.Entities.Shipping;
@@ -9,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Checkout.StripeWebhook.Command;
 
-public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
+public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingService trackingService) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
 {
     public async Task<Result<bool>> Handle(StripeWebhookRequestDto request, CancellationToken cancellationToken)
     {
@@ -83,6 +85,55 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
         }
 
         var customerId = orders.First().CustomerId;
+
+        // Track purchase event
+        var purchaseEvent = new PurchaseEvent
+        {
+            UserId = customerId.ToString(),
+            Products = new List<PurchaseProductDetails>()
+        };
+
+        foreach (var order in orders.Where(o => o.Status == OrderStatus.Paid))
+        {
+            foreach (var item in order.FixedProductItems)
+            {
+                var fixedProduct = await dbContext.FixedProducts
+                    .Where(p => p.Colors.Any(c => c.Id == item.FixedColorId))
+                    .Include(p => p.Category)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                purchaseEvent.Products.Add(new PurchaseProductDetails
+                {
+                    ProductId = item.FixedColorId.ToString(),
+                    Quantity = item.Quantity,
+                    Price = item.UnitPrice,
+                    TargetAudience = fixedProduct?.TargetAudience.ToString().Split(", ").ToList() ?? new(),
+                    DressStyle = fixedProduct?.DressStyle.ToString(),
+                    CategoryName = fixedProduct?.Category?.Name,
+                    SellerId = fixedProduct?.SellerId
+                });
+            }
+
+            foreach (var item in order.DesignedProductItems)
+            {
+                var designedProduct = await dbContext.DesignedProducts
+                    .Include(dp => dp.Category)
+                    .FirstOrDefaultAsync(dp => dp.Id == item.DesignedProductId, cancellationToken);
+
+                purchaseEvent.Products.Add(new PurchaseProductDetails
+                {
+                    ProductId = item.CustomerDesignId.ToString(),
+                    Quantity = item.Quantity,
+                    Price = item.UnitPrice,
+                    TargetAudience = designedProduct?.TargetAudience.ToString().Split(", ").ToList() ?? new(),
+                    DressStyle = designedProduct?.DressStyle.ToString(),
+                    CategoryName = designedProduct?.Category?.Name,
+                    SellerId = null
+                });
+            }
+        }
+
+        trackingService.TrackPurchase(purchaseEvent);
 
         // Clear both fixed and designed cart items
         var cartItemsToClear = await dbContext.CartItems
