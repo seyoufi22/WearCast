@@ -92,7 +92,9 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
         dbContext.CartItems.RemoveRange(cartItemsToClear);
         
         // Find a default shipping company
-        var shippingCompany = await dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
+        var shippingCompany = await dbContext.ShippingCompanies
+            .Where(sc=>sc.IsDeleted==false).
+            FirstOrDefaultAsync(cancellationToken);
         if (shippingCompany != null)
         {
             var firstOrder = orders.First();
@@ -108,6 +110,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
 
             var paidOrders = orders.Where(o => o.Status == OrderStatus.Paid).ToList();
             var ordersTotal = paidOrders.Sum(o => o.TotalAmount);
+            string generatedDeliveryCode = Random.Shared.Next(100000, 999999).ToString();
 
             var shipment = new Shipment
             {
@@ -117,10 +120,15 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext) : IRequestHand
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById,
                 Price = ordersTotal + shippingCompany.DeliveryFee,
-                Orders = paidOrders
+                Orders = paidOrders,
+                DeliveryCode = generatedDeliveryCode
             };
             
             dbContext.Shipments.Add(shipment);
+        }
+        else
+        {
+            return Result.Failure<bool>(new Error("ShippingCompany.NotFound", "No shipping company found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

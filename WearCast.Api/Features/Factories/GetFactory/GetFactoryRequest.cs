@@ -1,5 +1,3 @@
 ﻿namespace WearCast.Api.Features.Factories.GetFactory;
 
-public record GetFactoryRequest(
-    int? ProvidedFactoryId = null
-) : IRequest<Result<GetFactoryResponse>>;
+public record GetFactoryRequest() : IRequest<Result<GetFactoryResponse>>;

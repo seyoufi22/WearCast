@@ -9,9 +9,9 @@ public class GetFactoryEndPoint(IMediator mediator) : ControllerBase
     private readonly IMediator _mediator = mediator;
 
     [HttpGet("profile")]
-    public async Task<IActionResult> GetProfile([FromQuery] GetFactoryRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(request, cancellationToken);
+        var result = await _mediator.Send(new GetFactoryRequest(), cancellationToken);
 
         return result.ToResponse();
     }
