@@ -4,6 +4,8 @@
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal AverageRating { get; set; }
+        public int ReviewCount { get; set; }
         public TargetAudience TargetAudience { get; set; }
         public DressStyle DressStyle { get; set; }
         public decimal Price { get; set; }

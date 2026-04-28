@@ -4,6 +4,7 @@
         int Id,
         int DesignedProductId,
         int DesignedProductColorId,
+        string Name,
         string ViewDesignsJson,
         string? FrontImageUrl,
         string? BackImageUrl,

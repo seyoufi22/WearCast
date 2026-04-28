@@ -16,12 +16,12 @@ public class UpdateFixedProductEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateFixedProductRequestDto request, CancellationToken cancellationToken)
     {
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin)
             request.isAdminRequest = true;
         else
         {

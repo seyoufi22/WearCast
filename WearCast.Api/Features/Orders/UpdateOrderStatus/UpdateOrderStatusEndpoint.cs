@@ -22,7 +22,7 @@ public class UpdateOrderStatusEndpoint : ControllerBase
     /// Seller: Paid → Ready | Driver: Ready → PickedUp
     /// </summary>
     [HttpPut("{orderId}/status")]
-    [Authorize(Roles = "Seller,Driver")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.Driver}")]
     public async Task<IActionResult> Update([FromRoute] int orderId, [FromBody] UpdateOrderStatusRequestDto requestDto, CancellationToken cancellationToken)
     {
         var role = User.FindFirstValue(ClaimTypes.Role);
@@ -30,13 +30,13 @@ public class UpdateOrderStatusEndpoint : ControllerBase
         int? sellerId = null;
         int? driverId = null;
 
-        if (role == "Seller")
+        if (role == DefaultRoles.SellerManager)
         {
             sellerId = User.GetSellerId();
             if (sellerId is null)
                 return Unauthorized();
         }
-        else if (role == "Driver")
+        else if (role == DefaultRoles.Driver)
         {
             driverId = User.GetDriverId();
             if (driverId is null)

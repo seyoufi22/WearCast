@@ -2,6 +2,7 @@
 {
     public record UpdateCustomerDesignRequest(
         int Id,
+        string Name,
         string ViewDesignsJson,
         IFormFile? FrontImage,
         IFormFile? BackImage,

@@ -5,7 +5,8 @@ namespace WearCast.Api.Entities.Order;
 public class Order : BaseModel
 {
     public int CustomerId { get; set; }
-    public int SellerId { get; set; }
+    public int? SellerId { get; set; }
+    public int? FactoryId { get; set; }
     public decimal TotalAmount { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public string? StripeSessionId { get; set; }
@@ -19,8 +20,10 @@ public class Order : BaseModel
     public Address PickUpAddress { get; set; } = new();
 
     public Customer Customer { get; set; } = null!;
-    public Seller Seller { get; set; } = null!;
+    public Seller? Seller { get; set; }
+    public Factory? Factory { get; set; }
     public ICollection<FixedProductOrderItem> FixedProductItems { get; set; } = new List<FixedProductOrderItem>();
+    public ICollection<CustomerDesignedOrderItem> DesignedProductItems { get; set; } = new List<CustomerDesignedOrderItem>();
 
     public int? ShipmentId { get; set; }
     public Shipping.Shipment? Shipment { get; set; }

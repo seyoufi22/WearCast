@@ -12,16 +12,23 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
     {
         var order = await dbContext.Orders
             .Include(o => o.FixedProductItems)
+            .Include(o => o.DesignedProductItems)
             .Where(o => o.Id == request.OrderId && !o.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (order == null)
             return Result.Failure<GetOrderItemsByOrderIdResponseDto>(new Error("Orders.NotFound", $"Order with ID {request.OrderId} not found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
 
-        // Security check: only the buyer or the seller of this order can view the items.
-        if ((request.CustomerId.HasValue && order.CustomerId != request.CustomerId.Value) || 
-            (request.SellerId.HasValue && order.SellerId != request.SellerId.Value) ||
-            (!request.CustomerId.HasValue && !request.SellerId.HasValue))
+        // Security check: only the buyer, the seller, or the factory of this order can view the items.
+        bool hasAccess = false;
+        if (request.CustomerId.HasValue && order.CustomerId == request.CustomerId.Value)
+            hasAccess = true;
+        else if (request.SellerId.HasValue && order.SellerId.HasValue && order.SellerId == request.SellerId.Value)
+            hasAccess = true;
+        else if (request.FactoryId.HasValue && order.FactoryId.HasValue && order.FactoryId == request.FactoryId.Value)
+            hasAccess = true;
+
+        if (!hasAccess)
         {
             return Result.Failure<GetOrderItemsByOrderIdResponseDto>(new Error("Orders.Forbidden", "You do not have permission to view this order.", Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden));
         }
@@ -36,17 +43,46 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
             RecipientPhoneNumber = order.RecipientPhoneNumber,
             RecipientAdditionalPhoneNumber = order.RecipientAdditionalPhoneNumber,
             ShippingAddress = order.ShippingAddress,
-            Items = order.FixedProductItems.Select(i => new OrderItemDto
-            {
-                Id = i.Id,
-                FixedColorId = i.FixedColorId,
-                ProductName = i.ProductName,
-                ColorName = i.ColorName,
-                SizeName = i.SizeName,
-                Quantity = i.Quantity,
-                UnitPrice = i.UnitPrice,
-                ImageUrl = i.ImageUrl
-            }).ToList()
+            Items = order.FixedProductItems
+                .GroupBy(i => i.FixedColorId)
+                .Select(g => new OrderItemDto
+                {
+                    FixedColorId = g.Key,
+                    ProductName = g.First().ProductName,
+                    ColorName = g.First().ColorName,
+                    UnitPrice = g.First().UnitPrice,
+                    ImageUrl = g.First().ImageUrl,
+                    TotalQuantity = g.Sum(i => i.Quantity),
+                    TotalPrice = g.Sum(i => i.UnitPrice * i.Quantity),
+                    Sizes = g.Select(i => new OrderItemSizeDto
+                    {
+                        Id = i.Id,
+                        SizeName = i.SizeName,
+                        Quantity = i.Quantity
+                    }).ToList()
+                }).ToList(),
+            DesignedItems = order.DesignedProductItems
+                .GroupBy(d => d.CustomerDesignId)
+                .Select(g => new DesignedOrderItemDto
+                {
+                    CustomerDesignId = g.Key,
+                    ProductName = g.First().ProductName,
+                    ColorName = g.First().ColorName,
+                    UnitPrice = g.First().UnitPrice,
+                    TotalQuantity = g.Sum(d => d.Quantity),
+                    TotalPrice = g.Sum(d => d.UnitPrice * d.Quantity),
+                    FrontImageUrl = g.First().FrontImageUrl,
+                    BackImageUrl = g.First().BackImageUrl,
+                    RightImageUrl = g.First().RightImageUrl,
+                    LeftImageUrl = g.First().LeftImageUrl,
+                    ViewDesignsJson = g.First().ViewDesignsJson,
+                    Sizes = g.Select(d => new OrderItemSizeDto
+                    {
+                        Id = d.Id,
+                        SizeName = d.SizeName,
+                        Quantity = d.Quantity
+                    }).ToList()
+                }).ToList()
         };
 
         return Result<GetOrderItemsByOrderIdResponseDto>.Success(detailsDto);

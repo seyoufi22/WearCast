@@ -17,6 +17,7 @@
             var result = await _mediator.Send(
                 new UpdateCustomerDesignRequest(
                     id,
+                    form.Name,
                     form.ViewDesignsJson,
                     form.FrontImage,
                     form.BackImage,
@@ -29,6 +30,7 @@
         }
 
         public record UpdateCustomerDesignForm(
+            string Name,
             string ViewDesignsJson,
             IFormFile? FrontImage,
             IFormFile? BackImage,
