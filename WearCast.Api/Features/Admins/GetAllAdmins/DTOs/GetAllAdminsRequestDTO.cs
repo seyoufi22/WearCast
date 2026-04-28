@@ -11,7 +11,6 @@ namespace WearCast.Api.Features.Admins.GetAllAdmins.DTOs
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public AdminRole? Role { get; set; }
-        public bool? IsDeleted { get; set; }
     }
 
     public class GetAllAdminsValidator : AbstractValidator<GetAllAdminsRequestDTO>

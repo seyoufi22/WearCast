@@ -18,7 +18,7 @@ namespace WearCast.Api.Features.Admins.GetAllAdmins.Handlers
             CancellationToken cancellationToken)
         {
             var baseQuery =
-                from user in _context.Users.AsNoTracking().IgnoreQueryFilters()
+                from user in _context.Users.AsNoTracking()
                 join ur in _context.UserRoles on user.Id equals ur.UserId
                 join r in _context.Roles on ur.RoleId equals r.Id
                 where AdminRoleNames.Contains(r.Name)
@@ -40,10 +40,6 @@ namespace WearCast.Api.Features.Admins.GetAllAdmins.Handlers
             {
                 baseQuery = baseQuery.Where(u => u.User.Email.Contains(request.Email.Trim()));
             }
-            if (request.IsDeleted.HasValue)
-            {
-                baseQuery = baseQuery.Where(u => u.User.IsDeleted == request.IsDeleted.Value);
-            }
             if (request.Role.HasValue)
             {
                 var requestedRoleName = request.Role.Value.ToString();
@@ -58,8 +54,7 @@ namespace WearCast.Api.Features.Admins.GetAllAdmins.Handlers
                 FullName = u.User.FirstName + " " + u.User.LastName,
                 Email = u.User.Email,
                 PhoneNumber = u.User.PhoneNumber,
-                IsDeleted = u.User.IsDeleted,
-                Role = u.RoleName ?? string.Empty
+                Role = u.RoleName ?? "No role"
             });
 
             var pagedResult = await PagingHelper.CreateAsync(finalQuery, request.PageIndex, request.PageSize);

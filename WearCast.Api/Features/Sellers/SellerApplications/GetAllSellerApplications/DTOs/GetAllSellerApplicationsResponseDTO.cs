@@ -8,6 +8,7 @@
         public string City { get; set; } = string.Empty;
         public Status Status { get; set; }
         public bool IsEmailConfirmed { get; set; }
+        public string SellerEmail {  get; set; }
         public DateTime CreatedOn { get; set; }
     }
 }
