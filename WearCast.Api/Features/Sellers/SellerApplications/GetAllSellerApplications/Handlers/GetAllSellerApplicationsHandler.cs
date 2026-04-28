@@ -32,6 +32,10 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.GetAllSellerApplicati
             {
                 query = query.Where(a => a.SellerName.Contains(request.SellerName.Trim()));
             }
+            if (!string.IsNullOrWhiteSpace(request.SellerEmail))
+            {
+                query = query.Where(a => a.SellerEmail.Contains(request.SellerEmail.Trim()));
+            }
             if (!string.IsNullOrWhiteSpace(request.ManagerFirstName))
             {
                 query = query.Where(a => a.ManagerFirstName.Contains(request.ManagerFirstName.Trim()));
@@ -67,6 +71,7 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.GetAllSellerApplicati
                     ManagerName = a.ManagerFirstName + " " + a.ManagerLastName,
                     City = a.SellerAddress.City, 
                     Status = a.Status,
+                    SellerEmail=a.SellerEmail,
                     IsEmailConfirmed = a.ManagerEmailConfirmed,
                     CreatedOn = a.CreatedOn
                 });
