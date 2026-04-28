@@ -14,7 +14,6 @@
         {
             var request = new UpdateAdminRequest(
                 AdminId: id,
-                Email: body.Email,
                 FirstName: body.FirstName,
                 LastName: body.LastName,
                 PhoneNumber: body.PhoneNumber,
@@ -26,7 +25,6 @@
         }
     }
     public record UpdateAdminRequestBody(
-        string Email,
         string FirstName,
         string LastName,
         string PhoneNumber,
