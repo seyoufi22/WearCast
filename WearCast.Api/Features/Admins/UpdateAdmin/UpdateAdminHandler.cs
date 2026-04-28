@@ -1,13 +1,13 @@
-﻿namespace WearCast.Api.Features.Admins.UpdateAdmin
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.Admins.UpdateAdmin
 {
     public class UpdateAdminHandler(
         UserManager<ApplicationUser> userManager,
-        IHttpContextAccessor httpContextAccessor,
         ILogger<UpdateAdminHandler> logger
     ) : IRequestHandler<UpdateAdminRequest, Result>
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly ILogger<UpdateAdminHandler> _logger = logger;
 
         public async Task<Result> Handle(UpdateAdminRequest request, CancellationToken cancellationToken)
@@ -16,15 +16,15 @@
             if (admin == null)
                 return Result.Failure(new("Admin.NotFound", "Admin account not found.", 404));
 
-            if (admin.Email != request.Email)
+            bool isPhoneNumberDuplicated = await _userManager.Users
+               .AnyAsync(x => x.Id != request.AdminId && x.PhoneNumber == request.PhoneNumber, cancellationToken);
+
+            if (isPhoneNumberDuplicated)
             {
-                var existingEmailUser = await _userManager.FindByEmailAsync(request.Email);
-                if (existingEmailUser != null)
-                    return Result.Failure(new("Admin.EmailExists", "This email is already registered to another account.", 400));
+                return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
-            admin.Email = request.Email;
-            admin.UserName = request.Email;
+
             admin.FirstName = request.FirstName;
             admin.LastName = request.LastName;
             admin.PhoneNumber = request.PhoneNumber;
