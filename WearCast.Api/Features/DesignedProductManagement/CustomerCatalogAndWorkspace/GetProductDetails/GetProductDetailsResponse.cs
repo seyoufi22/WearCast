@@ -17,7 +17,7 @@
         List<ColorVariantResponse> Colors
     );
 
-    public record SizeDetailsResponse(string Size, decimal? A, decimal? B, decimal? C);
+    public record SizeDetailsResponse(int Id, string Size, decimal? A, decimal? B, decimal? C);
 
     public record ColorVariantResponse(
         int Id,
