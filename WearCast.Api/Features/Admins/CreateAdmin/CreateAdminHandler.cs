@@ -10,9 +10,18 @@
 
         public async Task<Result<CreateAdminResponse>> Handle(CreateAdminRequest request, CancellationToken cancellationToken)
         {
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            var existingUser = await _userManager.Users
+                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
+                 .Select(x => new { x.Email, x.PhoneNumber })
+                 .FirstOrDefaultAsync(cancellationToken);
+
             if (existingUser != null)
-                return Result.Failure<CreateAdminResponse>(new("Admin.EmailExists", "This email is already registered.", 400));
+            {
+                if (existingUser.Email!.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return Result.Failure<CreateAdminResponse>(new("Admin.EmailExists", "This email is already registered.", 400));
+
+                return Result.Failure<CreateAdminResponse>(new("Admin.PhoneExists", "This phone number is already registered.", 400));
+            }
 
             var newAdmin = new ApplicationUser
             {

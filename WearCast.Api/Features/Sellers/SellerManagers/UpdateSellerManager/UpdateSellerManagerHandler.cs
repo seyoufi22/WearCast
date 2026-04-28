@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.Sellers.SellerManagers.UpdateSellerManager
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.Sellers.SellerManagers.UpdateSellerManager
 {
     public class UpdateSellerManagerHandler(
         ApplicationDbContext context,
@@ -33,6 +35,14 @@
             if (managerUser == null)
             {
                 return Result.Failure(SellerManagerErrors.NotFound);
+            }
+
+            bool isPhoneNumberTaken = await _context.Users
+                .AnyAsync(x => x.PhoneNumber == request.PhoneNumber && x.Id != managerUser.Id, cancellationToken);
+
+            if (isPhoneNumberTaken)
+            {
+                return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
             managerUser.FirstName = request.FirstName;
