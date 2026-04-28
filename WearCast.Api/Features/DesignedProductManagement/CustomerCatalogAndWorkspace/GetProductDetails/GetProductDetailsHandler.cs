@@ -67,7 +67,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
 
                 product.SizeDetails
                     .OrderBy(s => s.Size)
-                    .Select(s => new SizeDetailsResponse(s.Size.ToString(), s.A, s.B, s.C))
+                    .Select(s => new SizeDetailsResponse(s.Id, s.Size.ToString(), s.A, s.B, s.C))
                     .ToList(),
 
                 orderedColors
