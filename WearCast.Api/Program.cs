@@ -1,7 +1,6 @@
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using WearCast.Api;
-using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +18,6 @@ app.UseSwaggerUI(options =>
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
@@ -46,6 +41,5 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 
 app.MapControllers();
-app.MapCarter();
 
 app.Run();
