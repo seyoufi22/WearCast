@@ -1,10 +1,13 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
 using WearCast.Api.Common.Tracking;
+using Carter;
+using WearCast.Api.Common.ExternalServices;
+using System.Security.Claims;
 
 
 
@@ -22,6 +25,8 @@ namespace WearCast.Api
                 {
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
+
+            services.AddCarter();
 
             services.AddCors(options =>
             {
@@ -42,6 +47,10 @@ namespace WearCast.Api
 
             services.AddScoped<ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            services
+                .AddHttpClient<IRecommendationServiceClient, RecommendationServiceClient>();
+            services.AddScoped<IRecommendationTrainingService, RecommendationTrainingService>();
 
             services
                 .AddSwaggerServices()
@@ -178,7 +187,9 @@ namespace WearCast.Api
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
                         ValidIssuer = jwtSettings?.Issuer,
-                        ValidAudience = jwtSettings?.Audience
+                        ValidAudience = jwtSettings?.Audience,
+                        RoleClaimType = ClaimTypes.Role,
+                        NameClaimType = ClaimTypes.NameIdentifier
                     };
                 });
 
