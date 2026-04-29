@@ -2,7 +2,6 @@
 {
     public record UpdateAdminRequest(
         string AdminId,
-        string Email,
         string FirstName,
         string LastName,
         string PhoneNumber,

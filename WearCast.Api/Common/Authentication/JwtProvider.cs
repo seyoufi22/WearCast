@@ -69,7 +69,7 @@ namespace WearCast.Api.Authentication
                     ValidateLifetime = false
                 }, out SecurityToken validatedToken);
 
-                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
+                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
                 return userIdClaim?.Value;
             }

@@ -5,7 +5,6 @@
         public UpdateAdminRequestValidator()
         {
             RuleFor(x => x.AdminId).NotEmpty().WithMessage("Admin ID is required.");
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.")

@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.Customers.UpdateCustomer
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.Customers.UpdateCustomer
 {
     public class UpdateCustomerHandler(
         ApplicationDbContext context,
@@ -36,6 +38,14 @@
             if (customer == null || customer.ApplicationUser == null)
             {
                 return Result.Failure(CustomerErrors.CustomerNotFound);
+            }
+
+            bool isPhoneNumberDuplicated = await _context.Users
+                .AnyAsync(x => x.Id != customer.ApplicationUser.Id && x.PhoneNumber == request.PhoneNumber, cancellationToken);
+
+            if (isPhoneNumberDuplicated)
+            {
+                return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
             _mapper.Map(request, customer);
