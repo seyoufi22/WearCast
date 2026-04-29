@@ -1587,7 +1587,7 @@ namespace WearCast.Api.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@WEARCAST.COM",
                             NormalizedUserName = "SUPERADMIN@WEARCAST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHMBoPz/T0pFXijLhnaJMAnlKitx5iTUu4pMYPZfn/exjPmixUmWDP7W1D+QtaIoLQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFLnY6uxhzFmLBErOGGimNahM33HMY7KhReBW+HbqTG3QjUwzbRV1ERDhYgNzWTwTg==",
                             PhoneNumber = "01000000001",
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "DAE8F8342FB84409A3CF6B6BE8802BC8",
