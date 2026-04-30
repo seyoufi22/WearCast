@@ -3,7 +3,6 @@
     [ApiController]
     [Route("api/designed-products")]
     [Tags("Designed Product Review")]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.FactoryManager}")]
     public class GetAllDesignedProductReviewEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

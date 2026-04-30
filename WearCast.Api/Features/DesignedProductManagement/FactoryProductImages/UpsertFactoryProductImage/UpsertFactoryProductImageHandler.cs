@@ -32,7 +32,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.U
                 return Result.Failure<FactoryProductImagesResponse>(FactoryProductColorErrors.ColorNotFound);
             }
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 // No Action
             }

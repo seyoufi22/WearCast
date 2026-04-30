@@ -20,7 +20,7 @@
             if (product == null)
                 return Result.Failure(DesignedProductErrors.ProductNotFound);
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 //No Action
             }
