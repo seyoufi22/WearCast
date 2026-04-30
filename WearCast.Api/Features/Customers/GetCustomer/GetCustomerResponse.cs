@@ -5,6 +5,7 @@ public record GetCustomerResponse(
     string FirstName,
     string LastName,
     string PhoneNumber,
+    string Email,
     string Imageurl,
     AddressDto Address
 );
