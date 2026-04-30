@@ -29,6 +29,7 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
             RecipientPhoneNumber = order.RecipientPhoneNumber,
             RecipientAdditionalPhoneNumber = order.RecipientAdditionalPhoneNumber,
             ShippingAddress = order.ShippingAddress,
+            TotalOrderItems = order.FixedProductItems.Count + order.DesignedProductItems.Count,
             Items = order.FixedProductItems
                 .GroupBy(i => i.FixedColorId)
                 .Select(g => new OrderItemDto
