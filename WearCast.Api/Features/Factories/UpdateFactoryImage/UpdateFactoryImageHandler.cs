@@ -16,7 +16,7 @@
 
             int targetFactoryId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsVendorAdmin())
             {
                 if (!request.ProvidedFactoryId.HasValue)
                 {

@@ -25,7 +25,7 @@ namespace WearCast.Api.Features.Factories.FactoryManagers.CreateFactoryManager
 
             int targetFactoryId;
 
-            if (currentUser.IsSuperAdmin())
+            if (currentUser.IsSuperAdmin() || currentUser.IsVendorAdmin())
             {
                 if (!request.ProvidedFactoryId.HasValue)
                 {

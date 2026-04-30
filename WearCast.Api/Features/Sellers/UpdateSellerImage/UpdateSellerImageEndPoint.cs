@@ -2,7 +2,7 @@
 {
     [Route("api/sellers/profile-image")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.VendorAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Seller Profile")]
     [Consumes("multipart/form-data")]
     public class UpdateSellerImageEndPoint(IMediator mediator) : ControllerBase
