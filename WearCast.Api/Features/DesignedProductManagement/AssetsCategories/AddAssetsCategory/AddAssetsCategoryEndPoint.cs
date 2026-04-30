@@ -2,7 +2,7 @@
 {
     [Route("api/assets-categories")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = $"{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("AssetsCategory")]
     public class AddAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {

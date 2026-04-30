@@ -2,7 +2,7 @@
 {
     [Route("api/customers")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.CustomerServiceAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Customer Profile")]
     public class UpdateCustomerEndPoint(IMediator mediator) : ControllerBase
     {

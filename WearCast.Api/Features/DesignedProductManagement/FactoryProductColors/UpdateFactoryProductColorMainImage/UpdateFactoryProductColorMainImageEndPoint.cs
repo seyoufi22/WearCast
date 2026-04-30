@@ -5,6 +5,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductColors.U
     [Route("api/factories/products")]
     [ApiController]
     [Tags("Factory Product Color")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class UpdateFactoryProductColorMainImageEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

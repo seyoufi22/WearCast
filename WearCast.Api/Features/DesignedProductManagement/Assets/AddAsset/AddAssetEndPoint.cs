@@ -2,7 +2,7 @@
 {
     [Route("api/admin/design-assets")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = $"{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Assets")]
     public class AddAssetEndPoint(IMediator mediator) : ControllerBase
     {
