@@ -2,7 +2,7 @@
 {
     [Route("api/customers/me/design-images")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [Tags("Customer Uploaded Images")]
     public class DeleteCustomerUploadedImagesEndPoint(IMediator mediator) : ControllerBase
     {

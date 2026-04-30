@@ -4,7 +4,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.FactoryProductImages.U
     [Route("api/factories/designed-product-colors/{colorId:int}/images")]
     [ApiController]
     [Tags("Factory Product Image")]
-    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.FactoryManager}")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class UpsertFactoryProductImageEndPoint(IMediator mediator) : ControllerBase
     {
         [HttpPut("{ViewSide}")]

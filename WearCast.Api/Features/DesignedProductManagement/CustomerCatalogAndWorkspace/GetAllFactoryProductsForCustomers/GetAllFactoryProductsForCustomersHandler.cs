@@ -87,7 +87,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
 
             var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
-            if (user != null && user.IsCustomer())
+            if (user?.Identity?.IsAuthenticated == true && user.IsCustomer())
             {
                 var userId = user.GetUserId();
 

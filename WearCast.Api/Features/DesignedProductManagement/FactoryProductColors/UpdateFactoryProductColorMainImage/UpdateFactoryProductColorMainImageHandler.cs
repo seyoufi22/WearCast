@@ -33,7 +33,7 @@
             var color = queryResult.Color;
             var productFactoryId = queryResult.FactoryId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 // No Action 
             }

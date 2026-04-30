@@ -19,6 +19,18 @@ namespace WearCast.Api.Common.Extensions
         public static bool IsSuperAdmin(this ClaimsPrincipal user) =>
             user.IsInRole(DefaultRoles.SuperAdmin);
 
+        public static bool IsOperationsAdmin(this ClaimsPrincipal user) =>
+            user.IsInRole(DefaultRoles.OperationsAdmin);
+
+        public static bool IsVendorAdmin(this ClaimsPrincipal user) =>
+            user.IsInRole(DefaultRoles.VendorAdmin);
+
+        public static bool IsCatalogAdmin(this ClaimsPrincipal user) =>
+            user.IsInRole(DefaultRoles.CatalogAdmin);
+
+        public static bool IsCustomerServiceAdmin(this ClaimsPrincipal user) =>
+            user.IsInRole(DefaultRoles.CustomerServiceAdmin);
+
         public static bool IsFactoryManager(this ClaimsPrincipal user) =>
             user.IsInRole(DefaultRoles.FactoryManager);
 

@@ -3,6 +3,7 @@
     [Route("api/seller-managers")]
     [ApiController]
     [Tags("Seller Manager Profile")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.VendorAdmin},{DefaultRoles.SuperAdmin}")]
     public class CreateSellerManagerEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

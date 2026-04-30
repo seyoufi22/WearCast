@@ -15,7 +15,7 @@ namespace WearCast.Api.Features.Sellers.SellerManagers.UpdateSellerManager
 
             int targetManagerId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsVendorAdmin())
             {
                 if (!request.ProvidedManagerId.HasValue)
                 {
