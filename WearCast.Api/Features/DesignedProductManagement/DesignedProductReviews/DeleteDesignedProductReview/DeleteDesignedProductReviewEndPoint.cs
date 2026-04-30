@@ -3,7 +3,7 @@
     [ApiController]
     [Route("api/designed-product-reviews")]
     [Tags("Designed Product Review")]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.CatalogAdmin},{DefaultRoles.CustomerServiceAdmin},{DefaultRoles.SuperAdmin}")]
     public class DeleteDesignedProductReviewEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

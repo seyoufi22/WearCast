@@ -2,7 +2,7 @@
 {
     [Route("api/factory-managers")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.VendorAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Factory Manager Profile")]
     public class CreateFactoryManagerEndPoint(IMediator mediator) : ControllerBase
     {

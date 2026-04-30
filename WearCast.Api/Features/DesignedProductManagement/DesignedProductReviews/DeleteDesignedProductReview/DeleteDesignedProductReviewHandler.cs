@@ -13,7 +13,7 @@
             var user = _httpContextAccessor.HttpContext!.User;
             var customerId = user.GetCustomerId();
 
-            bool isAdmin = user.IsSuperAdmin();
+            bool isAdmin = user.IsSuperAdmin() || user.IsCatalogAdmin() || user.IsCustomerServiceAdmin();
 
             var review = await _context.DesignedProductReviews
                 .FirstOrDefaultAsync(r => r.Id == request.ReviewId, cancellationToken);

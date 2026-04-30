@@ -13,9 +13,7 @@ public class GetAllOrdersResponseDto
     public string RecipientName { get; set; } = string.Empty;
     public string RecipientPhoneNumber { get; set; } = string.Empty;
     public Address ShippingAddress { get; set; } = new();
+    public int TotalOrderItems { get; set; }
 
-    /// <summary>
-    /// "Fixed" or "Designed" — indicates whether this order contains fixed or designed items.
-    /// </summary>
     public string OrderType { get; set; } = string.Empty;
 }

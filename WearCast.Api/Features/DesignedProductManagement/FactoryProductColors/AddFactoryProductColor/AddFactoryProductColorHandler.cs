@@ -27,7 +27,7 @@
                 return Result.Failure<AddFactoryProductColorResponse>(DesignedProductErrors.ProductNotFound);
             }
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 //No Action
             }

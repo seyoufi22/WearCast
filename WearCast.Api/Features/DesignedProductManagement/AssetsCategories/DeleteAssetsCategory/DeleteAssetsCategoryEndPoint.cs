@@ -2,7 +2,7 @@
 {
     [ApiController]
     [Route("api/assets-categories")]
-    [Authorize]
+    [Authorize(Roles = $"{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("AssetsCategory")]
     public class DeleteAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {

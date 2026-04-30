@@ -2,7 +2,6 @@
 {
     [Route("api/design-assets")]
     [ApiController]
-    // [Authorize] // يمكنك إزالة هذا السطر بالكامل إذا كانت الإضافة متاحة للزوار بدون تسجيل دخول
     [Tags("Assets")]
     public class GetAssetEndPoint(IMediator mediator) : ControllerBase
     {
