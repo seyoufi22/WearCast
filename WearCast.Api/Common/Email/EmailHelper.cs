@@ -27,6 +27,87 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+        public async Task SendCustomerConfirmationEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "CustomerEmailConfirmation",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+                { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                user.Email!,
+                "Welcome to WearCast! Confirm your email",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
+        public async Task SendDriverConfirmationEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "DriverEmailConfirmation",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+                { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                user.Email!,
+                "🚗 WearCast Delivery: Activate Your Account",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
+
+        public async Task SendFactoryManagerConfirmationEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "FactoryManagerEmailConfirmation",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+                { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                user.Email!,
+                "🏭 WearCast Partners: Verify Factory Portal",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
+        public async Task SendShippingCompanyManagerConfirmationEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "ShippingCompanyManagerEmailConfirmation",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+                { "{{name}}", $"{user.FirstName} {user.LastName}" },
+                { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                user.Email!,
+                "📦 WearCast Logistics: Verify Your Account",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
 
         public async Task SendResetPasswordEmail(ApplicationUser user, string code)
         {
@@ -108,6 +189,26 @@ namespace WearCast.Api.Common.Email
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 app.ManagerEmail!,
                 "⚠️ WearCast: Update on Your Seller Application",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
+        public async Task SendAccountDeletedEmail(string email, string fullName, string reason)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "AccountDeleted",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+            { "{{name}}", fullName },
+            { "{{reason}}", reason }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                email,
+                "⚠️ WearCast: Your Account Has Been Deleted",
                 emailBody
             ));
 

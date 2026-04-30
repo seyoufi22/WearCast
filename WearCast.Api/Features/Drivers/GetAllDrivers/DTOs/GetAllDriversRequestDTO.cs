@@ -53,11 +53,13 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.DTOs
 
             RuleFor(x => x.DriverStatus)
                 .IsInEnum()
-                .WithMessage("Invalid driver status.");
+                .WithMessage("Invalid driver status.")
+                .When(x => x.DriverStatus.HasValue);
 
             RuleFor(x => x.VehicleType)
                 .IsInEnum()
-                .WithMessage("Invalid Vehicle Type.");
+                .WithMessage("Invalid Vehicle Type.")
+                .When(x => x.VehicleType.HasValue);
         }
     }
 }

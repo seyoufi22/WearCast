@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.UpdateShippingCompanyManager
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.UpdateShippingCompanyManager
 {
     public class UpdateShippingCompanyManagerHandler(
          ApplicationDbContext context,
@@ -34,6 +36,14 @@
             if (managerUser == null)
             {
                 return Result.Failure(ShippingCompanyManagerErrors.NotFound);
+            }
+
+            bool isPhoneNumberTaken = await _context.Users
+                .AnyAsync(x => x.PhoneNumber == request.PhoneNumber && x.Id != managerUser.Id, cancellationToken);
+
+            if (isPhoneNumberTaken)
+            {
+                return Result.Failure(UserErrors.DublicatedPhoneNumber);
             }
 
             managerUser.FirstName = request.FirstName;

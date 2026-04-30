@@ -19,6 +19,34 @@
                 },
                 new ApplicationRole
                 {
+                    Id = DefaultRoles.OperationsAdminRoleId,
+                    Name = DefaultRoles.OperationsAdmin,
+                    NormalizedName = DefaultRoles.OperationsAdmin.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.OperationsAdminRoleConcurrencyStamp
+                },
+                new ApplicationRole
+                {
+                    Id = DefaultRoles.VendorAdminRoleId,
+                    Name = DefaultRoles.VendorAdmin,
+                    NormalizedName = DefaultRoles.VendorAdmin.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.VendorAdminRoleConcurrencyStamp
+                },
+                new ApplicationRole
+                {
+                    Id = DefaultRoles.CatalogAdminRoleId,
+                    Name = DefaultRoles.CatalogAdmin,
+                    NormalizedName = DefaultRoles.CatalogAdmin.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.CatalogAdminRoleConcurrencyStamp
+                },
+                new ApplicationRole
+                {
+                    Id = DefaultRoles.CustomerServiceAdminRoleId,
+                    Name = DefaultRoles.CustomerServiceAdmin,
+                    NormalizedName = DefaultRoles.CustomerServiceAdmin.ToUpper(),
+                    ConcurrencyStamp = DefaultRoles.CustomerServiceAdminRoleConcurrencyStamp
+                },
+                new ApplicationRole
+                {
                     Id = DefaultRoles.CustomerRoleId,
                     Name = DefaultRoles.Customer,
                     NormalizedName = DefaultRoles.Customer.ToUpper(),

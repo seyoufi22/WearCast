@@ -26,16 +26,45 @@ public class GetAllFixedProductsForAdminHandler : IRequestHandler<GetAllFixedPro
             var term = request.SearchTerm.Trim();
             query = query.Where(p =>
                 p.Name.Contains(term) ||
-                p.Seller.Name.Contains(term)||
-                p.Description.Contains(term)); 
+                p.Seller.Name.Contains(term) ||
+                p.Description.Contains(term));
         }
-        query = query.OrderByDescending(p => p.CreatedOn).ThenBy(p => p.Id);
+        if (request.CategoryId.HasValue)
+            query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+
+        if (request.DressStyle.HasValue)
+            query = query.Where(p => p.DressStyle == request.DressStyle.Value);
+
+        if (request.TargetAudience.HasValue)
+            query = query.Where(p => (p.TargetAudience & request.TargetAudience.Value) == request.TargetAudience.Value);
+
+        if (request.MinPrice.HasValue)
+            query = query.Where(p => p.Price >= request.MinPrice.Value);
+
+        if (request.MaxPrice.HasValue)
+            query = query.Where(p => p.Price <= request.MaxPrice.Value);
+
+        if (request.Sizes != null && request.Sizes.Any())
+        {
+            query = query.Where(p => p.Colors.Any(c =>
+                !c.IsDeleted &&
+                c.Sizes.Any(s => request.Sizes.Contains(s.Size))
+            ));
+        }
+
+        query = request.SortBy switch
+        {
+            SortBy.PriceAsc => query.OrderBy(p => p.Price).ThenBy(p => p.Id),
+            SortBy.PriceDesc => query.OrderByDescending(p => p.Price).ThenBy(p => p.Id),
+            SortBy.Newest => query.OrderByDescending(p => p.CreatedOn).ThenBy(p => p.Id),
+            _ => query.OrderByDescending(p => p.CreatedOn).ThenBy(p => p.Id)
+        };
 
         var projectedQuery = query.Select(p => new GetAllFixedProductsForAdminResponseDto
         {
             Id = p.Id,
             ProductName = p.Name,
-            StoreName = p.Seller.Name, 
+            StoreName = p.Seller.Name,
             Price = p.Price,
             IsRejected = !p.Colors.Any(c => !c.IsDeleted),
 
