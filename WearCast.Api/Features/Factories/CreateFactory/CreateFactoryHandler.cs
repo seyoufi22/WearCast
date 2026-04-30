@@ -21,6 +21,14 @@ namespace WearCast.Api.Features.Factories.CreateFactory
 
         public async Task<Result<CreateFactoryResponse>> Handle(CreateFactoryRequest request, CancellationToken cancellationToken)
         {
+            bool factoryExists = await _context.Factories.AnyAsync(cancellationToken);
+            if (factoryExists)
+            {
+                return Result.Failure<CreateFactoryResponse>(
+                    new Error("Factory.AlreadyExists", "A factory already exists in the system. Only one factory is allowed.", StatusCodes.Status400BadRequest)
+                );
+            }
+
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })
