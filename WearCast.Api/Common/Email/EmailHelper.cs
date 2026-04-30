@@ -194,5 +194,25 @@ namespace WearCast.Api.Common.Email
 
             await Task.CompletedTask;
         }
+        public async Task SendAccountDeletedEmail(string email, string fullName, string reason)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "AccountDeleted",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+            { "{{name}}", fullName },
+            { "{{reason}}", reason }
+                }
+            );
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+                email,
+                "⚠️ WearCast: Your Account Has Been Deleted",
+                emailBody
+            ));
+
+            await Task.CompletedTask;
+        }
     }
 }
