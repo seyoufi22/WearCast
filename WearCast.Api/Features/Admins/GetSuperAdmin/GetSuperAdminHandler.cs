@@ -20,15 +20,24 @@ namespace WearCast.Api.Features.Admins.GetSuperAdmin
             {
                 return Result.Failure<GetSuperAdminResponse>(new Error("User.InvalidToken", "SuperAdmin ID not found in token.", StatusCodes.Status401Unauthorized));
             }
-
-            var response = await _context.Users
-                .AsNoTracking()
-                .Where(x => x.Id == currentUserId)
+            var baseQuery =
+                from user in _context.Users.AsNoTracking()
+                join ur in _context.UserRoles on user.Id equals ur.UserId
+                join r in _context.Roles on ur.RoleId equals r.Id
+                select new
+                {
+                    User = user,
+                    RoleName = r.Name
+                };
+            var response = await baseQuery
+                .Where(x => x.User.Id == currentUserId)
                 .Select(x => new GetSuperAdminResponse(
-                    x.Id,
-                    x.FirstName,
-                    x.LastName,
-                    x.PhoneNumber
+                    x.User.Id,
+                    x.User.FirstName,
+                    x.User.LastName,
+                    x.User.Email ?? string.Empty,
+                    x.RoleName,
+                    x.User.PhoneNumber
                 ))
                 .FirstOrDefaultAsync(cancellationToken);
 
