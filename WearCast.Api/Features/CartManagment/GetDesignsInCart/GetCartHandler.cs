@@ -8,24 +8,32 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
 {
     public async Task<List<GetCartItemResponseDto>> Handle(GetCartRequestDto request, CancellationToken cancellationToken)
     {
-        var result = await cartItemRepository.Get()
-            .Where(c => c.CustomerId == request.CustomerId && c.CustomerDesignId != null)
-            .Select(c => new GetCartItemResponseDto
-            {
-                CartItemId = c.Id,
-                CustomerDesignedId= request.CustomerId,
-                ProductName = c.DesignedCustomer!.DesignedProduct.Name,
-                Price = c.DesignedCustomer.DesignedProduct.Price,
-                Image = c.DesignedCustomer.DesignedProductColor.Images
-                        .Select(img => img.ImageUrl)
-                        .FirstOrDefault(),
-                Sizes = c.Sizes.Select(s => new SizeDto(
-                    s.Size,
-                    s.Quantity
-                )).ToList()
-            })
-            .ToListAsync(cancellationToken);
+        var cartItems = await cartItemRepository.Get()
+        .Where(c => c.CustomerId == request.CustomerId
+                 && c.CustomerDesignId != null)
+        .Include(c => c.Sizes)
+        .Include(c => c.DesignedCustomer!)
+            .ThenInclude(d => d.DesignedProduct)
+        .Include(c => c.DesignedCustomer!)
+            .ThenInclude(d => d.DesignedProductColor)
+        .AsNoTracking()
+        .ToListAsync(cancellationToken);
 
-        return result;
+        return cartItems.Select(c => new GetCartItemResponseDto
+        {
+            CartItemId = c.Id,
+            CustomerDesignedId = c.CustomerDesignId,
+            ProductName = c.DesignedCustomer?.DesignedProduct?.Name,
+            Price = c.DesignedCustomer?.DesignedProduct?.Price ?? 0,
+            Image = c.DesignedCustomer?.FrontImageUrl
+                             ?? c.DesignedCustomer?.BackImageUrl
+                             ?? c.DesignedCustomer?.LeftImageUrl
+                             ?? c.DesignedCustomer?.RightImageUrl
+                             ?? c.DesignedCustomer?.DesignedProductColor?.MainImageUrl
+                                    ,
+            Sizes = c.Sizes
+                            .Select(s => new SizeDto(s.Size, s.Quantity))
+                            .ToList()
+        }).ToList();
     }
 }

@@ -10,6 +10,7 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.GetAllSellerApplicati
         public SortBy SortBy { get; set; } = SortBy.Newest;
 
         public string? SellerName { get; set; } = null;
+        public string? SellerEmail { get; set; } = null;
         public string? ManagerFirstName { get; set; } = null;
         public string? ManagerLastName { get; set; } = null;
         public string? City { get; set; } = null;
@@ -40,6 +41,11 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.GetAllSellerApplicati
                 .MaximumLength(100).WithMessage("Seller name cannot exceed 100 characters.")
                 .When(x => !string.IsNullOrWhiteSpace(x.SellerName));
 
+            RuleFor(x => x.SellerEmail)
+                .EmailAddress()
+                .WithMessage("Invalid email format.")
+                .When(x => !string.IsNullOrWhiteSpace(x.SellerEmail));
+           
             RuleFor(x => x.ManagerFirstName)
                 .MaximumLength(100).WithMessage("Manager first name cannot exceed 100 characters.")
                 .When(x => !string.IsNullOrWhiteSpace(x.ManagerFirstName));

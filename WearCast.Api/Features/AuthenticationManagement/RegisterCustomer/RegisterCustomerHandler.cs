@@ -98,7 +98,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
             try
             {
-                await _emailHelper.SendConfirmationEmail(user, code);
+                await _emailHelper.SendCustomerConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {
