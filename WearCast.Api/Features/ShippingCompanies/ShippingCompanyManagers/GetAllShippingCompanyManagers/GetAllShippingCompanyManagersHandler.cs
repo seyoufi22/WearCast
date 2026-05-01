@@ -18,7 +18,8 @@ public class GetAllShippingCompanyManagersHandler(
                 u.ShippingCompanyManager!.Id,
                 u.FirstName,
                 u.LastName,
-                u.PhoneNumber
+                u.PhoneNumber,
+                u.Email
             ))
             .ToListAsync(cancellationToken);
 

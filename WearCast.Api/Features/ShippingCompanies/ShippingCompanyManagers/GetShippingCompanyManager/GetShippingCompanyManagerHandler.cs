@@ -26,7 +26,6 @@ public class GetShippingCompanyManagerHandler(
         {
             targetManagerId = user.GetShippingCompanyManagerId()!.Value;
         }
-
         var response = await _context.Users
             .AsNoTracking()
             .Where(u => u.ShippingCompanyManager != null && u.ShippingCompanyManager.Id == targetManagerId)
@@ -34,7 +33,8 @@ public class GetShippingCompanyManagerHandler(
                 u.ShippingCompanyManager!.Id,
                 u.FirstName,
                 u.LastName,
-                u.PhoneNumber
+                u.PhoneNumber,
+                u.Email
             ))
             .FirstOrDefaultAsync(cancellationToken);
 

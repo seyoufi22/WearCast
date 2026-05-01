@@ -8,7 +8,7 @@ using WearCast.Api.Features.FixedProduct.GetFixedProductDetailsById.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.GetFixedProductDetailsById.Query;
 
-public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context, 
+public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
         ITrackingService trackingService,
         IHttpContextAccessor httpContextAccessor,
         IRepository<Entities.FixedProduct.FixedProduct> productRepo) : IRequestHandler<GetFixedProductDetailsByIdQuery, Result<GetFixedProductDetailsByIdResponseDto>>
@@ -21,7 +21,8 @@ public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
     public async Task<Result<GetFixedProductDetailsByIdResponseDto>> Handle(GetFixedProductDetailsByIdQuery request, CancellationToken cancellationToken)
     {
         var product = await _productRepo.Get()
-            .Where(p => p.Id == request.Id && !p.IsDeleted)
+            .Where(p => p.Id == request.Id && !p.IsDeleted && !p.Seller.IsDeleted)
+            .Include(p => p.Seller)
             .Include(p => p.Category)
             .Include(p => p.Colors.Where(c => !c.IsDeleted))
                 .ThenInclude(c => c.Images)

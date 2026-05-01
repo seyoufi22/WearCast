@@ -44,4 +44,9 @@ public class CartItem : BaseModel
             Sizes.Add(size);
         }
     }
+    public void RemoveSize(Size size)
+    {
+        var item = Sizes.FirstOrDefault(s => s.Size == size);
+        if (item != null) Sizes.Remove(item);
+    }
 }
