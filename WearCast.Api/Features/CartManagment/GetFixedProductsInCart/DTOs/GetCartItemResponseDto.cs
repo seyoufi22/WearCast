@@ -2,6 +2,7 @@
 
 public class GetCartItemResponseDto
 {
+    public bool unavailable { get; set; } = false;
     public int CartItemId { get; set; }
     public int ProductId { get; set; }
     public int ProductColorId { get; set; }
