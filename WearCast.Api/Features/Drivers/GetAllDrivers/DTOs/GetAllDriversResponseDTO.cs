@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Features.Drivers.GetAllDrivers.DTOs
+namespace WearCast.Api.Features.Drivers.GetAllDrivers.DTOs
 {
     public class GetAllDriversResponseDTO
     {
@@ -11,5 +11,6 @@
         public int NumberOfAssignedShipments { get; set; }
         public int NumberOfActiveShipments { get; set; }
         public int NumberOfDeliveredShipments { get; set; }
+        public string ProfileImageUrl { get; set; } = string.Empty;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
+namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
 {
     public class UpdateShippingCompanyRequestValidator : AbstractValidator<UpdateShippingCompanyRequest>
     {
@@ -20,17 +20,15 @@
 
             RuleFor(x => x.CommercialRegisterNumber)
                 .NotEmpty().WithMessage("Commercial register number is required.")
-                .Matches(RegexPatterns.CommercialRegisterNumber)
-                .WithMessage("Commercial register number must consist of 6 to 20 digits only.");
+                .MaximumLength(20).WithMessage("Commercial register number must not exceed 20 characters.");
 
             RuleFor(x => x.TaxIdNumber)
                 .NotEmpty().WithMessage("Tax ID number is required.")
-                .Matches(RegexPatterns.TaxIdNumber)
-                .WithMessage("Tax ID number must consist of exactly 9 digits.");
+                .MaximumLength(20).WithMessage("Tax ID number must not exceed 20 characters.");
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description is required.")
-                .Length(20, 500).WithMessage("Description must be between 20 and 500 characters.");
+                .MaximumLength(1000).WithMessage("Description must not exceed 1000 characters.");
 
             RuleFor(x => x.DeliveryFee)
                 .GreaterThanOrEqualTo(0).WithMessage("Delivery fee cannot be negative.");

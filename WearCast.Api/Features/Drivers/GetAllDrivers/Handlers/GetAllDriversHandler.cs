@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
@@ -70,7 +70,8 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
                     IsDeleted = d.IsDeleted,
                     NumberOfAssignedShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned),
                     NumberOfActiveShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery),
-                    NumberOfDeliveredShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)
+                    NumberOfDeliveredShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered),
+                    ProfileImageUrl = d.ProfileImageUrl
                 });
             var pagedResult = await PagingHelper.CreateAsync(driverssquery, request.PageIndex, request.PageSize);
 

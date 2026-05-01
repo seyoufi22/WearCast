@@ -1,16 +1,43 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.GetShippingCompany;
+using Microsoft.AspNetCore.Http;
+using WearCast.Api.Common.Extensions;
+
+namespace WearCast.Api.Features.ShippingCompanies.GetShippingCompany;
 
 public class GetShippingCompanyHandler(
-    ApplicationDbContext context
+    ApplicationDbContext context,
+    IHttpContextAccessor httpContextAccessor
     ) : IRequestHandler<GetShippingCompanyRequest, Result<GetShippingCompanyResponse>>
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<Result<GetShippingCompanyResponse>> Handle(GetShippingCompanyRequest request, CancellationToken cancellationToken)
     {
+        var user = _httpContextAccessor.HttpContext!.User;
+        int targetCompanyId;
+
+        if (user.IsSuperAdmin())
+        {
+            if (!request.ProvidedCompanyId.HasValue)
+            {
+                return Result.Failure<GetShippingCompanyResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target CompanyId.", StatusCodes.Status400BadRequest));
+            }
+
+            targetCompanyId = request.ProvidedCompanyId.Value;
+        }
+        else
+        {
+            var companyId = user.GetShippingCompanyId();
+            if (!companyId.HasValue)
+            {
+                return Result.Failure<GetShippingCompanyResponse>(ShippingCompanyErrors.CompanyNotFound);
+            }
+            targetCompanyId = companyId.Value;
+        }
+
         var response = await _context.ShippingCompanies
             .AsNoTracking()
-            .Where(x => !x.IsDeleted)
+            .Where(x => !x.IsDeleted && x.Id == targetCompanyId)
             .Select(x => new GetShippingCompanyResponse(
                 x.Id,
                 x.Name,
@@ -37,4 +64,4 @@ public class GetShippingCompanyHandler(
 
         return Result.Success(response);
     }
-}
+}

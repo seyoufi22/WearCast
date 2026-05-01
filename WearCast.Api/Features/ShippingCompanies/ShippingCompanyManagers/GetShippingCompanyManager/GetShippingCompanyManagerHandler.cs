@@ -1,4 +1,7 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetShippingCompanyManager;
+using Microsoft.AspNetCore.Http;
+using WearCast.Api.Common.Extensions;
+
+namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetShippingCompanyManager;
 
 public class GetShippingCompanyManagerHandler(
     ApplicationDbContext context,
@@ -24,7 +27,12 @@ public class GetShippingCompanyManagerHandler(
         }
         else
         {
-            targetManagerId = user.GetShippingCompanyManagerId()!.Value;
+            var managerId = user.GetShippingCompanyManagerId();
+            if (!managerId.HasValue)
+            {
+                return Result.Failure<GetShippingCompanyManagerResponse>(ShippingCompanyManagerErrors.NotFound);
+            }
+            targetManagerId = managerId.Value;
         }
 
         var response = await _context.Users
@@ -45,4 +53,4 @@ public class GetShippingCompanyManagerHandler(
 
         return Result.Success(response);
     }
-}
+}

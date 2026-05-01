@@ -8,6 +8,16 @@ builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
 
+// Database Seeding Logic
+if (args.Contains("--seed"))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await seeder.SeedAsync();
+    Console.WriteLine("Database seeding completed.");
+    return;
+}
+
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
 app.UseSwaggerUI(options =>

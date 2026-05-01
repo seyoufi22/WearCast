@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Common.Enums
+namespace WearCast.Api.Common.Enums
 {
     public enum ShipmentStatus
     {

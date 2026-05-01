@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
 using WearCast.Api.Features.Shipments.Driver.GetShipmentById.DTOs;
@@ -23,9 +23,8 @@ namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs
     {
         public GetAllDriverShipmentsValidator()
         {
-            RuleFor(x => x.DriverId)
-            .GreaterThan(0)
-            .WithMessage("Driver ID must be valid.");
+            // DriverId will be validated in the endpoint or filled from claims
+            // RuleFor(x => x.DriverId).GreaterThan(0).WithMessage("Driver ID must be valid.");
 
             RuleFor(x => x.PageIndex)
            .GreaterThan(0)

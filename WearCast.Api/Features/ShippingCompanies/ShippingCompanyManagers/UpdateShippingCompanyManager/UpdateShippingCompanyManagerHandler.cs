@@ -1,4 +1,5 @@
-﻿using WearCast.Api.Features.AuthenticationManagement;
+using WearCast.Api.Common.Extensions;
+using WearCast.Api.Features.AuthenticationManagement;
 
 namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.UpdateShippingCompanyManager
 {
@@ -13,25 +14,29 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Update
         public async Task<Result> Handle(UpdateShippingCompanyManagerRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
-
             int targetManagerId;
 
             if (user.IsSuperAdmin())
             {
                 if (!request.ProvidedManagerId.HasValue)
                 {
-                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
+                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ManagerId to update.", StatusCodes.Status400BadRequest));
                 }
 
                 targetManagerId = request.ProvidedManagerId.Value;
             }
             else
             {
-                targetManagerId = user.GetShippingCompanyManagerId()!.Value;
+                var managerId = user.GetShippingCompanyManagerId();
+                if (!managerId.HasValue)
+                {
+                    return Result.Failure(ShippingCompanyManagerErrors.NotFound);
+                }
+                targetManagerId = managerId.Value;
             }
 
             var managerUser = await _context.Users
-                .FirstOrDefaultAsync(x => x.ShippingCompanyManager.Id == targetManagerId, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ShippingCompanyManager != null && x.ShippingCompanyManager.Id == targetManagerId, cancellationToken);
 
             if (managerUser == null)
             {
@@ -56,3 +61,4 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Update
         }
     }
 }
+

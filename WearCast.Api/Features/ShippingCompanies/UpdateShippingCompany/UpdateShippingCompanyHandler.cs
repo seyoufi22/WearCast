@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
+using WearCast.Api.Common.Extensions;
+
+namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
 {
     public class UpdateShippingCompanyHandler(
          ApplicationDbContext context,
@@ -9,24 +11,29 @@
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IMapper _mapper = mapper;
+
         public async Task<Result> Handle(UpdateShippingCompanyRequest request, CancellationToken cancellationToken)
         {
             var user = _httpContextAccessor.HttpContext!.User;
-
             int targetCompanyId;
 
             if (user.IsSuperAdmin())
             {
                 if (!request.ProvidedCompanyId.HasValue)
                 {
-                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
+                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target CompanyId to update.", StatusCodes.Status400BadRequest));
                 }
 
                 targetCompanyId = request.ProvidedCompanyId.Value;
             }
             else
             {
-                targetCompanyId = user.GetShippingCompanyId()!.Value;
+                var companyId = user.GetShippingCompanyId();
+                if (!companyId.HasValue)
+                {
+                    return Result.Failure(ShippingCompanyErrors.CompanyNotFound);
+                }
+                targetCompanyId = companyId.Value;
             }
 
             var company = await _context.ShippingCompanies
@@ -42,7 +49,7 @@
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
-
         }
     }
 }
+

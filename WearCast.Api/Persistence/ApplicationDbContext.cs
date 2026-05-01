@@ -28,7 +28,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProductColor> FixedProductColors { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
     public DbSet<Entities.FixedProduct.Favourite> Favourites { get; set; }
-    public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
 
     public DbSet<DesignedProduct> DesignedProducts { get; set; }
     public DbSet<DesignedProductColor> DesignedProductColors { get; set; }

@@ -1,4 +1,4 @@
-﻿using WearCast.Api.Features.AuthenticationManagement;
+using WearCast.Api.Features.AuthenticationManagement;
 
 namespace WearCast.Api.Features.Drivers.UpdateDriver
 {
@@ -22,8 +22,8 @@ namespace WearCast.Api.Features.Drivers.UpdateDriver
                 if (!request.ProvidedDriverId.HasValue)
                 {
                     return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
-                }
-
+                    }
+                    
                 targetDriverId = request.ProvidedDriverId.Value;
             }
             else

@@ -1,4 +1,4 @@
-﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
+using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
 using WearCast.Api.Features.Shipments;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
@@ -36,17 +36,6 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
             }
             if (request.NewStatus == DriverStatus.NotAvailable)
             {
-                var hasActiveShipments = await _context.Shipments
-                    .AnyAsync(s =>
-                        s.DriverId == request.DriverId &&
-                        (s.ShipmentStatus == ShipmentStatus.OutForDelivery ||
-                        s.ShipmentStatus == ShipmentStatus.PickingUp),
-                        cancellationToken);
-                if (hasActiveShipments)
-                {
-                    return Result.Failure(DriverErrors.HasActiveShipments);
-                }
-
                 await _context.Shipments
                     .Where(s => s.DriverId == request.DriverId &&
                                 s.ShipmentStatus == ShipmentStatus.Assigned)

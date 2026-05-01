@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Entities.Shipping
+namespace WearCast.Api.Entities.Shipping
 {
     public class Shipment : BaseModel
     {

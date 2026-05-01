@@ -1,4 +1,4 @@
-﻿using WearCast.Api.Entities.Identity;
+using WearCast.Api.Entities.Identity;
 using WearCast.Api.Entities.FixedProduct;
 
 using WearCast.Api.Entities.Shipping;

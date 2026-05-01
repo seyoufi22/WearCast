@@ -1,4 +1,4 @@
-﻿namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs
+namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs
 {
     public class GetAllDriverShipmentsResponseDTO
     {

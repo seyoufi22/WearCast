@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -67,6 +67,8 @@ namespace WearCast.Api
 
             services.Configure<WearCast.Api.Common.Settings.StripeSettings>(configuration.GetSection(WearCast.Api.Common.Settings.StripeSettings.SectionName));
             Stripe.StripeConfiguration.ApiKey = configuration[$"{WearCast.Api.Common.Settings.StripeSettings.SectionName}:SecretKey"];
+
+            services.AddScoped<DbSeeder>();
 
             return services;
         }
