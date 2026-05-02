@@ -8,7 +8,7 @@ namespace WearCast.Api.Common.Wallet;
 
 public class WalletService(ApplicationDbContext dbContext) : IWalletService
 {
-    public async Task<Entities.Wallet.Wallet> GetOrCreateWalletAsync(WalletOwnerType ownerType, int ownerId, CancellationToken cancellationToken = default)
+    public async Task<Entities.Wallet.Wallet> GetOrCreateWalletAsync(WalletOwnerType ownerType, int ownerId, string? performedById = null, CancellationToken cancellationToken = default)
     {
         var wallet = await dbContext.Wallets
             .FirstOrDefaultAsync(w => w.OwnerType == ownerType && w.OwnerId == ownerId, cancellationToken);
@@ -19,7 +19,9 @@ public class WalletService(ApplicationDbContext dbContext) : IWalletService
             {
                 OwnerType = ownerType,
                 OwnerId = ownerId,
-                Balance = 0m
+                Balance = 0m,
+                CreatedById = performedById ?? "system", // Fallback to "system" if not provided
+                CreatedOn = DateTime.UtcNow
             };
             dbContext.Wallets.Add(wallet);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -28,9 +30,9 @@ public class WalletService(ApplicationDbContext dbContext) : IWalletService
         return wallet;
     }
 
-    public async Task<WalletTransaction> CreditAsync(WalletOwnerType ownerType, int ownerId, decimal amount, string description, int? referenceOrderId = null, CancellationToken cancellationToken = default)
+    public async Task<WalletTransaction> CreditAsync(WalletOwnerType ownerType, int ownerId, decimal amount, string description, int? referenceOrderId = null, string? performedById = null, CancellationToken cancellationToken = default)
     {
-        var wallet = await GetOrCreateWalletAsync(ownerType, ownerId, cancellationToken);
+        var wallet = await GetOrCreateWalletAsync(ownerType, ownerId, performedById, cancellationToken);
 
         // Thread-safe atomic increment at DB level: UPDATE Wallets SET Balance = Balance + @amount WHERE Id = @id
         await dbContext.Wallets
@@ -47,7 +49,9 @@ public class WalletService(ApplicationDbContext dbContext) : IWalletService
             Amount = amount,
             BalanceAfter = wallet.Balance,
             Description = description,
-            ReferenceOrderId = referenceOrderId
+            ReferenceOrderId = referenceOrderId,
+            CreatedById = performedById ?? "system",
+            CreatedOn = DateTime.UtcNow
         };
 
         dbContext.WalletTransactions.Add(transaction);
@@ -56,9 +60,9 @@ public class WalletService(ApplicationDbContext dbContext) : IWalletService
         return transaction;
     }
 
-    public async Task<Result<WalletTransaction>> DebitAsync(WalletOwnerType ownerType, int ownerId, decimal amount, string description, int? referenceOrderId = null, CancellationToken cancellationToken = default)
+    public async Task<Result<WalletTransaction>> DebitAsync(WalletOwnerType ownerType, int ownerId, decimal amount, string description, int? referenceOrderId = null, string? performedById = null, CancellationToken cancellationToken = default)
     {
-        var wallet = await GetOrCreateWalletAsync(ownerType, ownerId, cancellationToken);
+        var wallet = await GetOrCreateWalletAsync(ownerType, ownerId, performedById, cancellationToken);
 
         if (wallet.Balance < amount)
         {
@@ -87,7 +91,9 @@ public class WalletService(ApplicationDbContext dbContext) : IWalletService
             Amount = amount,
             BalanceAfter = wallet.Balance,
             Description = description,
-            ReferenceOrderId = referenceOrderId
+            ReferenceOrderId = referenceOrderId,
+            CreatedById = performedById ?? "system",
+            CreatedOn = DateTime.UtcNow
         };
 
         dbContext.WalletTransactions.Add(transaction);

@@ -17,7 +17,8 @@ public class GetPlatformDashboardHandler(ApplicationDbContext context)
 
         var totalMoneyProcessed = await paidOrders.SumAsync(o => o.TotalAmount, cancellationToken);
         var platformRevenue = await paidOrders.SumAsync(o => o.Commission, cancellationToken);
-        var totalOrders = await paidOrders.CountAsync(cancellationToken);
+        var totalSellerOrders = await paidOrders.CountAsync(o => o.SellerId != null, cancellationToken);
+        var totalFactoryOrders = await paidOrders.CountAsync(o => o.FactoryId != null, cancellationToken);
 
         // Platform wallet balance
         var platformWallet = await context.Wallets
@@ -53,7 +54,8 @@ public class GetPlatformDashboardHandler(ApplicationDbContext context)
             TotalProducts: totalProducts,
             TotalSellers: totalSellers,
             TotalCustomers: totalCustomers,
-            TotalOrders: totalOrders,
+            TotalSellerOrders: totalSellerOrders,
+            TotalFactoryOrders: totalFactoryOrders,
             CommissionPercentage: commissionPercentage
         ));
     }

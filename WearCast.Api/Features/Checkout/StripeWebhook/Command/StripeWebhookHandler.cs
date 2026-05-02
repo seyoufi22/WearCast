@@ -57,15 +57,15 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             // Credit seller or factory wallet (thread-safe)
             if (order.SellerId.HasValue)
             {
-                await walletService.CreditAsync(WalletOwnerType.Seller, order.SellerId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, cancellationToken);
+                await walletService.CreditAsync(WalletOwnerType.Seller, order.SellerId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
             }
             else if (order.FactoryId.HasValue)
             {
-                await walletService.CreditAsync(WalletOwnerType.Factory, order.FactoryId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, cancellationToken);
+                await walletService.CreditAsync(WalletOwnerType.Factory, order.FactoryId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
             }
 
             // Credit WearCast's wallet with commission (thread-safe)
-            await walletService.CreditAsync(WalletOwnerType.Platform, 1, order.Commission, $"Commission for order #{order.Id}", order.Id, cancellationToken);
+            await walletService.CreditAsync(WalletOwnerType.Platform, 1, order.Commission, $"Commission for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
 
             // Decrement quantities for fixed product items
             foreach (var item in order.FixedProductItems)
@@ -159,7 +159,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
 
         // Clear both fixed and designed cart items
         var cartItemsToClear = await dbContext.CartItems
-            .Where(c => c.CustomerId == customerId)
+            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
             .ToListAsync(cancellationToken);
         
         dbContext.CartItems.RemoveRange(cartItemsToClear);
@@ -172,7 +172,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
         {
             var firstOrder = orders.First();
             
-            var deliveryAddress = new Common.ValueObjects.Address();
+            var deliveryAddress = new WearCast.Api.Common.ValueObjects.Address();
             if (firstOrder.ShippingAddress != null)
             {
                 deliveryAddress.State = firstOrder.ShippingAddress.State;
@@ -206,6 +206,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
                 shippingCompany.DeliveryFee,
                 $"Delivery fee for shipment #{shipment.Id}",
                 null,
+                firstOrder.CreatedById,
                 cancellationToken);
         }
         else

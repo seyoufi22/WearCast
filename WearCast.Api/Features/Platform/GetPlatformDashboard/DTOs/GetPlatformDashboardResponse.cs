@@ -9,6 +9,7 @@ public record GetPlatformDashboardResponse(
     int TotalProducts,
     int TotalSellers,
     int TotalCustomers,
-    int TotalOrders,
+    int TotalSellerOrders,
+    int TotalFactoryOrders,
     decimal CommissionPercentage
 );

@@ -55,7 +55,6 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 new Error("Checkout.EmptyCart", "Your cart has no products to checkout.", StatusCodes.Status400BadRequest));
         }
 
-        // Clean up existing pending orders
         var existingPendingOrders = await _dbContext.Orders
             .Include(o => o.FixedProductItems)
             .Include(o => o.DesignedProductItems)
@@ -191,7 +190,6 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             }
         }
 
-        // 3. Process designed product cart items (assume one factory)
         if (designedCartItems.Any())
         {
             var factory = await _dbContext.Factories.FirstOrDefaultAsync(cancellationToken);
@@ -274,7 +272,80 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             orders.Add(designedOrder);
         }
 
-        // 4. Create Stripe Checkout Session
+        if (designedCartItems.Any())
+        {
+            var factory = await _dbContext.Factories.FirstOrDefaultAsync(cancellationToken);
+            if (factory == null)
+            {
+                return Result.Failure<CreateCheckoutSessionResponseDto>(
+                    new Error("Checkout.NoFactory", "No factory found to process designed product orders.", StatusCodes.Status400BadRequest));
+            }
+
+            var designedOrderItems = new List<CustomerDesignedOrderItem>();
+
+            foreach (var cartItem in designedCartItems)
+            {
+                var design = cartItem.DesignedCustomer!;
+                var product = design.DesignedProduct;
+                var color = design.DesignedProductColor;
+
+                foreach (var size in cartItem.Sizes)
+                {
+                    var orderItem = new CustomerDesignedOrderItem
+                    {
+                        CustomerDesignId = design.Id,
+                        ProductName = product.Name,
+                        ColorName = color.Name,
+                        SizeName = size.Size.ToString(),
+                        Quantity = size.Quantity,
+                        UnitPrice = product.Price
+                    };
+                    designedOrderItems.Add(orderItem);
+
+                    stripeLineItems.Add(new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = "egp",
+                            UnitAmountDecimal = product.Price * 100,
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"{product.Name} - {color.Name} ({size.Size}) [Custom Design]"
+                            }
+                        },
+                        Quantity = size.Quantity
+                    });
+                }
+            }
+
+            var designedOrder = new Order
+            {
+                CustomerId = request.CustomerId,
+                FactoryId = factory.Id,
+                TotalAmount = designedOrderItems.Sum(i => i.UnitPrice * i.Quantity),
+                Status = OrderStatus.Pending,
+                DesignedProductItems = designedOrderItems,
+                RecipientName = request.ShippingInfo.RecipientName,
+                RecipientPhoneNumber = request.ShippingInfo.PhoneNumber,
+                RecipientAdditionalPhoneNumber = request.ShippingInfo.AdditionalPhoneNumber,
+                ShippingAddress = new WearCast.Api.Common.ValueObjects.Address
+                {
+                    State = request.ShippingInfo.State,
+                    City = request.ShippingInfo.City,
+                    Street = request.ShippingInfo.Street,
+                    BuildingNumber = request.ShippingInfo.BuildingNumber
+                },
+                PickUpAddress = new WearCast.Api.Common.ValueObjects.Address
+                {
+                    State = factory.Address.State,
+                    City = factory.Address.City,
+                    Street = factory.Address.Street,
+                    BuildingNumber = factory.Address.BuildingNumber
+                }
+            };
+            orders.Add(designedOrder);
+        }
+
         var customerService = new CustomerService();
         var stripeCustomers = await customerService.ListAsync(
             new CustomerListOptions { Email = request.CustomerEmail }, 
