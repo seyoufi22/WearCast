@@ -45,6 +45,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }
     public DbSet<UserActivityLog> UserActivityLogs { get; set; }
     public DbSet<Entities.Order.CustomerDesignedOrderItem> CustomerDesignedOrderItems { get; set; }
+    public DbSet<Entities.PlatformSettings> PlatformSettings { get; set; }
+    public DbSet<Entities.Wallet.Wallet> Wallets { get; set; }
+    public DbSet<Entities.Wallet.WalletTransaction> WalletTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

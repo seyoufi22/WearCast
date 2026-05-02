@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
 using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Wallet;
 
 
 
@@ -54,6 +55,7 @@ namespace WearCast.Api
             services.AddScoped<EmailHelper>();
 
             services.AddScoped<ITrackingService, TrackingService>();
+            services.AddScoped<IWalletService, WalletService>();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();

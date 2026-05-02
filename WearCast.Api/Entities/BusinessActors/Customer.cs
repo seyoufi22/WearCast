@@ -13,6 +13,10 @@ namespace WearCast.Api.Entities.BusinessActors
 
         public string? ProfileImageUrl { get; set; }
         public bool IsDeleted { get; set; }
+
+        public int? WalletId { get; set; }
+        public Wallet.Wallet? Wallet { get; set; }
+
         public string UserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
 
