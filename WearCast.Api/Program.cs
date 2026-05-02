@@ -16,7 +16,6 @@ app.UseSwaggerUI(options =>
     options.EnablePersistAuthorization();
 });
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
