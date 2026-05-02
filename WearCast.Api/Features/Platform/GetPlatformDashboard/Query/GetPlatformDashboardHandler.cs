@@ -10,36 +10,32 @@ public class GetPlatformDashboardHandler(ApplicationDbContext context)
     public async Task<Result<GetPlatformDashboardResponse>> Handle(
         GetPlatformDashboardRequest request, CancellationToken cancellationToken)
     {
-        // Paid orders only
+        // Paid orders only (excluding deleted)
         var paidOrders = context.Orders
             .AsNoTracking()
-            .Where(o => o.Status == OrderStatus.Paid || o.Status == OrderStatus.Ready || o.Status == OrderStatus.PickedUp);
+            .Where(o => !o.IsDeleted && (o.Status == OrderStatus.Paid || o.Status == OrderStatus.Ready || o.Status == OrderStatus.PickedUp));
 
         var totalMoneyProcessed = await paidOrders.SumAsync(o => o.TotalAmount, cancellationToken);
         var platformRevenue = await paidOrders.SumAsync(o => o.Commission, cancellationToken);
         var totalSellerOrders = await paidOrders.CountAsync(o => o.SellerId != null, cancellationToken);
         var totalFactoryOrders = await paidOrders.CountAsync(o => o.FactoryId != null, cancellationToken);
 
-        // Platform wallet balance
-        var platformWallet = await context.Wallets
-            .AsNoTracking()
-            .Where(w => w.OwnerType == WalletOwnerType.Platform)
-            .FirstOrDefaultAsync(cancellationToken);
-        var platformWalletBalance = platformWallet?.Balance ?? 0m;
 
-        // Counts
-        var totalShipments = await context.Shipments.AsNoTracking().CountAsync(cancellationToken);
 
-        var totalFixedOrderItems = await context.FixedProductOrderItems.AsNoTracking().CountAsync(cancellationToken);
-        var totalDesignedOrderItems = await context.CustomerDesignedOrderItems.AsNoTracking().CountAsync(cancellationToken);
+        // Counts (excluding deleted)
+        var totalShipments = await context.Shipments.AsNoTracking().CountAsync(s => !s.IsDeleted, cancellationToken);
+
+        var totalFixedOrderItems = await context.FixedProductOrderItems.AsNoTracking().CountAsync(i => !i.IsDeleted, cancellationToken);
+        var totalDesignedOrderItems = await context.CustomerDesignedOrderItems.AsNoTracking().CountAsync(i => !i.IsDeleted, cancellationToken);
         var totalOrderItems = totalFixedOrderItems + totalDesignedOrderItems;
 
-        var totalFixedProducts = await context.FixedProducts.AsNoTracking().CountAsync(cancellationToken);
-        var totalDesignedProducts = await context.DesignedProducts.AsNoTracking().CountAsync(cancellationToken);
+        var totalFixedProducts = await context.FixedProducts.AsNoTracking().CountAsync(p => !p.IsDeleted, cancellationToken);
+        var totalDesignedProducts = await context.DesignedProducts.AsNoTracking().CountAsync(p => !p.IsDeleted, cancellationToken);
         var totalProducts = totalFixedProducts + totalDesignedProducts;
 
-        var totalSellers = await context.Sellers.AsNoTracking().CountAsync(cancellationToken);
-        var totalCustomers = await context.Customers.AsNoTracking().CountAsync(cancellationToken);
+        var totalSellers = await context.Sellers.AsNoTracking().CountAsync(s => !s.IsDeleted, cancellationToken);
+        var totalCustomers = await context.Customers.AsNoTracking().CountAsync(c => !c.IsDeleted, cancellationToken);
+        var totalDrivers = await context.Drivers.AsNoTracking().CountAsync(d => !d.IsDeleted, cancellationToken);
 
         // Commission percentage
         var settings = await context.PlatformSettings.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
@@ -48,12 +44,12 @@ public class GetPlatformDashboardHandler(ApplicationDbContext context)
         return Result.Success(new GetPlatformDashboardResponse(
             TotalMoneyProcessed: totalMoneyProcessed,
             PlatformRevenue: platformRevenue,
-            PlatformWalletBalance: platformWalletBalance,
             TotalShipments: totalShipments,
             TotalOrderItems: totalOrderItems,
             TotalProducts: totalProducts,
             TotalSellers: totalSellers,
             TotalCustomers: totalCustomers,
+            TotalDrivers: totalDrivers,
             TotalSellerOrders: totalSellerOrders,
             TotalFactoryOrders: totalFactoryOrders,
             CommissionPercentage: commissionPercentage
