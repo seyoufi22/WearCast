@@ -2,7 +2,7 @@
 {
     [Route("api/factories/profile-image")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.VendorAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Factory Profile")]
     [Consumes("multipart/form-data")]
     public class UpdateFactoryImageEndPoint(IMediator mediator) : ControllerBase

@@ -19,7 +19,7 @@ namespace WearCast.Api.Features.Sellers.UpdateSellerImage
 
             int targetSellerId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsVendorAdmin())
             {
                 if (!request.ProvidedSellerId.HasValue)
                 {

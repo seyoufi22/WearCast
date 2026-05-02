@@ -2,7 +2,6 @@
 {
     [Route("api/customer/catalog/designed-products")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
     [Tags("Designed Product Catalog")]
     public class GetAllFactoryProductsForCustomersEndPoint(IMediator mediator) : ControllerBase
     {

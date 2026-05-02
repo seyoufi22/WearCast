@@ -3,6 +3,7 @@
     [Route("api/factories/products")]
     [ApiController]
     [Tags("Factory Product Color")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class AddFactoryProductColorEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

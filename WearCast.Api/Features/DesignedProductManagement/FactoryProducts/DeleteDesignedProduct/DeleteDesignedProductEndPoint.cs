@@ -3,6 +3,7 @@
     [Route("api/factories/products")]
     [ApiController]
     [Tags("Factory Product")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class DeleteDesignedProductEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

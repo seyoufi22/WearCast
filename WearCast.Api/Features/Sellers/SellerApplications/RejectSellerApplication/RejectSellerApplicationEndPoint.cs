@@ -3,6 +3,7 @@
     [Route("api/seller-applications")]
     [ApiController]
     [Tags("Seller Applications")]
+    [Authorize(Roles = $"{DefaultRoles.VendorAdmin},{DefaultRoles.SuperAdmin}")]
     public class RejectSellerApplicationEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

@@ -18,7 +18,7 @@
 
             int targetCustomerId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCustomerServiceAdmin())
             {
                 if (!request.ProvidedCustomerId.HasValue)
                 {

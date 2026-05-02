@@ -11,6 +11,9 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
             .Where(c => c.CustomerId == request.CustomerId && c.FixedColorId != null)
             .Select(c => new GetCartItemResponseDto
             {
+                unavailable = (c.FixedColor!.IsDeleted) ||
+                              (c.FixedColor.Product.IsDeleted) ||
+                              (c.FixedColor.Product.Seller.IsDeleted),
                 CartItemId = c.Id,
                 ProductId = c.FixedColor!.ProductId,
                 ProductColorId = c.FixedColorId!.Value,

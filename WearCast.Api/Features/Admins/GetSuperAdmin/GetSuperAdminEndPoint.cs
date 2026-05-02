@@ -2,13 +2,13 @@
 
 [Route("api/admins")]
 [ApiController]
-[Authorize(Roles = DefaultRoles.SuperAdmin)]
+[Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin},{DefaultRoles.VendorAdmin},{DefaultRoles.CustomerServiceAdmin},{DefaultRoles.CatalogAdmin}")]
 [Tags("Admin Profile")]
 public class GetSuperAdminEndPoint(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [HttpGet("super-admin/profile")]
+    [HttpGet("admin/profile")]
     public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
     {
         var request = new GetSuperAdminRequest();

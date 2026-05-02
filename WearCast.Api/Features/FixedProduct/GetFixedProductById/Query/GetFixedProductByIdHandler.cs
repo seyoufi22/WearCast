@@ -17,7 +17,12 @@ public class GetFixedProductByIdHandler(ApplicationDbContext context,
 
     public async Task<Result<GetFixedProductByIdResponseDto>> Handle(GetFixedProductByIdQuery request, CancellationToken cancellationToken)
     {
-        var product = await _productRepo.GetAsync(p => p.Id == request.Id, useNoTracking: true);
+        //var product = await _productRepo.GetAsync(p => p.Id == request.Id, useNoTracking: true);
+        var product = await _productRepo.Get()
+            .Where(p => p.Id == request.Id && !p.IsDeleted && !p.Seller.IsDeleted)
+            .Include(p => p.Category)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (product == null)
         {
