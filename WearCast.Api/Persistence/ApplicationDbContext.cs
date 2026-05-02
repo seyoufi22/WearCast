@@ -45,6 +45,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }
     public DbSet<UserActivityLog> UserActivityLogs { get; set; }
     public DbSet<Entities.Order.CustomerDesignedOrderItem> CustomerDesignedOrderItems { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

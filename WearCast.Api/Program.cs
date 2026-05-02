@@ -1,10 +1,15 @@
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
+using Microsoft.AspNetCore.Http.Connections;
 using WearCast.Api;
+using WearCast.Api.Features.NotificationManagement.NotificationHub;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependencies(builder.Configuration);
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
@@ -41,5 +46,8 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 
 app.MapControllers();
+
+app.UseWebSockets();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
