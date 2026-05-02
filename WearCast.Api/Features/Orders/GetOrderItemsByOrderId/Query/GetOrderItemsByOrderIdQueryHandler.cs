@@ -23,6 +23,8 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
         {
             Id = order.Id,
             TotalAmount = order.TotalAmount,
+            Commission = order.Commission,
+            Payout = order.Payout,
             Status = order.Status,
             CreatedOn = order.CreatedOn,
             RecipientName = order.RecipientName,

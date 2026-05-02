@@ -7,6 +7,8 @@ public class GetAllOrdersResponseDto
 {
     public int Id { get; set; }
     public decimal TotalAmount { get; set; }
+    public decimal Commission { get; set; }
+    public decimal Payout { get; set; }
     public OrderStatus Status { get; set; }
     public DateTime CreatedOn { get; set; }
 
