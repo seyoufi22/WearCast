@@ -51,6 +51,8 @@ public class GetAllOrdersQueryHandler(ApplicationDbContext dbContext)
             {
                 Id = o.Id,
                 TotalAmount = o.TotalAmount,
+                Commission = o.Commission,
+                Payout = o.Payout,
                 Status = o.Status,
                 CreatedOn = o.CreatedOn,
                 RecipientName = o.RecipientName,
