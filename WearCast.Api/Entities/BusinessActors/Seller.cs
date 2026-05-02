@@ -20,6 +20,9 @@
 
         public bool IsDeleted { get; set; }
 
+        public int? WalletId { get; set; }
+        public Wallet.Wallet? Wallet { get; set; }
+
         public ICollection<SellerManager> Managers { get; set; } = new List<SellerManager>();
 
         public ICollection<FixedProduct.FixedProduct> FixedProducts { get; set; } = new List<FixedProduct.FixedProduct>();

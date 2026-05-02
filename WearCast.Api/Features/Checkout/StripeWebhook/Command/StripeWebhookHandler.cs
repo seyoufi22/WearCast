@@ -2,6 +2,7 @@ using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Enums;
 using WearCast.Api.Common.Tracking;
 using WearCast.Api.Common.Tracking.Models;
+using WearCast.Api.Common.Wallet;
 using WearCast.Api.Features.Checkout.StripeWebhook.DTOs;
 using WearCast.Api.Persistence;
 using WearCast.Api.Entities.Shipping;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Checkout.StripeWebhook.Command;
 
-public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingService trackingService) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
+public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingService trackingService, IWalletService walletService) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
 {
     public async Task<Result<bool>> Handle(StripeWebhookRequestDto request, CancellationToken cancellationToken)
     {
@@ -39,11 +40,32 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             return Result<bool>.Success(true);
         }
 
+        // Get platform commission rate
+        var platformSettings = await dbContext.PlatformSettings.FirstOrDefaultAsync(cancellationToken);
+        var commissionRate = platformSettings?.CommissionPercentage ?? 2m;
+
         foreach (var order in orders)
         {
             if (order.Status == OrderStatus.Paid) continue;
             
             order.Status = OrderStatus.Paid;
+
+            // Calculate commission and payout
+            order.Commission = Math.Round(order.TotalAmount * commissionRate / 100, 2);
+            order.Payout = order.TotalAmount - order.Commission;
+
+            // Credit seller or factory wallet (thread-safe)
+            if (order.SellerId.HasValue)
+            {
+                await walletService.CreditAsync(WalletOwnerType.Seller, order.SellerId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
+            }
+            else if (order.FactoryId.HasValue)
+            {
+                await walletService.CreditAsync(WalletOwnerType.Factory, order.FactoryId.Value, order.Payout, $"Payout for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
+            }
+
+            // Credit WearCast's wallet with commission (thread-safe)
+            await walletService.CreditAsync(WalletOwnerType.Platform, 1, order.Commission, $"Commission for order #{order.Id}", order.Id, order.CreatedById, cancellationToken);
 
             // Decrement quantities for fixed product items
             foreach (var item in order.FixedProductItems)
@@ -137,7 +159,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
 
         // Clear both fixed and designed cart items
         var cartItemsToClear = await dbContext.CartItems
-            .Where(c => c.CustomerId == customerId)
+            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
             .ToListAsync(cancellationToken);
         
         dbContext.CartItems.RemoveRange(cartItemsToClear);
@@ -150,7 +172,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
         {
             var firstOrder = orders.First();
             
-            var deliveryAddress = new Common.ValueObjects.Address();
+            var deliveryAddress = new WearCast.Api.Common.ValueObjects.Address();
             if (firstOrder.ShippingAddress != null)
             {
                 deliveryAddress.State = firstOrder.ShippingAddress.State;
@@ -176,6 +198,16 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             };
             
             dbContext.Shipments.Add(shipment);
+
+            // Credit the shipping company's wallet with the delivery fee
+            await walletService.CreditAsync(
+                WalletOwnerType.ShippingCompany,
+                shippingCompany.Id,
+                shippingCompany.DeliveryFee,
+                $"Delivery fee for shipment #{shipment.Id}",
+                null,
+                firstOrder.CreatedById,
+                cancellationToken);
         }
         else
         {
