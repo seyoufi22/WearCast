@@ -10,40 +10,74 @@ public class CartItem : BaseModel
     public CustomerDesign? DesignedCustomer { get; set; }
     public Customer Customer { get; set; } = null!;
     public ICollection<FixedProductSize> Sizes { get; set; } = new List<FixedProductSize>();
-    public void AddOrUpdateSize(Size sizeName, int quantityChange)
+    public record SizeUpdateDto(Size SizeName, int QuantityChange, int? AvailableStock);
+
+    public void AddOrUpdateSizes(IEnumerable<SizeUpdateDto> sizeUpdates)
     {
-        var existingSize = Sizes.FirstOrDefault(s => s.Size == sizeName);
-
-        if (existingSize != null)
+        foreach (var update in sizeUpdates)
         {
-            existingSize.Quantity += quantityChange;
+            var existingSize = Sizes.FirstOrDefault(s => s.Size == update.SizeName);
+            int currentQuantity = existingSize?.Quantity ?? 0;
+            int requestedQuantity = currentQuantity + update.QuantityChange;
 
-            if (existingSize.Quantity <= 0)
+            if (FixedColorId.HasValue && update.AvailableStock.HasValue)
             {
-                Sizes.Remove(existingSize);
+                string cleanSizeName = update.SizeName.ToString().TrimStart('_').Replace("_", " ");
+
+                if (update.AvailableStock.Value == 0)
+                {
+                    throw new InvalidOperationException($"Size {cleanSizeName} is currently out of stock.");
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Only {update.AvailableStock.Value} item(s) available in stock for size {cleanSizeName}.");
+                }
             }
         }
-        else
+
+        foreach (var update in sizeUpdates)
         {
-            if (quantityChange > 0)
+            var existingSize = Sizes.FirstOrDefault(s => s.Size == update.SizeName);
+            int currentQuantity = existingSize?.Quantity ?? 0;
+            int requestedQuantity = currentQuantity + update.QuantityChange;
+
+            if (requestedQuantity < 0)
+            {
+                requestedQuantity = 0;
+            }
+
+            if (existingSize != null)
+            {
+                if (requestedQuantity <= 0)
+                {
+                    Sizes.Remove(existingSize);
+                }
+                else
+                {
+                    existingSize.Quantity = requestedQuantity;
+                }
+            }
+            else if (requestedQuantity > 0)
             {
                 Sizes.Add(new FixedProductSize
                 {
-                    Size = sizeName,
-                    Quantity = quantityChange
+                    Size = update.SizeName,
+                    Quantity = requestedQuantity
                 });
             }
         }
 
-        var sortedSizes = Sizes.OrderBy(s => s.Size).ToList();
-
-        Sizes.Clear();
-
-        foreach (var size in sortedSizes)
+        if (sizeUpdates.Any())
         {
-            Sizes.Add(size);
+            var sortedSizes = Sizes.OrderBy(s => s.Size).ToList();
+            Sizes.Clear();
+            foreach (var size in sortedSizes)
+            {
+                Sizes.Add(size);
+            }
         }
     }
+
     public void RemoveSize(Size size)
     {
         var item = Sizes.FirstOrDefault(s => s.Size == size);

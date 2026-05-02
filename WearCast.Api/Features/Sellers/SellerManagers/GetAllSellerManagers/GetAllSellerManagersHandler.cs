@@ -39,7 +39,8 @@ public class GetAllSellerManagersHandler(
                 u.SellerManager!.Id,
                 u.FirstName,
                 u.LastName,
-                u.PhoneNumber
+                u.PhoneNumber,
+                u.Email
             ))
             .ToListAsync(cancellationToken);
 

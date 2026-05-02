@@ -5,7 +5,7 @@ namespace WearCast.Api.Features.CartManagment.AddOrUpdateCartItem;
 [Tags("Cart")]
 [Route("api/Cart")]
 [ApiController]
-public class AddOrUpdateCartItemEndPoint(ISender sender) : ControllerBase
+public class AddOrUpdateFixedColorToCartEndpoint(ISender sender) : ControllerBase
 {
     [Authorize(Roles ="Customer")]
     [HttpPost("AddOrUpdateFixedColorToCart")]
