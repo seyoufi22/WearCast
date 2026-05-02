@@ -15,7 +15,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
 
         public async Task<Result<GetProductDetailsResponse>> Handle(GetProductDetailsRequest request, CancellationToken cancellationToken)
         {
-            var user = _httpContextAccessor.HttpContext!.User;
+            var user = _httpContextAccessor.HttpContext?.User;
 
             var product = await _context.DesignedProducts
                             .Include(p => p.Category)
@@ -74,7 +74,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
             );
 
 
-            if (user.IsCustomer())
+            if (user?.Identity?.IsAuthenticated == true && user.IsCustomer())
             {
                 var userId = user.GetUserId();
 

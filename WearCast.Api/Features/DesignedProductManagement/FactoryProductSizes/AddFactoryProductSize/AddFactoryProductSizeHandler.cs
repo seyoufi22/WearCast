@@ -13,11 +13,11 @@
             var user = _httpContextAccessor.HttpContext!.User;
 
 
-            var isSuperAdmin = user.IsSuperAdmin();
+            var isAdmin = user.IsSuperAdmin() || user.IsCatalogAdmin();
 
             var userFactoryId = user.GetFactoryId();
 
-            if (!isSuperAdmin && userFactoryId == null)
+            if ((!isAdmin && userFactoryId == null))
             {
                 return Result.Failure(AuthErrors.Forbidden);
             }
@@ -36,7 +36,7 @@
                 return Result.Failure(DesignedProductErrors.ProductNotFound);
             }
 
-            if (!isSuperAdmin && (userFactoryId == null || productData.FactoryId != userFactoryId.Value))
+            if (!isAdmin && (userFactoryId == null || productData.FactoryId != userFactoryId.Value))
             {
                 return Result.Failure(AuthErrors.Forbidden);
             }

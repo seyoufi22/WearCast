@@ -17,7 +17,7 @@ namespace WearCast.Api.Features.Drivers.UpdateDriver
 
             int targetDriverId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsShippingCompanyManager())
             {
                 if (!request.ProvidedDriverId.HasValue)
                 {

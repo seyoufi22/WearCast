@@ -12,7 +12,7 @@
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
-            var isSuperAdmin = user.IsSuperAdmin();
+            var isAdmin = user.IsSuperAdmin() || user.IsCatalogAdmin();
             var userFactoryId = user.GetFactoryId();
 
             var data = await _context.DesignedProductSizeDetails
@@ -29,7 +29,7 @@
                 return Result.Failure(SizeErrors.SizeNotFound);
             }
 
-            if (!isSuperAdmin && (userFactoryId == null || data.FactoryId != userFactoryId.Value))
+            if (!isAdmin && (userFactoryId == null || data.FactoryId != userFactoryId.Value))
             {
                 return Result.Failure(AuthErrors.Forbidden);
             }

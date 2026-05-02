@@ -3,6 +3,7 @@
     [ApiController]
     [Route("api/assets-categories")]
     [Tags("AssetsCategory")]
+    [Authorize(Roles = $"{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class UpdateAssetsCategoryEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

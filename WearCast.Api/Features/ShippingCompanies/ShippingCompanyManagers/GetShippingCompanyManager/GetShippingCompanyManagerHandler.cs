@@ -26,7 +26,6 @@ public class GetShippingCompanyManagerHandler(
         {
             targetManagerId = user.GetShippingCompanyManagerId()!.Value;
         }
-
         var response = await _context.Users
             .AsNoTracking()
             .Where(u => u.ShippingCompanyManager != null && u.ShippingCompanyManager.Id == targetManagerId)

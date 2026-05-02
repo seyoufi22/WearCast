@@ -3,7 +3,8 @@
     [Route("api/admins")]
     [ApiController]
     [Tags("Admin Management")]
-    [Authorize(Roles = DefaultRoles.SuperAdmin)]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin},{DefaultRoles.VendorAdmin},{DefaultRoles.CatalogAdmin},{DefaultRoles.CustomerServiceAdmin}")]
+
     public class UpdateAdminEndpoint(IMediator mediator) : ControllerBase
     {
         [HttpPut("{id}/profile")]

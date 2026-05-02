@@ -24,7 +24,7 @@ namespace WearCast.Api.Features.Sellers.SellerManagers.CreateSellerManager
             var currentUser = _httpContextAccessor.HttpContext!.User;
             int targetSellerId;
 
-            if (currentUser.IsSuperAdmin())
+            if (currentUser.IsSuperAdmin() || currentUser.IsVendorAdmin())
             {
                 if (!request.ProvidedSellerId.HasValue)
                 {

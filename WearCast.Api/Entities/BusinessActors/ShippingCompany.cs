@@ -24,6 +24,9 @@ namespace WearCast.Api.Entities.BusinessActors
 
         public bool IsDeleted { get; set; }
 
+        public int? WalletId { get; set; }
+        public Wallet.Wallet? Wallet { get; set; }
+
         public ICollection<ShippingCompanyManager> Managers { get; set; } = new List<ShippingCompanyManager>();
         public ICollection<Driver> Drivers { get; set; } = new List<Driver>();
         public List<Shipment> Shipments { get; set; } = new List<Shipment>();

@@ -51,11 +51,14 @@ public class GetAllOrdersQueryHandler(ApplicationDbContext dbContext)
             {
                 Id = o.Id,
                 TotalAmount = o.TotalAmount,
+                Commission = o.Commission,
+                Payout = o.Payout,
                 Status = o.Status,
                 CreatedOn = o.CreatedOn,
                 RecipientName = o.RecipientName,
                 RecipientPhoneNumber = o.RecipientPhoneNumber,
                 ShippingAddress = o.ShippingAddress,
+                TotalOrderItems = o.FixedProductItems.Count + o.DesignedProductItems.Count,
                 OrderType = o.SellerId.HasValue ? "Fixed" : "Designed"
             })
             .ToListAsync(cancellationToken);

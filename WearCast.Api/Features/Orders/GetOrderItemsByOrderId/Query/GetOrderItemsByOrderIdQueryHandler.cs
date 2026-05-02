@@ -18,31 +18,20 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
 
         if (order == null)
             return Result.Failure<GetOrderItemsByOrderIdResponseDto>(new Error("Orders.NotFound", $"Order with ID {request.OrderId} not found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
-
-        // Security check: only the buyer, the seller, or the factory of this order can view the items.
-        bool hasAccess = false;
-        if (request.CustomerId.HasValue && order.CustomerId == request.CustomerId.Value)
-            hasAccess = true;
-        else if (request.SellerId.HasValue && order.SellerId.HasValue && order.SellerId == request.SellerId.Value)
-            hasAccess = true;
-        else if (request.FactoryId.HasValue && order.FactoryId.HasValue && order.FactoryId == request.FactoryId.Value)
-            hasAccess = true;
-
-        if (!hasAccess)
-        {
-            return Result.Failure<GetOrderItemsByOrderIdResponseDto>(new Error("Orders.Forbidden", "You do not have permission to view this order.", Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden));
-        }
-
+            
         var detailsDto = new GetOrderItemsByOrderIdResponseDto
         {
             Id = order.Id,
             TotalAmount = order.TotalAmount,
+            Commission = order.Commission,
+            Payout = order.Payout,
             Status = order.Status,
             CreatedOn = order.CreatedOn,
             RecipientName = order.RecipientName,
             RecipientPhoneNumber = order.RecipientPhoneNumber,
             RecipientAdditionalPhoneNumber = order.RecipientAdditionalPhoneNumber,
             ShippingAddress = order.ShippingAddress,
+            TotalOrderItems = order.FixedProductItems.Count + order.DesignedProductItems.Count,
             Items = order.FixedProductItems
                 .GroupBy(i => i.FixedColorId)
                 .Select(g => new OrderItemDto

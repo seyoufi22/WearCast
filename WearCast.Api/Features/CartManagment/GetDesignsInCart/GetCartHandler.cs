@@ -21,6 +21,10 @@ public class GetCartHandler(IRepository<CartItem> cartItemRepository)
 
         return cartItems.Select(c => new GetCartItemResponseDto
         {
+            unavailable = (c.DesignedCustomer?.DesignedProductColor?.IsDeleted ?? false) ||
+              (c.DesignedCustomer?.DesignedProduct?.IsDeleted ?? false) ||
+              !(c.DesignedCustomer?.DesignedProduct?.IsActive ?? true) ||
+              (c.DesignedCustomer?.DesignedProduct?.Factory?.IsDeleted ?? false),
             CartItemId = c.Id,
             CustomerDesignedId = c.CustomerDesignId,
             ProductName = c.DesignedCustomer?.DesignedProduct?.Name,

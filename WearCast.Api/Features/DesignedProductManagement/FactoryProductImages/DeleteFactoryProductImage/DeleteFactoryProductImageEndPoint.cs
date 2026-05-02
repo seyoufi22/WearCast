@@ -3,6 +3,7 @@
     [ApiController]
     [Route("api/factories/product-images")]
     [Tags("Factory Product Image")]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     public class DeleteFactoryProductImageController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

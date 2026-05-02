@@ -16,7 +16,7 @@
 
             int finalFactoryId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 if (!request.FactoryId.HasValue || request.FactoryId <= 0)
                 {
