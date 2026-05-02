@@ -2,6 +2,7 @@ namespace WearCast.Api.Features.Orders.GetOrderItemsByOrderId.DTOs;
 
 public class DesignedOrderItemDto
 {
+    public int Id { get; set; }
     public int CustomerDesignId { get; set; }
     public string OrderItemType { get; set; } = "Designed Product";
     public string ProductName { get; set; } = string.Empty;
