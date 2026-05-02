@@ -18,7 +18,8 @@ public class GetAllFactoryManagersHandler(
                 u.FactoryManager!.Id,
                 u.FirstName,
                 u.LastName,
-                u.PhoneNumber
+                u.PhoneNumber,
+                u.Email
             ))
             .ToListAsync(cancellationToken);
 

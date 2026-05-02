@@ -4,5 +4,6 @@ public record GetSellerManagerResponse(
     int Id,
     string FirstName,
     string LastName,
-    string? PhoneNumber
+    string? PhoneNumber,
+    string? Email
 );

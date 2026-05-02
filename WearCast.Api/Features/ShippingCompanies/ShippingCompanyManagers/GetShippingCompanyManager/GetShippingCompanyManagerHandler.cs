@@ -34,7 +34,8 @@ public class GetShippingCompanyManagerHandler(
                 u.ShippingCompanyManager!.Id,
                 u.FirstName,
                 u.LastName,
-                u.PhoneNumber
+                u.PhoneNumber,
+                u.Email
             ))
             .FirstOrDefaultAsync(cancellationToken);
 
