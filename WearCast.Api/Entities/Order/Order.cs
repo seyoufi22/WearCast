@@ -8,6 +8,8 @@ public class Order : BaseModel
     public int? SellerId { get; set; }
     public int? FactoryId { get; set; }
     public decimal TotalAmount { get; set; }
+    public decimal Commission { get; set; }
+    public decimal Payout { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public string? StripeSessionId { get; set; }
     public string? StripePaymentIntentId { get; set; }

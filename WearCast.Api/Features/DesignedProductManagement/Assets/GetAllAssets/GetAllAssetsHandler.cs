@@ -31,6 +31,8 @@ namespace WearCast.Api.Features.DesignedProductManagement.Assets.GetAllAssets
                     a.Id,
                     a.Name,
                     a.ImageUrl,
+                    a.WidthPx,
+                    a.HeightPx,
                     a.DesignAssetCategoryId,
                     a.DesignAssetCategory.Name
                 ));
