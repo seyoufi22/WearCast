@@ -59,7 +59,9 @@ public class GetAllOrdersQueryHandler(ApplicationDbContext dbContext)
                 RecipientPhoneNumber = o.RecipientPhoneNumber,
                 ShippingAddress = o.ShippingAddress,
                 TotalOrderItems = o.FixedProductItems.Count + o.DesignedProductItems.Count,
-                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed"
+                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed",
+                VendorName = o.Seller != null ? o.Seller.Name : (o.Factory != null ? o.Factory.Name : string.Empty),
+                VendorPhoneNumber = o.Seller != null ? o.Seller.PhoneNumber : (o.Factory != null ? o.Factory.PhoneNumber : string.Empty)
             })
             .ToListAsync(cancellationToken);
 

@@ -18,4 +18,7 @@ public class GetAllOrdersResponseDto
     public int TotalOrderItems { get; set; }
 
     public string OrderType { get; set; } = string.Empty;
+
+    public string VendorName { get; set; } = string.Empty;
+    public string VendorPhoneNumber { get; set; } = string.Empty;
 }
