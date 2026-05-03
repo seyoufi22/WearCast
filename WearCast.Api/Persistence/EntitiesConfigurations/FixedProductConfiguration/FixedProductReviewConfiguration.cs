@@ -16,7 +16,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.FixedProductsConfigura
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(r => r.FixedProduct)
-                   .WithMany() 
+                   .WithMany(p => p.Reviews)
                    .HasForeignKey(r => r.FixedProductId)
                    .OnDelete(DeleteBehavior.Restrict); 
         }
