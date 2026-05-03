@@ -21,13 +21,30 @@ namespace WearCast.Api.Features.NotificationManagement.ReadNotification.Handlers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(NotificationErrors.UserNotFound);
 
-            int rowsAffected = await _context.Notifications
-                .Where(n => n.Id == request.NotificationId && n.UserId == userId)
-                .ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, true), cancellationToken);
+            int deliveryUpdated = await _context.Notifications
+                .Where(n => n.Id == request.NotificationId && n.UserId == userId && !n.IsDelivered)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(n => n.IsRead, true)
+                .SetProperty(n => n.IsDelivered, true), cancellationToken);
 
-            if (rowsAffected == 0)
-                return Result.Failure(NotificationErrors.NotificationNotFound);
+            if (deliveryUpdated > 0)
+            {
+                await _context.Users
+                    .Where(u => u.Id == userId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(
+                        u => u.UndeliveredNotificationsCount,
+                        u => u.UndeliveredNotificationsCount - 1),
+                        cancellationToken);
+            }
+            else
+            {
+                int readUpdated = await _context.Notifications
+                    .Where(n => n.Id == request.NotificationId && n.UserId == userId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, true), cancellationToken);
 
+                if (readUpdated == 0)
+                    return Result.Failure(NotificationErrors.NotificationNotFound);
+            }
             return Result.Success();
         }
     }
