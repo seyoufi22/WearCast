@@ -1,4 +1,6 @@
 ﻿using Hangfire;
+using WearCast.Api.Common.Interfaces.Notifications;
+using WearCast.Api.Common.Services.Notifications;
 
 namespace WearCast.Api.Features.NotificationManagement.AddNotification
 {
@@ -24,6 +26,7 @@ namespace WearCast.Api.Features.NotificationManagement.AddNotification
                 NotificationType = notification.NotificationType,
                 UrlId = notification.UrlId
             }).ToList();
+
             await _context.Notifications.AddRangeAsync(notifications);
             await _context.SaveChangesAsync();
 
@@ -44,10 +47,10 @@ namespace WearCast.Api.Features.NotificationManagement.AddNotification
                 IncrementCount = 1,
                 CreatedOn = n.CreatedOn,
                 UserId = n.UserId,
-                NotificationTypeName = n.NotificationType.ToString(),
                 NotificationType = n.NotificationType,
                 UrlId = n.UrlId
             }).ToList();
+
             BackgroundJob.Enqueue(() => _notificationService.SendNotificationsAsync(notificationDtos));
         }
     }

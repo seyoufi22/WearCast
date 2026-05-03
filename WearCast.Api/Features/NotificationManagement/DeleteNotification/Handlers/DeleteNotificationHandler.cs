@@ -3,7 +3,7 @@ using WearCast.Api.Features.NotificationManagement.DeleteNotification.DTOs;
 
 namespace WearCast.Api.Features.NotificationManagement.DeleteNotification.Handlers
 {
-    public class DeleteNotificationHandler: IRequestHandler<DeleteNotificationRequestDTO,Result>
+    public class DeleteNotificationHandler : IRequestHandler<DeleteNotificationRequestDTO, Result>
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -16,11 +16,15 @@ namespace WearCast.Api.Features.NotificationManagement.DeleteNotification.Handle
         public async Task<Result> Handle(DeleteNotificationRequestDTO request, CancellationToken cancellationToken)
         {
             var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(NotificationErrors.UserNotFound);
+
             var notification = await _context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == request.NotificationId && n.UserId == userId, cancellationToken);
+            .FirstOrDefaultAsync(n => n.Id == request.NotificationId && n.UserId == userId, cancellationToken);
 
             if (notification == null)
-                return Result.Failure(NotificationErrors.NotFound);
+                return Result.Failure(NotificationErrors.NotificationNotFound);
 
             notification.IsDeleted = true;
 

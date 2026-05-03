@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using WearCast.Api.Features.NotificationManagement.NotificationHub;
 
-namespace WearCast.Api.Common.Services
+namespace WearCast.Api.Common.Services.Notifications
 {
     public class NotificationService : INotificationService
     {

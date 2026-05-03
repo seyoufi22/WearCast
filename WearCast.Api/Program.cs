@@ -2,6 +2,7 @@ using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using Microsoft.AspNetCore.Http.Connections;
 using WearCast.Api;
+using WearCast.Api.Common.Services.Notifications;
 using WearCast.Api.Features.NotificationManagement.NotificationHub;
 
 var builder = WebApplication.CreateBuilder(args);

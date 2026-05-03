@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Org.BouncyCastle.Cms;
+using System.Security.Claims;
 using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
@@ -6,10 +7,11 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
     public class UpdateShipmentStatusHandler : IRequestHandler<UpdateShipmentStatusRequestDTO, Result>
     {
         private readonly ApplicationDbContext _context;
-
-        public UpdateShipmentStatusHandler(ApplicationDbContext context)
+        private readonly IMediator _mediator;
+        public UpdateShipmentStatusHandler(ApplicationDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(
@@ -18,7 +20,8 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
         {
             var shipment = await _context.Shipments
                 .Include(s => s.Driver)
-                .Include(s=>s.Orders)
+                .Include(s => s.Orders)
+                .Include(s => s.Customer)
                 .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
 
             if (shipment == null)
@@ -53,7 +56,7 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                 }
                 else
                 {
-                    bool Ready = shipment.Orders.All(o => o.Status == OrderStatus.Ready);                
+                    bool Ready = shipment.Orders.All(o => o.Status == OrderStatus.Ready);
                     if (!Ready)
                     {
                         return Result.Failure(ShipmentErrors.NotReady);
@@ -61,7 +64,7 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                     shipment.TripStartedAt = DateTime.UtcNow;
                 }
             }
-            if(shipment.ShipmentStatus== ShipmentStatus.PickingUp)
+            if (shipment.ShipmentStatus == ShipmentStatus.PickingUp)
             {
                 if (request.NewStatus != ShipmentStatus.OutForDelivery)
                 {
@@ -84,7 +87,7 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
-                if (string.IsNullOrWhiteSpace(request.DeliveryCode) && shipment.DeliveryCode!=request.DeliveryCode)
+                if (string.IsNullOrWhiteSpace(request.DeliveryCode) || shipment.DeliveryCode != request.DeliveryCode)
                 {
                     return Result.Failure(ShipmentErrors.WrongDeliveryCode);
                 }
@@ -94,7 +97,18 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
             shipment.UpdatedById = request.UpdaterId;
             shipment.UpdatedOn = DateTime.UtcNow;
             shipment.ShipmentStatus = request.NewStatus;
+
             await _context.SaveChangesAsync(cancellationToken);
+
+            var recipients = new List<string> { shipment.Customer.UserId };
+
+            var notificationEvent = new ShipmentUpdateStatusEvent(
+                RecipientIds: recipients,
+                ShipmentId: shipment.Id,
+                NewStatusName: shipment.ShipmentStatus.ToString()
+            );
+
+            await _mediator.Publish(notificationEvent, cancellationToken);
 
             return Result.Success();
         }

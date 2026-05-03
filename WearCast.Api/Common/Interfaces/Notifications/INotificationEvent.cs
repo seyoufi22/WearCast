@@ -1,8 +1,8 @@
-﻿namespace WearCast.Api.Common.Interfaces
+﻿namespace WearCast.Api.Common.Interfaces.Notifications
 {
     public interface INotificationEvent
     {
-        List<string> RecipientIds { get; }
+        public List<string> RecipientIds { get; }
         public string Title { get; }
         public string Message { get; }
         public NotificationType NotificationType { get; }

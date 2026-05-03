@@ -1,19 +1,13 @@
-﻿namespace WearCast.Api.Common.Services
+﻿namespace WearCast.Api.Features.NotificationManagement.GetAllNotifications.DTOs
 {
-    public class NotificationDto
+    public class GetAllNotificationsResponseDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Message { get; set; }
         public bool IsRead { get; set; } = false;
-        public bool IsDelivered { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
-        public int IncrementCount { get; set; } = 1;
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public string UserId { get; set; }
-        public string NotificationTypeName { get; set; }
         public NotificationType NotificationType { get; set; }
         public int? UrlId { get; set; }
-
     }
 }
