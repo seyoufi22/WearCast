@@ -4,7 +4,7 @@ using WearCast.Api.Entities.BusinessActors;
 public class CartItem : BaseModel
 {
     public int? FixedColorId { get; set; }
-    public int? CustomerDesignId { get; set; } 
+    public int? CustomerDesignId { get; set; }
     public int CustomerId { get; set; }
     public FixedProductColor? FixedColor { get; set; }
     public CustomerDesign? DesignedCustomer { get; set; }
@@ -22,15 +22,17 @@ public class CartItem : BaseModel
 
             if (FixedColorId.HasValue && update.AvailableStock.HasValue)
             {
-                string cleanSizeName = update.SizeName.ToString().TrimStart('_').Replace("_", " ");
-
-                if (update.AvailableStock.Value == 0)
+                if (update.QuantityChange > 0 && requestedQuantity > update.AvailableStock.Value)
                 {
-                    throw new InvalidOperationException($"Size {cleanSizeName} is currently out of stock.");
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Only {update.AvailableStock.Value} item(s) available in stock for size {cleanSizeName}.");
+                    string cleanSizeName = update.SizeName.ToString().TrimStart('_').Replace("_", " ");
+                    if (update.AvailableStock.Value == 0)
+                    {
+                        throw new InvalidOperationException($"Size {cleanSizeName} is currently out of stock.");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Only {update.AvailableStock.Value} item(s) available in stock for size {cleanSizeName}.");
+                    }
                 }
             }
         }
