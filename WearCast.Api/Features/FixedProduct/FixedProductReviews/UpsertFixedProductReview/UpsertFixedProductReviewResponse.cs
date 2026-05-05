@@ -1,0 +1,3 @@
+﻿namespace WearCast.Api.Features.FixedProduct.FixedProductReviews.UpsertFixedProductReview;
+
+public record UpsertFixedProductReviewResponse(int ReviewId);
