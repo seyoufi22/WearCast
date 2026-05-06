@@ -43,8 +43,6 @@
                     return Result.Failure(new Error("Image.UploadFailed", "Failed to upload the new asset image.", 500));
                 }
 
-                //await _imageService.DeleteAsync(asset.ImageUrl);
-
                 asset.ImageUrl = newImageUrl;
             }
             await _context.SaveChangesAsync(cancellationToken);
