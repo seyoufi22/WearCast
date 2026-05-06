@@ -159,7 +159,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
 
         // Clear both fixed and designed cart items
         var cartItemsToClear = await dbContext.CartItems
-            .Where(c => c.CustomerId == customerId && c.FixedColorId != null)
+            .Where(c => c.CustomerId == customerId)
             .ToListAsync(cancellationToken);
         
         dbContext.CartItems.RemoveRange(cartItemsToClear);
