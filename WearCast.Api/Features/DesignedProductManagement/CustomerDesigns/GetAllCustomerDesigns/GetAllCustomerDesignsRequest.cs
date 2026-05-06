@@ -2,5 +2,9 @@
 
 namespace WearCast.Api.Features.DesignedProductManagement.CustomerDesigns.GetAllCustomerDesigns
 {
-    public record GetAllCustomerDesignsRequest(int PageIndex = 1, int PageSize = 10) : IRequest<Result<PagingViewModel<GetAllCustomerDesignsResponse>>>;
+    public record GetAllCustomerDesignsRequest(
+        string? SearchTerm = null,
+        int PageIndex = 1,
+        int PageSize = 10
+        ) : IRequest<Result<PagingViewModel<GetAllCustomerDesignsResponse>>>;
 }

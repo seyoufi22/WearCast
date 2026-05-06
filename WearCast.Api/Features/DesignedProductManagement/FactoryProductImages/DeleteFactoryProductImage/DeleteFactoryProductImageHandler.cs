@@ -36,7 +36,7 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
-            await _imageService.DeleteAsync(imageData.Entity.ImageUrl);
+            //  await _imageService.DeleteAsync(imageData.Entity.ImageUrl);
 
             imageData.Entity.IsDeleted = true;
 
