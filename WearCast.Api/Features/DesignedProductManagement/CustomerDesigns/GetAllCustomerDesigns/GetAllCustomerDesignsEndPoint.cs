@@ -10,11 +10,12 @@
 
         [HttpGet]
         public async Task<IActionResult> GetAll(
+            [FromQuery] string? searchTerm = null,
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
         {
-            var request = new GetAllCustomerDesignsRequest(pageIndex, pageSize);
+            var request = new GetAllCustomerDesignsRequest(searchTerm, pageIndex, pageSize);
 
             var result = await _mediator.Send(request, cancellationToken);
 
