@@ -17,10 +17,6 @@ public class UpdateOrderStatusEndpoint : ControllerBase
         _sender = sender;
     }
 
-    /// <summary>
-    /// Updates order status.
-    /// Seller/Factory: Paid → Ready | Driver: Ready → PickedUp
-    /// </summary>
     [HttpPut("{orderId}/status")]
     [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.FactoryManager},{DefaultRoles.Driver}")]
     public async Task<IActionResult> Update([FromRoute] int orderId, [FromBody] UpdateOrderStatusRequestDto requestDto, CancellationToken cancellationToken)
