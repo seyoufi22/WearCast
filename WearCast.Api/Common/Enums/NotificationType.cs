@@ -2,8 +2,6 @@
 {
     public enum NotificationType
     {
-        ShipmentUpdateStatus=1,
-
-
+        ShipmentUpdateStatus = 1,
     }
 }
