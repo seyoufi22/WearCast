@@ -21,4 +21,7 @@ public class GetOrderItemsByOrderIdResponseDto
 
     public List<OrderItemDto> Items { get; set; } = new();
     public List<DesignedOrderItemDto> DesignedItems { get; set; } = new();
+
+    public string VendorName { get; set; } = string.Empty;
+    public string VendorPhoneNumber { get; set; } = string.Empty;
 }
