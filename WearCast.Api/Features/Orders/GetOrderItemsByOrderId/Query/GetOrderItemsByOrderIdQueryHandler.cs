@@ -13,6 +13,8 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
         var order = await dbContext.Orders
             .Include(o => o.FixedProductItems)
             .Include(o => o.DesignedProductItems)
+            .Include(o => o.Seller)
+            .Include(o => o.Factory)
             .Where(o => o.Id == request.OrderId && !o.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -72,7 +74,9 @@ public class GetOrderItemsByOrderIdQueryHandler(ApplicationDbContext dbContext) 
                         SizeName = d.SizeName,
                         Quantity = d.Quantity
                     }).ToList()
-                }).ToList()
+                }).ToList(),
+            VendorName = order.Seller != null ? order.Seller.Name : (order.Factory != null ? order.Factory.Name : string.Empty),
+            VendorPhoneNumber = order.Seller != null ? order.Seller.PhoneNumber : (order.Factory != null ? order.Factory.PhoneNumber : string.Empty)
         };
 
         return Result<GetOrderItemsByOrderIdResponseDto>.Success(detailsDto);
