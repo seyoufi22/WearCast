@@ -3,7 +3,7 @@
 [Route("api/sellers")]
 [ApiController]
 [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
-[Tags("Seller Dashboard")]
+[Tags("Seller Profile")]
 public class GetSellerDashboardStatsEndpoint(ISender sender) : ControllerBase
 {
     [HttpGet("dashboard-stats")]
