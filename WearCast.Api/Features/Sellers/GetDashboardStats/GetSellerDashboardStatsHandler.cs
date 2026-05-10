@@ -52,6 +52,7 @@ public class GetSellerDashboardStatsHandler(
                 p.Price,
                 p.TargetAudience,
                 p.SalesCount,
+                p.Category.ImageUrl,
                 ActiveColors = p.Colors.Where(c => !c.IsDeleted).ToList()
             })
             .ToListAsync(cancellationToken);
@@ -64,7 +65,7 @@ public class GetSellerDashboardStatsHandler(
                 .Where(c => c.Sizes.Any(s => s.Quantity > 0))
                 .OrderBy(c => c.Id)
                 .Select(c => c.ImageUrl)
-                .FirstOrDefault();
+                .FirstOrDefault() ?? p.ImageUrl;
 
             return new TopSellingProductDto(
                 ProductId: p.Id,
