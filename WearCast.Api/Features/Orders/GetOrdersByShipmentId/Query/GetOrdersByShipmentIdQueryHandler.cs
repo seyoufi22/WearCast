@@ -14,7 +14,14 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
     {
         var shipment = await dbContext.Shipments
             .AsNoTracking()
+            .Include(s => s.Driver)
+                .ThenInclude(d => d!.ApplicationUser)
+            .Include(s => s.Customer)
+                .ThenInclude(c => c!.ApplicationUser)
             .Include(s => s.Orders.Where(o => !o.IsDeleted))
+                .ThenInclude(o => o.Seller)
+            .Include(s => s.Orders.Where(o => !o.IsDeleted))
+                .ThenInclude(o => o.Factory)
             .Where(s => s.Id == request.ShipmentId && !s.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -23,17 +30,32 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
                 new Error("Shipments.NotFound", $"Shipment with ID {request.ShipmentId} not found.",
                     Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
 
-        // Security check: only the customer who owns this shipment can view it
-        if (shipment.CustomerId != request.CustomerId)
+        // Security check: if not an admin, only the customer who owns this shipment can view it
+        if (!request.IsAdmin && shipment.CustomerId != request.CustomerId)
             return Result.Failure<GetOrdersByShipmentIdResponseDto>(
                 new Error("Shipments.Forbidden", "You do not have permission to view this shipment.",
                     Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden));
 
         var response = new GetOrdersByShipmentIdResponseDto
         {
-            ShipmentId = shipment.Id,
-            ShipmentStatus = shipment.ShipmentStatus,
+            Id = shipment.Id,
+            IsDeleted = shipment.IsDeleted,
             DeliveryAddress = shipment.DeliveryAddress,
+            Price = shipment.Price,
+            ShipmentStatus = shipment.ShipmentStatus,
+            OrderTime = shipment.CreatedOn,
+            ReadyForPickupAt = shipment.ReadyForPickupAt,
+            TripStartedAt = shipment.TripStartedAt,
+            OutForDeliveryAt = shipment.OutForDeliveryAt,
+            DeliveredAt = shipment.DeliveredAt,
+            DeliveryCode = shipment.DeliveryCode,
+            DriverId = shipment.DriverId,
+            DriverName = shipment.Driver?.ApplicationUser != null ? $"{shipment.Driver.ApplicationUser.FirstName} {shipment.Driver.ApplicationUser.LastName}" : null,
+            DriverPhoneNumber = shipment.Driver?.ApplicationUser?.PhoneNumber,
+            DriverNationalId = shipment.Driver?.NationalId,
+            CustomerId = shipment.CustomerId,
+            CustomerName = shipment.Customer?.ApplicationUser != null ? $"{shipment.Customer.ApplicationUser.FirstName} {shipment.Customer.ApplicationUser.LastName}" : string.Empty,
+            CustomerPhoneNumber = shipment.Customer?.ApplicationUser?.PhoneNumber ?? string.Empty,
             Orders = shipment.Orders.Select(o => new ShipmentOrderDto
             {
                 Id = o.Id,
@@ -45,7 +67,9 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
                 RecipientName = o.RecipientName,
                 RecipientPhoneNumber = o.RecipientPhoneNumber,
                 ShippingAddress = o.ShippingAddress,
-                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed"
+                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed",
+                VendorName = o.Seller != null ? o.Seller.Name : (o.Factory != null ? o.Factory.Name : string.Empty),
+                VendorPhoneNumber = o.Seller != null ? o.Seller.PhoneNumber : (o.Factory != null ? o.Factory.PhoneNumber : string.Empty)
             }).ToList()
         };
 

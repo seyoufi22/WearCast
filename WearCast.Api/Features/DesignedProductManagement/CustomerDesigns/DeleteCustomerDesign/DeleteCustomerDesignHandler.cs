@@ -31,26 +31,27 @@
             if (isInCart) return Result.Failure(CustomerDesignErrors.DesignInCart);
 
 
-            var urlsToDelete = new List<string>();
-            if (!string.IsNullOrEmpty(design.FrontImageUrl)) urlsToDelete.Add(design.FrontImageUrl);
-            if (!string.IsNullOrEmpty(design.BackImageUrl)) urlsToDelete.Add(design.BackImageUrl);
-            if (!string.IsNullOrEmpty(design.RightImageUrl)) urlsToDelete.Add(design.RightImageUrl);
-            if (!string.IsNullOrEmpty(design.LeftImageUrl)) urlsToDelete.Add(design.LeftImageUrl);
+            //var urlsToDelete = new List<string>();
+            //if (!string.IsNullOrEmpty(design.FrontImageUrl)) urlsToDelete.Add(design.FrontImageUrl);
+            //if (!string.IsNullOrEmpty(design.BackImageUrl)) urlsToDelete.Add(design.BackImageUrl);
+            //if (!string.IsNullOrEmpty(design.RightImageUrl)) urlsToDelete.Add(design.RightImageUrl);
+            //if (!string.IsNullOrEmpty(design.LeftImageUrl)) urlsToDelete.Add(design.LeftImageUrl);
 
             try
             {
-                design.FrontImageUrl = null;
-                design.BackImageUrl = null;
-                design.RightImageUrl = null;
-                design.LeftImageUrl = null;
+                //design.FrontImageUrl = null;
+                //design.BackImageUrl = null;
+                //design.RightImageUrl = null;
+                //design.LeftImageUrl = null;
 
-                _context.CustomerDesigns.Remove(design);
+                //_context.CustomerDesigns.Remove(design);
+                design.IsDeleted = true;
                 await _context.SaveChangesAsync(cancellationToken);
 
-                foreach (var url in urlsToDelete)
-                {
-                    await _imageService.DeleteAsync(url);
-                }
+                //foreach (var url in urlsToDelete)
+                //{
+                //    await _imageService.DeleteAsync(url);
+                //}
 
                 return Result.Success();
             }

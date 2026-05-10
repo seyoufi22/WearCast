@@ -13,7 +13,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerDesigns.GetAll
 
         public async Task<Result<PagingViewModel<GetAllCustomerDesignsResponse>>> Handle(GetAllCustomerDesignsRequest request, CancellationToken cancellationToken)
         {
-            var customerId = httpContextAccessor.HttpContext?.User.GetCustomerId();
+            var customerId = _httpContextAccessor.HttpContext?.User.GetCustomerId();
 
             if (customerId == null || customerId == 0)
             {
@@ -21,9 +21,21 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerDesigns.GetAll
                     new Error("CustomerDesign.Unauthorized", "User is not authenticated as a valid customer.", StatusCodes.Status401Unauthorized));
             }
 
-            var query = context.CustomerDesigns
+            var query = _context.CustomerDesigns
                 .AsNoTracking()
-                .Where(d => d.CustomerId == customerId)
+                .Where(d => d.CustomerId == customerId);
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                var search = request.SearchTerm.Trim().ToLower();
+
+                query = query.Where(d =>
+                    d.Name.ToLower().Contains(search) ||
+                    d.DesignedProduct.Name.ToLower().Contains(search)
+                );
+            }
+
+            var projectedQuery = query
                 .OrderByDescending(d => d.Id)
                 .Select(d => new GetAllCustomerDesignsResponse(
                     d.Id,
@@ -35,7 +47,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerDesigns.GetAll
                     d.CreatedOn
                 ));
 
-            var pagedResult = await PagingHelper.CreateAsync(query, request.PageIndex, request.PageSize);
+            var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
             return Result.Success(pagedResult);
         }

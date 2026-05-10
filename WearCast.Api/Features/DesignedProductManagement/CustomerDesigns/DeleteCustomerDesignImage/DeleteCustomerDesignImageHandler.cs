@@ -29,19 +29,19 @@
             switch (request.Side)
             {
                 case ViewSide.Front:
-                    urlToDelete = design.FrontImageUrl;
+                    // urlToDelete = design.FrontImageUrl;
                     design.FrontImageUrl = null;
                     break;
                 case ViewSide.Back:
-                    urlToDelete = design.BackImageUrl;
+                    // urlToDelete = design.BackImageUrl;
                     design.BackImageUrl = null;
                     break;
                 case ViewSide.Right:
-                    urlToDelete = design.RightImageUrl;
+                    // urlToDelete = design.RightImageUrl;
                     design.RightImageUrl = null;
                     break;
                 case ViewSide.Left:
-                    urlToDelete = design.LeftImageUrl;
+                    //  urlToDelete = design.LeftImageUrl;
                     design.LeftImageUrl = null;
                     break;
             }
@@ -54,7 +54,7 @@
             try
             {
                 await _context.SaveChangesAsync(cancellationToken);
-                await _imageService.DeleteAsync(urlToDelete);
+                // await _imageService.DeleteAsync(urlToDelete);
 
                 return Result.Success();
             }

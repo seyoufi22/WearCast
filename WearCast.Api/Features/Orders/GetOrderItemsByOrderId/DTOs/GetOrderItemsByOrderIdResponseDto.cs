@@ -16,8 +16,12 @@ public class GetOrderItemsByOrderIdResponseDto
     public string RecipientPhoneNumber { get; set; } = string.Empty;
     public string? RecipientAdditionalPhoneNumber { get; set; }
     public Address ShippingAddress { get; set; } = new();
+    public Address PickUpAddress { get; set; } = new();
     public int TotalOrderItems { get; set; }
 
     public List<OrderItemDto> Items { get; set; } = new();
     public List<DesignedOrderItemDto> DesignedItems { get; set; } = new();
+
+    public string VendorName { get; set; } = string.Empty;
+    public string VendorPhoneNumber { get; set; } = string.Empty;
 }

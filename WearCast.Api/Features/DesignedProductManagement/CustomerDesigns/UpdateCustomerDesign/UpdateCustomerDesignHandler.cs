@@ -35,7 +35,7 @@
             var templatePrice = queryResult.TemplatePrice;
 
             var newUploadedUrls = new List<string>();
-            var oldUrlsToDelete = new List<string>();
+            //  var oldUrlsToDelete = new List<string>();
 
             try
             {
@@ -45,7 +45,7 @@
                     if (!string.IsNullOrEmpty(newUrl))
                     {
                         newUploadedUrls.Add(newUrl);
-                        if (!string.IsNullOrEmpty(design.FrontImageUrl)) oldUrlsToDelete.Add(design.FrontImageUrl);
+                        // if (!string.IsNullOrEmpty(design.FrontImageUrl)) oldUrlsToDelete.Add(design.FrontImageUrl);
                         design.FrontImageUrl = newUrl;
                     }
                 }
@@ -56,7 +56,7 @@
                     if (!string.IsNullOrEmpty(newUrl))
                     {
                         newUploadedUrls.Add(newUrl);
-                        if (!string.IsNullOrEmpty(design.BackImageUrl)) oldUrlsToDelete.Add(design.BackImageUrl);
+                        //   if (!string.IsNullOrEmpty(design.BackImageUrl)) oldUrlsToDelete.Add(design.BackImageUrl);
                         design.BackImageUrl = newUrl;
                     }
                 }
@@ -67,7 +67,7 @@
                     if (!string.IsNullOrEmpty(newUrl))
                     {
                         newUploadedUrls.Add(newUrl);
-                        if (!string.IsNullOrEmpty(design.RightImageUrl)) oldUrlsToDelete.Add(design.RightImageUrl);
+                        //   if (!string.IsNullOrEmpty(design.RightImageUrl)) oldUrlsToDelete.Add(design.RightImageUrl);
                         design.RightImageUrl = newUrl;
                     }
                 }
@@ -78,7 +78,7 @@
                     if (!string.IsNullOrEmpty(newUrl))
                     {
                         newUploadedUrls.Add(newUrl);
-                        if (!string.IsNullOrEmpty(design.LeftImageUrl)) oldUrlsToDelete.Add(design.LeftImageUrl);
+                        //   if (!string.IsNullOrEmpty(design.LeftImageUrl)) oldUrlsToDelete.Add(design.LeftImageUrl);
                         design.LeftImageUrl = newUrl;
                     }
                 }
@@ -97,10 +97,10 @@
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                foreach (var oldUrl in oldUrlsToDelete)
-                {
-                    await _imageService.DeleteAsync(oldUrl);
-                }
+                //foreach (var oldUrl in oldUrlsToDelete)
+                //{
+                //    await _imageService.DeleteAsync(oldUrl);
+                //}
 
                 return Result.Success(new CustomerDesignResponse(design.Id));
             }
