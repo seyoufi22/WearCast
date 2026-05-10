@@ -72,7 +72,7 @@ public class GetAllFixedProductsForAdminHandler : IRequestHandler<GetAllFixedPro
                 .Where(c => !c.IsDeleted && c.Sizes.Any(s => s.Quantity > 0))
                 .OrderBy(c => c.Id)
                 .Select(c => c.ImageUrl)
-                .FirstOrDefault()
+                .FirstOrDefault() ?? p.Category.ImageUrl
         });
 
         var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);

@@ -33,7 +33,7 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
                     p.Colors.Any(c => !c.IsDeleted) &&
                     !p.Colors.Any(c => !c.IsDeleted && c.Sizes.Sum(s => s.Quantity) <= 10));
             }
-            else 
+            else
             {
                 query = query.Where(p =>
                     p.Colors.Where(c => !c.IsDeleted).SelectMany(c => c.Sizes).Sum(s => s.Quantity) > 0 &&
@@ -64,7 +64,7 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
                 .Where(c => !c.IsDeleted && c.Sizes.Any(s => s.Quantity > 0))
                 .OrderBy(c => c.Id)
                 .Select(c => c.ImageUrl)
-                .FirstOrDefault()
+                .FirstOrDefault() ?? product.Category.ImageUrl
         })
         .Select(x => new GetAllFixedProductsForSellerResponseDto
         {
