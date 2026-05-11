@@ -84,6 +84,14 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
 
                     // Force EF to re-serialize the JSON-owned Sizes collection
                     dbContext.Entry(color).State = EntityState.Modified;
+
+                    var fixedProduct = await dbContext.FixedProducts
+                        .FirstOrDefaultAsync(p => p.Id == color.ProductId, cancellationToken);
+
+                    if (fixedProduct != null)
+                    {
+                        fixedProduct.SalesCount += item.Quantity;
+                    }
                 }
             }
 
