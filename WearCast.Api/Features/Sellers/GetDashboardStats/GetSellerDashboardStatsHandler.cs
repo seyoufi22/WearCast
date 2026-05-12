@@ -26,7 +26,7 @@ public class GetSellerDashboardStatsHandler(
             {
                 TotalRevenue = g.Sum(o => o.Payout),
                 TotalOrders = g.Count(),
-                PendingOrders = g.Count(o => o.Status == OrderStatus.Pending)
+                PendingOrders = g.Count(o => o.Status == OrderStatus.Paid)
             })
             .FirstOrDefaultAsync(cancellationToken);
 

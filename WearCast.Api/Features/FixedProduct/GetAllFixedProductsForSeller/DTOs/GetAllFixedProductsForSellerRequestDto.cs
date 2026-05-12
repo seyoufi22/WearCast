@@ -8,6 +8,8 @@ public record GetAllFixedProductsForSellerRequestDto : IRequest<Result<PagingVie
     public int? CategoryId { get; set; } = null;
     public StockStatus? StockStatus { get; set; } = null;
     public string? SearchTerm { get; set; } = null;
+    public bool? IsRejected { get; set; } = null;
     internal int SellerId { get; set; } = 0;
+
 }
 
