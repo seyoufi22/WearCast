@@ -5,5 +5,17 @@ public record SellerDashboardStatsResponse(
     int TotalOrders,
     int PendingOrders,
     int UniqueProductsCount,
-    int TotalInventoryItems
+    int TotalInventoryItems,
+    IEnumerable<TopSellingProductDto> TopSellingProducts
+);
+
+public record TopSellingProductDto(
+    int ProductId,
+    string Name,
+    TargetAudience TargetAudience,
+    decimal Price,
+    int Stock,
+    bool IsRejected,
+    string? MainImageUrl,
+    int TotalSold
 );
