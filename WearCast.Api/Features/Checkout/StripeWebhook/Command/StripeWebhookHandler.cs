@@ -85,12 +85,11 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
                     // Force EF to re-serialize the JSON-owned Sizes collection
                     dbContext.Entry(color).State = EntityState.Modified;
 
-                    var fixedProduct = await dbContext.FixedProducts
-                        .FirstOrDefaultAsync(p => p.Id == color.ProductId, cancellationToken);
-
-                    if (fixedProduct != null)
+                    if (color.ProductId > 0)
                     {
-                        fixedProduct.SalesCount += item.Quantity;
+                        await dbContext.FixedProducts
+                            .Where(p => p.Id == color.ProductId)
+                            .ExecuteUpdateAsync(s => s.SetProperty(p => p.SalesCount, p => p.SalesCount + item.Quantity), cancellationToken);
                     }
                 }
             }
@@ -103,12 +102,11 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
 
                 if (customerDesign != null)
                 {
-                    var designedProduct = await dbContext.DesignedProducts
-                        .FirstOrDefaultAsync(dp => dp.Id == customerDesign.DesignedProductId, cancellationToken);
-
-                    if (designedProduct != null)
+                    if (customerDesign.DesignedProductId > 0)
                     {
-                        designedProduct.SalesCount += item.Quantity;
+                        await dbContext.DesignedProducts
+                            .Where(dp => dp.Id == customerDesign.DesignedProductId)
+                            .ExecuteUpdateAsync(s => s.SetProperty(dp => dp.SalesCount, dp => dp.SalesCount + item.Quantity), cancellationToken);
                     }
                 }
             }
