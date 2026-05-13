@@ -18,6 +18,19 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
 
         if (request.CategoryId.HasValue)
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+
+        if(request.IsRejected.HasValue)
+        {
+            if (request.IsRejected.Value)
+            {
+                query = query.Where(p => !p.Colors.Any(c => !c.IsDeleted));
+            }
+            else
+            {
+                query = query.Where(p => p.Colors.Any(c => !c.IsDeleted));
+            }
+        }
+
         if (request.StockStatus.HasValue)
         {
             if (request.StockStatus.Value == StockStatus.OutOfStock)

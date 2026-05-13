@@ -29,12 +29,17 @@ public class GetAllFixedProductsStatusForSellerHandler : IRequestHandler<GetAllF
             p.Colors.Any(c => !c.IsDeleted && c.Sizes.Sum(s => s.Quantity) <= 10),
             cancellationToken);
 
+        var outOfStock = await baseQuery.CountAsync(p =>
+            p.Colors.Where(c => !c.IsDeleted).SelectMany(c => c.Sizes).Sum(s => s.Quantity) == 0,
+            cancellationToken);
+
         var response = new GetAllFixedProductsStatusForSellerResponseDto
         {
             TotalProducts = totalProducts,
             Approved = approved,
             Rejected = rejected,
-            LowStock = lowStock
+            LowStock = lowStock,
+            OutOfStock = outOfStock
         };
 
         return Result.Success(response);
