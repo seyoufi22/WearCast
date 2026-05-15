@@ -51,6 +51,7 @@ public class UpdateFixedProductHandler : IRequestHandler<UpdateFixedProductReque
         product.Price = request.Price;
         product.Description = request.Description;
         product.TargetAudience = request.TargetAudience;
+        product.DressStyle = request.DressStyle;
 
         product.SizeDetails.Clear();
         foreach (var sd in request.SizeDetails)
