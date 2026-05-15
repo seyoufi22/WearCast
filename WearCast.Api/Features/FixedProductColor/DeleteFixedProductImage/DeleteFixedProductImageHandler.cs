@@ -21,7 +21,7 @@ public class DeleteFixedProductImageHandler : IRequestHandler<DeleteFixedProduct
 
         if (image is null) return Result.Failure(FixedProductColorErrors.ImageNotFound);
 
-        if(!request.isAdminRequest && image.ProductColor.Id != request.sellerId) 
+        if(!request.isAdminRequest && image.ProductColor.Product.SellerId != request.sellerId) 
             return Result.Failure(AuthErrors.Forbidden);
 
         await _imageService.DeleteAsync(image.ImageUrl);

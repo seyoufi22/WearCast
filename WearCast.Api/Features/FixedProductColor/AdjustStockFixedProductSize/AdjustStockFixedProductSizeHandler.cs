@@ -1,6 +1,7 @@
 ﻿using WearCast.Api.Features.FixedProductColor.AdjustStockFixedProductSize.DTOs;
 using WearCast.Api.Features.FixedProductColor.Errors;
 
+
 namespace WearCast.Api.Features.FixedProductSize.AdjustStockFixedProductSize;
 
 public class AdjustStockFixedProductSizeHandler : IRequestHandler<AdjustStockFixedProductSizeCommandDto, Result>
@@ -16,7 +17,7 @@ public class AdjustStockFixedProductSizeHandler : IRequestHandler<AdjustStockFix
     {
         var color = await _colorRepo.Get()
             .Include(c => c.Sizes)
-            .Include(c=>c.Product)
+            .Include(c => c.Product)
             .FirstOrDefaultAsync(c => c.Id == command.request.ColorId, cancellationToken);
 
         if (color is null)
@@ -25,22 +26,19 @@ public class AdjustStockFixedProductSizeHandler : IRequestHandler<AdjustStockFix
         if (!command.isAdminRequest && color.Product.SellerId != command.sellerId)
             return Result.Failure(AuthErrors.Forbidden);
 
-        var existingSize = color.Sizes.FirstOrDefault(s => s.Size == command.request.Size);
-
-        if (existingSize is null)
+        foreach (var adjustment in command.request.Adjustments)
         {
-            if (command.request.Quantity < 0)
+            var existingSize = color.Sizes.FirstOrDefault(s => s.Size == adjustment.Size);
+            int currentQuantity = existingSize?.Quantity ?? 0;
+
+            if (currentQuantity + adjustment.Quantity < 0)
                 return Result.Failure(FixedProductColorErrors.InsufficientStock);
-            else
-                color.AdjustSize(command.request.Size, command.request.Quantity);
-            await _colorRepo.UpdateAsync(color);
-            return Result.Success();
         }
 
-        if (existingSize.Quantity + command.request.Quantity < 0)
-            return Result.Failure(FixedProductColorErrors.InsufficientStock);
-
-        color.AdjustSize(command.request.Size, command.request.Quantity);
+        foreach (var adjustment in command.request.Adjustments)
+        {
+            color.AdjustSize(adjustment.Size, adjustment.Quantity);
+        }
 
         await _colorRepo.UpdateAsync(color);
 
