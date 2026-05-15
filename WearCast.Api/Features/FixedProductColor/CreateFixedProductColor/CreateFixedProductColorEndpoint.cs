@@ -9,7 +9,7 @@ namespace WearCast.Api.Features.FixedProductColor.CreateFixedProductColor;
 public class CreateFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
-    [Authorize(Roles = "SellerManager")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager}")]
     [HttpPost("CreateProductColor")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<int>> Create(

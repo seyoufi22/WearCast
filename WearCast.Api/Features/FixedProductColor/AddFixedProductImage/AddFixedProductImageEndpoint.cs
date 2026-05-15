@@ -10,14 +10,14 @@ public class AddFixedProductImageEndpoint(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpPost("AddImage")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> AddImage([FromForm] AddFixedProductImageRequestDto request)
     {
         Result result;
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             result = await _mediator.Send(new AddFixedProductImageCommandDto(request.ProductColorId, request.Image, 0, true));
         else
         {

@@ -12,7 +12,7 @@ namespace WearCast.Api.Features.FixedProductColor.UpdateFixedProductColor;
 [ApiController]
 public class UpdateFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpPut("UpdateColor")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UpdateColor([FromForm] UpdateFixedProductColorRequestDto request, CancellationToken cancellationToken)
@@ -20,7 +20,7 @@ public class UpdateFixedProductColorEndpoint(ISender sender) : ControllerBase
 
         Result result;
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             result = await sender.Send(new UpdateFixedProductColorCommandDto(request, 0, true));
         else
         {
