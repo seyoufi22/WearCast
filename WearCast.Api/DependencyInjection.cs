@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -22,6 +22,53 @@ namespace WearCast.Api
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                })
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var errors = new Dictionary<string, string>();
+                        foreach (var kvp in context.ModelState)
+                        {
+                            if (kvp.Value?.Errors.Count > 0)
+                            {
+                                var key = kvp.Key;
+                                
+                                // Clean up JSON path keys (e.g. "$.categoryId" -> "categoryId")
+                                if (key.StartsWith("$."))
+                                {
+                                    key = key.Substring(2);
+                                }
+
+                                var errorMsg = kvp.Value.Errors.FirstOrDefault()?.ErrorMessage ?? "Invalid value.";
+
+                                // Clean up ugly JSON deserialization errors
+                                if (errorMsg.Contains("could not be converted"))
+                                {
+                                    errorMsg = "Invalid format or type for this field.";
+                                }
+
+                                errors[key] = errorMsg;
+                            }
+                        }
+
+                        // Hide the generic 'request' error if we have more specific field errors
+                        if (errors.ContainsKey("request") && errors.Count > 1)
+                        {
+                            errors.Remove("request");
+                        }
+                        else if (errors.ContainsKey("request"))
+                        {
+                            errors["request"] = "The request body is missing or malformed.";
+                        }
+
+                        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new
+                        {
+                            isSuccess = false,
+                            statusCode = 400,
+                            validationErrors = errors
+                        });
+                    };
                 });
 
             services.AddCors(options =>
