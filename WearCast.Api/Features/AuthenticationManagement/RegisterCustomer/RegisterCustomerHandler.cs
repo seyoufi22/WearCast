@@ -21,17 +21,28 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
         public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerRequest request, CancellationToken cancellationToken)
         {
-            var existingUser = await _userManager.Users
+            var existingUsers = await _userManager.Users
+                 .IgnoreQueryFilters()
                  .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
-                 .Select(x => new { x.Email, x.PhoneNumber })
-                 .FirstOrDefaultAsync(cancellationToken);
+                 .Select(x => new { x.Email, x.PhoneNumber, x.IsDeleted })
+                 .ToListAsync(cancellationToken);
 
-            if (existingUser != null)
+            if (existingUsers.Any())
             {
-                if (existingUser.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
-                    return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
+                var emailMatch = existingUsers.FirstOrDefault(x => x.Email.Equals(request.Email?.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (emailMatch != null)
+                {
+                    if (emailMatch.IsDeleted)
+                        return Result.Failure<RegisterCustomerResponse>(UserErrors.AccountDeleted);
+                    else
+                        return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
+                }
 
-                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
+                var phoneMatch = existingUsers.FirstOrDefault(x => x.PhoneNumber == request.PhoneNumber);
+                if (phoneMatch != null && !phoneMatch.IsDeleted)
+                {
+                    return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedPhoneNumber);
+                }
             }
 
             var profileImageUrl = await _imageService.UploadAsync(request.ProfileImage);
