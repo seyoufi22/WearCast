@@ -18,6 +18,19 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
 
         if (request.CategoryId.HasValue)
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+
+        if(request.IsRejected.HasValue)
+        {
+            if (request.IsRejected.Value)
+            {
+                query = query.Where(p => !p.Colors.Any(c => !c.IsDeleted));
+            }
+            else
+            {
+                query = query.Where(p => p.Colors.Any(c => !c.IsDeleted));
+            }
+        }
+
         if (request.StockStatus.HasValue)
         {
             if (request.StockStatus.Value == StockStatus.OutOfStock)
@@ -33,7 +46,7 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
                     p.Colors.Any(c => !c.IsDeleted) &&
                     !p.Colors.Any(c => !c.IsDeleted && c.Sizes.Sum(s => s.Quantity) <= 10));
             }
-            else 
+            else
             {
                 query = query.Where(p =>
                     p.Colors.Where(c => !c.IsDeleted).SelectMany(c => c.Sizes).Sum(s => s.Quantity) > 0 &&
@@ -64,7 +77,7 @@ public class GetAllFixedProductsForSellerHandler : IRequestHandler<GetAllFixedPr
                 .Where(c => !c.IsDeleted && c.Sizes.Any(s => s.Quantity > 0))
                 .OrderBy(c => c.Id)
                 .Select(c => c.ImageUrl)
-                .FirstOrDefault()
+                .FirstOrDefault() ?? product.Category.ImageUrl
         })
         .Select(x => new GetAllFixedProductsForSellerResponseDto
         {

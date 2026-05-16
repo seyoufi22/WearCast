@@ -35,6 +35,21 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext)
                     $"Cannot change status from {order.Status} to Ready. Order must be Paid first.", StatusCodes.Status400BadRequest));
         }
 
+        // Factory: can only mark Paid -> Ready (order must belong to their factory)
+        if (request.FactoryId.HasValue)
+        {
+            if (order.FactoryId != request.FactoryId.Value)
+                return Result.Failure<bool>(new Error("Orders.Forbidden", "You do not own this order.", StatusCodes.Status403Forbidden));
+
+            if (request.NewStatus != OrderStatus.Ready)
+                return Result.Failure<bool>(new Error("Orders.InvalidTransition",
+                    "Factories can only mark orders as Ready.", StatusCodes.Status400BadRequest));
+
+            if (order.Status != OrderStatus.Paid)
+                return Result.Failure<bool>(new Error("Orders.InvalidTransition",
+                    $"Cannot change status from {order.Status} to Ready. Order must be Paid first.", StatusCodes.Status400BadRequest));
+        }
+
         // Driver: can only mark Ready -> PickedUp
         if (request.DriverId.HasValue)
         {

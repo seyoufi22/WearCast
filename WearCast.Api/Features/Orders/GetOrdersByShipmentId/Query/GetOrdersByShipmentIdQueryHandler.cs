@@ -19,6 +19,9 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
             .Include(s => s.Customer)
                 .ThenInclude(c => c!.ApplicationUser)
             .Include(s => s.Orders.Where(o => !o.IsDeleted))
+                .ThenInclude(o => o.Seller)
+            .Include(s => s.Orders.Where(o => !o.IsDeleted))
+                .ThenInclude(o => o.Factory)
             .Where(s => s.Id == request.ShipmentId && !s.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -64,7 +67,9 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
                 RecipientName = o.RecipientName,
                 RecipientPhoneNumber = o.RecipientPhoneNumber,
                 ShippingAddress = o.ShippingAddress,
-                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed"
+                OrderType = o.SellerId.HasValue ? "Fixed" : "Designed",
+                VendorName = o.Seller != null ? o.Seller.Name : (o.Factory != null ? o.Factory.Name : string.Empty),
+                VendorPhoneNumber = o.Seller != null ? o.Seller.PhoneNumber : (o.Factory != null ? o.Factory.PhoneNumber : string.Empty)
             }).ToList()
         };
 

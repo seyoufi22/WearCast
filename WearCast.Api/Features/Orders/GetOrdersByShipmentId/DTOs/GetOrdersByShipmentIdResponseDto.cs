@@ -44,4 +44,7 @@ public class ShipmentOrderDto
     /// "Fixed" or "Designed" — indicates whether this order contains fixed or designed items.
     /// </summary>
     public string OrderType { get; set; } = string.Empty;
+
+    public string VendorName { get; set; } = string.Empty;
+    public string VendorPhoneNumber { get; set; } = string.Empty;
 }

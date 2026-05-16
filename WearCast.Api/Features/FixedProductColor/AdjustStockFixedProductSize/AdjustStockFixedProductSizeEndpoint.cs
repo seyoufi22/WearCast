@@ -10,13 +10,13 @@ namespace WearCast.Api.Features.FixedProductSize.AdjustStockFixedProductSize;
 [ApiController]
 public class AdjustStockFixedProductSizeEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpPost("AdjustSizeQuantity")] 
     public async Task<IActionResult> AdjustSizeQuantity([FromBody] AdjustStockFixedProductSizeRequestDto request, CancellationToken cancellationToken)
     {
         Result result;
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             result = await sender.Send(new AdjustStockFixedProductSizeCommandDto(request, 0, true));
         else
         {
