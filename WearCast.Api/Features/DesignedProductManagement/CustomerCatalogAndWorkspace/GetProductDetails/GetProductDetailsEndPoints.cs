@@ -8,7 +8,6 @@
         private readonly IMediator _mediator = mediator;
 
         [HttpGet("{id:int}")]
-        [Authorize]
         public async Task<IActionResult> Get([FromRoute] int Id, [FromQuery] int? colorId, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetProductDetailsRequest(Id, colorId), cancellationToken);
