@@ -49,7 +49,7 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
 
         if (errors.Any())
         {
-            var combinedMessage = string.Join("; ", errors.Select(e => e.Message));
+            var combinedMessage = string.Join("; ", errors.Select(e => e.Description));
             return Result.Failure<CreateFixedProductResponseDto>(
                 new Error("FixedProduct.ValidationFailed", combinedMessage, StatusCodes.Status400BadRequest));
         }
