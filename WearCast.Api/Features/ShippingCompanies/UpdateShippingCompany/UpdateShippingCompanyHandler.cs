@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager;
-
-namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
+﻿namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
 {
     public class UpdateShippingCompanyHandler(
          ApplicationDbContext context,
@@ -13,17 +11,26 @@ namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompany
         private readonly IMapper _mapper = mapper;
         public async Task<Result> Handle(UpdateShippingCompanyRequest request, CancellationToken cancellationToken)
         {
-            var shippingCompanyId = await context.ShippingCompanies
-                 .AsNoTracking()
-                 .Where(x => !x.IsDeleted)
-                 .Select(s => (int?)s.Id)
-                 .FirstOrDefaultAsync(cancellationToken);
+            var user = _httpContextAccessor.HttpContext!.User;
 
-            if (shippingCompanyId == null)
-                return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
+            int targetCompanyId;
+
+            if (user.IsSuperAdmin())
+            {
+                if (!request.ProvidedCompanyId.HasValue)
+                {
+                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
+                }
+
+                targetCompanyId = request.ProvidedCompanyId.Value;
+            }
+            else
+            {
+                targetCompanyId = user.GetShippingCompanyId()!.Value;
+            }
 
             var company = await _context.ShippingCompanies
-                .FirstOrDefaultAsync(x => x.Id == shippingCompanyId.Value, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == targetCompanyId, cancellationToken);
 
             if (company == null)
             {

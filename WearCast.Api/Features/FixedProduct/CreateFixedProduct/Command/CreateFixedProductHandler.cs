@@ -27,18 +27,16 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
 
     public async Task<Result<CreateFixedProductResponseDto>> Handle(CreateFixedProductRequestDto request, CancellationToken cancellationToken)
     {
-        var errors = new List<Error>();
-
         var categoryExists = await _categoryRepo.GetAsync(c => c.Id == request.CategoryId, useNoTracking: true);
         if (categoryExists == null)
         {
-            errors.Add(FixedProductErrors.CategoryNotFound(request.CategoryId));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.CategoryNotFound);
         }
 
         var userExists = await _userManager.FindByIdAsync(request.CreatedById);
         if (userExists == null)
         {
-            errors.Add(FixedProductErrors.UserNotFound(request.CreatedById));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.UserNotFound);
         }
 
         var existingProduct = await _productRepo.GetAsync(p => p.Name == request.Name, useNoTracking: true);

@@ -13,6 +13,7 @@
         public string? VehiclePlateNumber { get; set; }
         public DriverStatus Status { get; set; }
         public Address Address { get; set; }
+        public bool IsDeleted { get; set; }
         public int NumberOfAssignedShipments{ get; set; }
         public int NumberOfActiveShipments{ get; set; }
         public int NumberOfDeliveredShipments{ get; set; }

@@ -2,7 +2,7 @@
 {
     [Route("api/shipping-companies")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Authorize(Roles = DefaultRoles.SuperAdmin)]
     [Tags("Shipping Company Profile")]
     public class DeleteShippingCompanyEndpoint(IMediator mediator) : ControllerBase
     {
