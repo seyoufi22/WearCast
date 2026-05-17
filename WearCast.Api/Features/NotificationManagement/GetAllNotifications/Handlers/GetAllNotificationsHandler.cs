@@ -32,6 +32,11 @@ namespace WearCast.Api.Features.NotificationManagement.GetAllNotifications.Handl
                 query = query.Where(n => n.NotificationType == request.NotificationType);
             }
 
+            if (request.IsRead.HasValue)
+            {
+                query = query.Where(n => n.IsRead == request.IsRead);
+            }
+
             query = request.SortBy switch
             {
                 SortBy.Oldest => query.OrderBy(s => s.CreatedOn),

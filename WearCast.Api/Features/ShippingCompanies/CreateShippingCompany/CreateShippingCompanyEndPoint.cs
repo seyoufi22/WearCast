@@ -3,6 +3,7 @@
     [ApiController]
     [Route("api/shipping-companies")]
     [Tags("Shipping Company Profile")]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
     public class CreateShippingCompanyEndPoint(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;

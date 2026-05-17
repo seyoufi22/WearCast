@@ -19,10 +19,7 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
             CancellationToken cancellationToken)
         {
             var query = _context.Drivers.AsNoTracking();
-            if (request.IsDeleted.HasValue)
-            {
-                query = query.Where(d => d.IsDeleted == request.IsDeleted);
-            }
+
             if (!string.IsNullOrWhiteSpace(request.DriverCity))
             {
                 query = query.Where(d => d.Address.City.Contains(request.DriverCity.Trim()));
@@ -67,7 +64,6 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
                     VehicleType = d.VehicleType,
                     Status = d.Status,
                     DriverCity = d.Address.City,
-                    IsDeleted = d.IsDeleted,
                     NumberOfAssignedShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned),
                     NumberOfActiveShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery),
                     NumberOfDeliveredShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)
