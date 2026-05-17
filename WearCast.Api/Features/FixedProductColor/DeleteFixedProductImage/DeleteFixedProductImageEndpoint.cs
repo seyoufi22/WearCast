@@ -14,13 +14,13 @@ namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductImage;
 public class DeleteFixedProductImageEndpoint(ISender sender) : ControllerBase
 {
 
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpDelete("DeleteImage/{ImageId:int}", Name = "DeleteImageFromProductColor")]
     public async Task<IActionResult> DeleteImage(int ImageId, CancellationToken cancellationToken)
     {
         Result result;
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             result = await sender.Send(new DeleteFixedProductImageRequestDto(ImageId, 0, true));
         else
         {

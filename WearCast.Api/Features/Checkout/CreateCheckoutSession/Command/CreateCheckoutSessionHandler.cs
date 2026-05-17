@@ -30,8 +30,8 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
 
     public async Task<Result<CreateCheckoutSessionResponseDto>> Handle(CreateCheckoutSessionRequestDto request, CancellationToken cancellationToken)
     {
-        // 1. Load all fixed-product cart items for this customer
-        var cartItems = await _cartRepo.Get()
+        // 1. Load all cart items for this customer
+        var fixedCartItems = await _cartRepo.Get()
             .Where(c => c.CustomerId == request.CustomerId && c.FixedColorId != null)
             .Include(c => c.FixedColor!)
                 .ThenInclude(fc => fc.Product)
@@ -40,7 +40,16 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             .Include(c => c.Sizes)
             .ToListAsync(cancellationToken);
 
-        if (!cartItems.Any())
+        var designedCartItems = await _cartRepo.Get()
+            .Where(c => c.CustomerId == request.CustomerId && c.CustomerDesignId != null)
+            .Include(c => c.DesignedCustomer!)
+                .ThenInclude(cd => cd.DesignedProduct)
+            .Include(c => c.DesignedCustomer!)
+                .ThenInclude(cd => cd.DesignedProductColor)
+            .Include(c => c.Sizes)
+            .ToListAsync(cancellationToken);
+
+        if (!fixedCartItems.Any() && !designedCartItems.Any())
         {
             return Result.Failure<CreateCheckoutSessionResponseDto>(
                 new Error("Checkout.EmptyCart", "Your cart has no products to checkout.", StatusCodes.Status400BadRequest));
@@ -48,33 +57,28 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
 
         var existingPendingOrders = await _dbContext.Orders
             .Include(o => o.FixedProductItems)
+            .Include(o => o.DesignedProductItems)
             .Where(o => o.CustomerId == request.CustomerId && o.Status == OrderStatus.Pending)
             .ToListAsync(cancellationToken);
 
         if (existingPendingOrders.Any())
         {
-            var existingItems = existingPendingOrders.SelectMany(o => o.FixedProductItems).ToList();
-            if (existingItems.Any())
-            {
-                _dbContext.FixedProductOrderItems.RemoveRange(existingItems);
-            }
-            // Just mark them for deletion in the EF Tracker to batch it later
+            var existingFixedItems = existingPendingOrders.SelectMany(o => o.FixedProductItems).ToList();
+            if (existingFixedItems.Any())
+                _dbContext.FixedProductOrderItems.RemoveRange(existingFixedItems);
+
+            var existingDesignedItems = existingPendingOrders.SelectMany(o => o.DesignedProductItems).ToList();
+            if (existingDesignedItems.Any())
+                _dbContext.CustomerDesignedOrderItems.RemoveRange(existingDesignedItems);
+
             _dbContext.Orders.RemoveRange(existingPendingOrders);
         }
 
-        // 2. Group cart items by seller
-        var itemsBySeller = cartItems.GroupBy(c => c.FixedColor!.Product.SellerId);
-
-        var sellerIds = itemsBySeller.Select(g => g.Key).ToList();
-        var sellers = await _dbContext.Sellers
-            .Where(s => sellerIds.Contains(s.Id))
-            .ToDictionaryAsync(s => s.Id, cancellationToken);
+        var orders = new List<Order>();
+        var stripeLineItems = new List<SessionLineItemOptions>();
 
         // Load a shipping company to retrieve the delivery fee
         var shippingCompany = await _dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
-            
-        var orders = new List<Order>();
-        var stripeLineItems = new List<SessionLineItemOptions>();
 
         // Add delivery fee as a dedicated Stripe line item (once per session)
         if (shippingCompany != null && shippingCompany.DeliveryFee > 0)
@@ -94,55 +98,145 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
             });
         }
 
-        foreach (var sellerGroup in itemsBySeller)
+        // 2. Process fixed product cart items (group by seller)
+        if (fixedCartItems.Any())
         {
-            var sellerId = sellerGroup.Key;
-            var seller = sellers[sellerId];
-            var orderItems = new List<FixedProductOrderItem>();
+            var itemsBySeller = fixedCartItems.GroupBy(c => c.FixedColor!.Product.SellerId);
 
-            foreach (var cartItem in sellerGroup)
+            var sellerIds = itemsBySeller.Select(g => g.Key).ToList();
+            var sellers = await _dbContext.Sellers
+                .Where(s => sellerIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, cancellationToken);
+
+            foreach (var sellerGroup in itemsBySeller)
             {
-                var product = cartItem.FixedColor!.Product;
-                var color = cartItem.FixedColor!;
+                var sellerId = sellerGroup.Key;
+                var seller = sellers[sellerId];
+                var orderItems = new List<FixedProductOrderItem>();
 
-                // Flatten each size into a separate order item
+                foreach (var cartItem in sellerGroup)
+                {
+                    var product = cartItem.FixedColor!.Product;
+                    var color = cartItem.FixedColor!;
+
+                    foreach (var size in cartItem.Sizes)
+                    {
+                        var stockSize = color.Sizes.FirstOrDefault(s => s.Size == size.Size);
+                        if (stockSize == null || stockSize.Quantity < size.Quantity)
+                        {
+                            return Result.Failure<CreateCheckoutSessionResponseDto>(
+                                new Error("Checkout.InsufficientStock",
+                                    $"Insufficient stock for {product.Name} - {color.ColorName} ({size.Size}). Available: {stockSize?.Quantity ?? 0}, Requested: {size.Quantity}",
+                                    StatusCodes.Status400BadRequest));
+                        }
+
+                        var orderItem = new FixedProductOrderItem
+                        {
+                            FixedColorId = color.Id,
+                            ProductName = product.Name,
+                            ColorName = color.ColorName,
+                            ImageUrl = color.ImageUrl,
+                            SizeName = size.Size.ToString(),
+                            Quantity = size.Quantity,
+                            UnitPrice = product.Price
+                        };
+                        orderItems.Add(orderItem);
+
+                        stripeLineItems.Add(new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                Currency = "egp",
+                                UnitAmountDecimal = product.Price * 100,
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = $"{product.Name} - {color.ColorName} ({size.Size})",
+                                    Images = !string.IsNullOrEmpty(color.ImageUrl)
+                                        ? new List<string> { color.ImageUrl }
+                                        : null
+                                }
+                            },
+                            Quantity = size.Quantity
+                        });
+                    }
+                }
+
+                var order = new Order
+                {
+                    CustomerId = request.CustomerId,
+                    SellerId = sellerId,
+                    TotalAmount = orderItems.Sum(i => i.UnitPrice * i.Quantity),
+                    Status = OrderStatus.Pending,
+                    FixedProductItems = orderItems,
+                    RecipientName = request.ShippingInfo.RecipientName,
+                    RecipientPhoneNumber = request.ShippingInfo.PhoneNumber,
+                    RecipientAdditionalPhoneNumber = request.ShippingInfo.AdditionalPhoneNumber,
+                    ShippingAddress = new WearCast.Api.Common.ValueObjects.Address
+                    {
+                        State = request.ShippingInfo.State,
+                        City = request.ShippingInfo.City,
+                        Street = request.ShippingInfo.Street,
+                        BuildingNumber = request.ShippingInfo.BuildingNumber
+                    },
+                    PickUpAddress = new WearCast.Api.Common.ValueObjects.Address
+                    {
+                        State = seller.Address.State,
+                        City = seller.Address.City,
+                        Street = seller.Address.Street,
+                        BuildingNumber = seller.Address.BuildingNumber
+                    }
+                };
+                orders.Add(order);
+            }
+        }
+
+        if (designedCartItems.Any())
+        {
+            var factory = await _dbContext.Factories.FirstOrDefaultAsync(cancellationToken);
+            if (factory == null)
+            {
+                return Result.Failure<CreateCheckoutSessionResponseDto>(
+                    new Error("Checkout.NoFactory", "No factory found to process designed product orders.", StatusCodes.Status400BadRequest));
+            }
+
+            var designedOrderItems = new List<CustomerDesignedOrderItem>();
+
+            foreach (var cartItem in designedCartItems)
+            {
+                var design = cartItem.DesignedCustomer!;
+                var product = design.DesignedProduct;
+                var color = design.DesignedProductColor;
+
+                design.CalculateAndSetTotalPrice(product.Price, design.AssetCount);
+                
                 foreach (var size in cartItem.Sizes)
                 {
-                    // Validate stock (Don't decrement here, decrement happens in webhook on payment success)
-                    var stockSize = color.Sizes.FirstOrDefault(s => s.Size == size.Size);
-                    if (stockSize == null || stockSize.Quantity < size.Quantity)
+                    var orderItem = new CustomerDesignedOrderItem
                     {
-                        return Result.Failure<CreateCheckoutSessionResponseDto>(
-                            new Error("Checkout.InsufficientStock",
-                                $"Insufficient stock for {product.Name} - {color.ColorName} ({size.Size}). Available: {stockSize?.Quantity ?? 0}, Requested: {size.Quantity}",
-                                StatusCodes.Status400BadRequest));
-                    }
-
-                    var orderItem = new FixedProductOrderItem
-                    {
-                        FixedColorId = color.Id,
+                        CustomerDesignId = design.Id,
+                        DesignedProductId = design.DesignedProductId,
                         ProductName = product.Name,
-                        ColorName = color.ColorName,
-                        ImageUrl = color.ImageUrl,
+                        ColorName = color.Name,
                         SizeName = size.Size.ToString(),
                         Quantity = size.Quantity,
-                        UnitPrice = product.Price
+                        UnitPrice = design.TotalPrice,
+                        FrontImageUrl = design.FrontImageUrl,
+                        BackImageUrl = design.BackImageUrl,
+                        RightImageUrl = design.RightImageUrl,
+                        LeftImageUrl = design.LeftImageUrl,
+                        ViewDesignsJson = design.ViewDesignsJson
                     };
-                    orderItems.Add(orderItem);
+                    designedOrderItems.Add(orderItem);
 
-                    // Add corresponding Stripe line item
                     stripeLineItems.Add(new SessionLineItemOptions
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
                             Currency = "egp",
-                            UnitAmountDecimal = product.Price * 100, // Stripe expects amount in piasters
+                            UnitAmountDecimal = design.TotalPrice * 100,
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = $"{product.Name} - {color.ColorName} ({size.Size})",
-                                Images = !string.IsNullOrEmpty(color.ImageUrl)
-                                    ? new List<string> { color.ImageUrl }
-                                    : null
+                                Name = $"{product.Name} - {color.Name} ({size.Size}) [Template: {product.Price:C} + {design.AssetCount} Assets: {design.TotalPrice - product.Price:C} = {design.TotalPrice:C}]"
                             }
                         },
                         Quantity = size.Quantity
@@ -150,14 +244,13 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 }
             }
 
-            // 3. Create the order for this seller
-            var order = new Order
+            var designedOrder = new Order
             {
                 CustomerId = request.CustomerId,
-                SellerId = sellerId,
-                TotalAmount = orderItems.Sum(i => i.UnitPrice * i.Quantity),
+                FactoryId = factory.Id,
+                TotalAmount = designedOrderItems.Sum(i => i.UnitPrice * i.Quantity),
                 Status = OrderStatus.Pending,
-                FixedProductItems = orderItems,
+                DesignedProductItems = designedOrderItems,
                 RecipientName = request.ShippingInfo.RecipientName,
                 RecipientPhoneNumber = request.ShippingInfo.PhoneNumber,
                 RecipientAdditionalPhoneNumber = request.ShippingInfo.AdditionalPhoneNumber,
@@ -170,16 +263,17 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 },
                 PickUpAddress = new WearCast.Api.Common.ValueObjects.Address
                 {
-                    State = seller.Address.State,
-                    City = seller.Address.City,
-                    Street = seller.Address.Street,
-                    BuildingNumber = seller.Address.BuildingNumber
+                    State = factory.Address.State,
+                    City = factory.Address.City,
+                    Street = factory.Address.Street,
+                    BuildingNumber = factory.Address.BuildingNumber
                 }
             };
-            orders.Add(order);
+            orders.Add(designedOrder);
         }
 
-        // 4. Create Stripe Checkout Session
+
+
         var customerService = new CustomerService();
         var stripeCustomers = await customerService.ListAsync(
             new CustomerListOptions { Email = request.CustomerEmail }, 
@@ -224,4 +318,3 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
         });
     }
 }
-

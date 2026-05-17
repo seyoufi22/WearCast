@@ -17,7 +17,7 @@ public class GetAllFavouritesByCustomerIdEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize]
+    [Authorize(Roles = DefaultRoles.Customer)]
     [HttpGet]
     public async Task<IActionResult> GetAllByCustomerId([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 100, CancellationToken cancellationToken = default)
     {

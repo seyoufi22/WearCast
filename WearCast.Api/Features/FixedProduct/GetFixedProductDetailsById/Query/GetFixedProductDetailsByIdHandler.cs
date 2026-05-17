@@ -1,24 +1,28 @@
-using WearCast.Api.Common.Repository;
 using WearCast.Api.Abstractions;
+using WearCast.Api.Common.Repository;
+using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Features.FixedProduct.Errors;
-using WearCast.Api.Features.FixedProduct.GetFixedProductDetailsById.DTOs;
 using WearCast.Api.Features.FixedProduct.GetFixedProductById.DTOs;
+using WearCast.Api.Features.FixedProduct.GetFixedProductDetailsById.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.GetFixedProductDetailsById.Query;
 
-public class GetFixedProductDetailsByIdHandler : IRequestHandler<GetFixedProductDetailsByIdQuery, Result<GetFixedProductDetailsByIdResponseDto>>
+public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
+        ITrackingService trackingService,
+        IHttpContextAccessor httpContextAccessor,
+        IRepository<Entities.FixedProduct.FixedProduct> productRepo) : IRequestHandler<GetFixedProductDetailsByIdQuery, Result<GetFixedProductDetailsByIdResponseDto>>
 {
-    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
-
-    public GetFixedProductDetailsByIdHandler(IRepository<Entities.FixedProduct.FixedProduct> productRepo)
-    {
-        _productRepo = productRepo;
-    }
+    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo = productRepo;
+    private readonly ApplicationDbContext _context = context;
+    private readonly ITrackingService _trackingService = trackingService;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<Result<GetFixedProductDetailsByIdResponseDto>> Handle(GetFixedProductDetailsByIdQuery request, CancellationToken cancellationToken)
     {
         var product = await _productRepo.Get()
-            .Where(p => p.Id == request.Id && !p.IsDeleted)
+            .Where(p => p.Id == request.Id && !p.IsDeleted && !p.Seller.IsDeleted)
+            .Include(p => p.Seller)
             .Include(p => p.Category)
             .Include(p => p.Colors.Where(c => !c.IsDeleted))
                 .ThenInclude(c => c.Images)
@@ -71,7 +75,29 @@ public class GetFixedProductDetailsByIdHandler : IRequestHandler<GetFixedProduct
                 C = sd.C
             }).ToList() ?? new()
         };
+        var user = _httpContextAccessor.HttpContext!.User;
+        if (user.IsCustomer())
+        {
+            var userId = user.GetUserId();
 
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var clickEvent = new ClickEvent
+                {
+                    UserId = userId,
+                    ProductDetails = new ProductDetails
+                    {
+                        Price = product.Price,
+                        TargetAudience = product.TargetAudience.ToString().Split(", ").ToList(),
+                        DressStyle = product.DressStyle.ToString(),
+                        CategoryName = product.Category?.Name,
+                        SellerId = product.Seller.Id
+                    }
+                };
+
+                _trackingService.TrackClick(clickEvent);
+            }
+        }
         return Result.Success(response);
     }
 }

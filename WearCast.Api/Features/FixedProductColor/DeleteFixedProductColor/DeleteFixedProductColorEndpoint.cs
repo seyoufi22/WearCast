@@ -9,13 +9,13 @@ namespace WearCast.Api.Features.FixedProductColor.DeleteFixedProductColor;
 [ApiController]
 public class DeleteFixedProductColorEndpoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SellerManager,SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpDelete("DeleteColor/{ColorId:int}", Name = "DeleteFixedProductColor")]
     public async Task<IActionResult> DeleteColor(int ColorId, CancellationToken cancellationToken)
     {
         Result result;
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == "SuperAdmin")
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             result = await sender.Send(new DeleteFixedProductColorRequestDto(ColorId, 0, true));
         else
         {

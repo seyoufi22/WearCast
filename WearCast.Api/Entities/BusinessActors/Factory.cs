@@ -17,8 +17,13 @@
 
         public Address Address { get; set; } = new Address();
         public bool IsDeleted { get; set; }
+
+        public int? WalletId { get; set; }
+        public Wallet.Wallet? Wallet { get; set; }
+
         public ICollection<FactoryManager> Managers { get; set; } = [];
 
         public ICollection<DesignedProduct> DesignedProducts { get; set; } = [];
+        public ICollection<Order.Order> Orders { get; set; } = [];
     }
 }

@@ -13,7 +13,9 @@ public class AdjustFixedProductSizeQuantityValidator : AbstractValidator<AdjustS
     {
         RuleFor(x => x.request.ColorId).GreaterThan(0);
 
-        RuleFor(x => x.request.Size)
-            .IsInEnum().WithMessage("Invalid size. Please select a valid size.");
+        RuleForEach(x => x.request.Adjustments).ChildRules(adjustment =>
+        {
+            adjustment.RuleFor(a => a.Size).IsInEnum().WithMessage("Invalid size.");
+        });
     }
 }

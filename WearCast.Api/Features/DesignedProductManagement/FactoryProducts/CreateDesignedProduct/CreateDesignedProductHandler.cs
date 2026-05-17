@@ -16,7 +16,7 @@
 
             int finalFactoryId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 if (!request.FactoryId.HasValue || request.FactoryId <= 0)
                 {
@@ -46,6 +46,12 @@
             else
             {
                 return Result.Failure<CreateDesignedProductResponse>(AuthErrors.Forbidden);
+            }
+
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+            if (!categoryExists)
+            {
+                return Result.Failure<CreateDesignedProductResponse>(new Error("Category.NotFound", "The specified category does not exist.", StatusCodes.Status404NotFound));
             }
 
             var product = _mapper.Map<DesignedProduct>(request);

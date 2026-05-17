@@ -16,6 +16,10 @@
 
             category.IsDeleted = true;
 
+            await _context.DesignAssets
+                .Where(a => a.DesignAssetCategoryId == request.Id)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(a => a.IsDeleted, true), cancellationToken);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result.Success();

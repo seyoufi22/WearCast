@@ -8,4 +8,5 @@ public record UpdateOrderStatusCommand(
     int OrderId,
     OrderStatus NewStatus,
     int? SellerId = null,
-    int? DriverId = null) : IRequest<Result<bool>>;
+    int? DriverId = null,
+    int? FactoryId = null) : IRequest<Result<bool>>;

@@ -14,7 +14,8 @@
         public DateTime? ResetPasswordCodeExpiration { get; set; }
         public bool IsDisabled { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; } = [];
-
+        public List<Notification> Notifications { get; set; } = new List<Notification>();
+        public int UndeliveredNotificationsCount { get; set; } = 0;
         public Customer? Customer { get; set; }
         public Driver? Driver { get; set; }
         public SellerManager? SellerManager { get; set; }

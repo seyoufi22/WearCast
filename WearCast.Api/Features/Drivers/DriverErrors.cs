@@ -12,14 +12,19 @@
                 "No driver found with This ID.",
                 StatusCodes.Status404NotFound);
 
-        public static readonly Error HasOutForDeliveryShipments =
-            new("Driver.HasOutForDeliveryShipments",
-                "Driver cannot be deactivated while shipments are out for delivery.",
+        public static readonly Error HasActiveShipments =
+            new("Driver.HasActiveShipments",
+                "This driver cannot be deactivated because he has active shipments.",
                 StatusCodes.Status409Conflict);
 
         public static readonly Error NotAvailable =
             new("Driver.NotAvailable",
                 "This driver is currently not available.",
                 StatusCodes.Status409Conflict);
+
+        public static readonly Error UnAuthorized =
+          new("Driver.UnAuthorized",
+              "You are not authorized to perform this action",
+              StatusCodes.Status403Forbidden);
     }
 }

@@ -1,9 +1,11 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text;
+using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Wallet;
 
 
 
@@ -20,8 +22,65 @@ namespace WearCast.Api
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                })
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var errors = new Dictionary<string, string>();
+                        foreach (var kvp in context.ModelState)
+                        {
+                            if (kvp.Value?.Errors.Count > 0)
+                            {
+                                var key = kvp.Key;
+
+                                // Clean up JSON path keys (e.g. "$.categoryId" -> "categoryId")
+                                if (key.StartsWith("$."))
+                                {
+                                    key = key.Substring(2);
+                                }
+
+                                var errorMsg = kvp.Value.Errors.FirstOrDefault()?.ErrorMessage ?? "Invalid value.";
+
+                                // Clean up ugly JSON deserialization errors
+                                if (errorMsg.Contains("could not be converted"))
+                                {
+                                    errorMsg = "Invalid format or type for this field.";
+                                }
+
+                                errors[key] = errorMsg;
+                            }
+                        }
+
+                        // Hide the generic 'request' error if we have more specific field errors
+                        if (errors.ContainsKey("request") && errors.Count > 1)
+                        {
+                            errors.Remove("request");
+                        }
+                        else if (errors.ContainsKey("request"))
+                        {
+                            errors["request"] = "The request body is missing or malformed.";
+                        }
+
+                        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new
+                        {
+                            isSuccess = false,
+                            statusCode = 400,
+                            validationErrors = errors
+                        });
+                    };
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
             services.AddAuthConfig(configuration);
 
             var connectionString = configuration.GetConnectionString("DefaultConnection") ??
@@ -41,6 +100,9 @@ namespace WearCast.Api
 
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<EmailHelper>();
+
+            services.AddScoped<ITrackingService, TrackingService>();
+            services.AddScoped<IWalletService, WalletService>();
 
             services.AddExceptionHandler<ValidationExceptionHandler>();
             services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -136,8 +198,8 @@ namespace WearCast.Api
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            //services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            //services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
 
@@ -166,6 +228,20 @@ namespace WearCast.Api
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
                         ValidIssuer = jwtSettings?.Issuer,
                         ValidAudience = jwtSettings?.Audience
+                    };
+                    o.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/notificationHub"))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
 
@@ -223,4 +299,3 @@ namespace WearCast.Api
 
     }
 }
-

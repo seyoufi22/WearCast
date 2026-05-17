@@ -2,7 +2,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 
 namespace WearCast.Api.Authentication
 {
@@ -13,7 +12,6 @@ namespace WearCast.Api.Authentication
         public (string token, int expiresIn) GenerateToken(
             ApplicationUser user,
             string role,
-            IEnumerable<string> permissions,
             Dictionary<string, string>? profileClaims = null)
         {
             var claims = new List<Claim>
@@ -24,9 +22,7 @@ namespace WearCast.Api.Authentication
                 new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
-                new Claim(ClaimTypes.Role, role),
-
-                new Claim(nameof(permissions), JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray)
+                new Claim(ClaimTypes.Role, role)
             };
 
             if (profileClaims != null && profileClaims.Any())
@@ -69,7 +65,7 @@ namespace WearCast.Api.Authentication
                     ValidateLifetime = false
                 }, out SecurityToken validatedToken);
 
-                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
+                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
                 return userIdClaim?.Value;
             }

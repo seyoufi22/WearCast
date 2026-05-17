@@ -1,0 +1,5 @@
+﻿using WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetShippingCompanyManager;
+
+namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.GetAllShippingCompanyManagers;
+
+public record GetAllShippingCompanyManagersRequest : IRequest<Result<List<GetShippingCompanyManagerResponse>>>;

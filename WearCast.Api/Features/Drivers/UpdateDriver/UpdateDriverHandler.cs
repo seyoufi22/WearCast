@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.Drivers.UpdateDriver
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.Drivers.UpdateDriver
 {
     public class UpdateDriverHandler(
          ApplicationDbContext context,
@@ -15,7 +17,7 @@
 
             int targetDriverId;
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsShippingCompanyManager())
             {
                 if (!request.ProvidedDriverId.HasValue)
                 {
@@ -45,7 +47,13 @@
             {
                 return Result.Failure(DriverErrors.DuplicatedNationalId);
             }
+            var isPhoneNumberTaken = await _context.Users
+                .AnyAsync(x => x.PhoneNumber == request.PhoneNumber && x.Id != driver.ApplicationUser.Id, cancellationToken);
 
+            if (isPhoneNumberTaken)
+            {
+                return Result.Failure(UserErrors.DublicatedPhoneNumber);
+            }
             _mapper.Map(request, driver);
 
             await _context.SaveChangesAsync(cancellationToken);

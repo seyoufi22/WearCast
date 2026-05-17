@@ -21,6 +21,14 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
 
         public async Task<Result<CreateShippingCompanyResponse>> Handle(CreateShippingCompanyRequest request, CancellationToken cancellationToken)
         {
+            bool companyExists = await _context.ShippingCompanies.AnyAsync(cancellationToken);
+            if (companyExists)
+            {
+                return Result.Failure<CreateShippingCompanyResponse>(
+                    new Error("ShippingCompany.AlreadyExists", "A shipping company already exists in the system. Only one company is allowed.", StatusCodes.Status400BadRequest)
+                );
+            }
+
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })
@@ -92,7 +100,7 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
             }
             try
             {
-                await _emailHelper.SendConfirmationEmail(user, code);
+                await _emailHelper.SendShippingCompanyManagerConfirmationEmail(user, code);
             }
             catch (Exception ex)
             {

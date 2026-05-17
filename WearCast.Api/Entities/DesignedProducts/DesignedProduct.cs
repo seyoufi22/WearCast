@@ -4,10 +4,18 @@
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal AverageRating { get; set; }
+        public int ReviewCount { get; set; }
         public TargetAudience TargetAudience { get; set; }
+        public DressStyle DressStyle { get; set; }
         public decimal Price { get; set; }
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }
+
+        public int SalesCount { get; set; } = 0;
+
+        public int? DefaultColorId { get; set; }
+        public DesignedProductColor? DefaultColor { get; set; }
 
         public int CategoryId { get; set; }
         public Category? Category { get; set; }

@@ -20,7 +20,7 @@
             if (product == null)
                 return Result.Failure(DesignedProductErrors.ProductNotFound);
 
-            if (user.IsSuperAdmin())
+            if (user.IsSuperAdmin() || user.IsCatalogAdmin())
             {
                 //No Action
             }
@@ -50,6 +50,23 @@
             {
                 return Result.Failure(new("Category.NotFound", "The specified category was not found.", StatusCodes.Status404NotFound));
             }
+
+            if (request.DefaultColorId.HasValue)
+            {
+                var isValidColor = await _context.DesignedProductColors
+                    .AnyAsync(c => c.Id == request.DefaultColorId.Value
+                                && c.DesignedProductId == product.Id
+                                , cancellationToken);
+
+                if (!isValidColor)
+                {
+                    return Result.Failure(new Error(
+                        "ProductColor.Invalid",
+                        "The selected default color does not exist or does not belong to this product.",
+                        StatusCodes.Status400BadRequest));
+                }
+            }
+
 
             _mapper.Map(request, product);
 

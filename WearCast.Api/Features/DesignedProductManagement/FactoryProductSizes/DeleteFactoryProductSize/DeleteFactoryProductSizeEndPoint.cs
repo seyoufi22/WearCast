@@ -2,6 +2,7 @@
 {
     [Route("api/factories/product-sizes")]
     [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.CatalogAdmin},{DefaultRoles.SuperAdmin}")]
     [Tags("Factory Product size")]
     public class DeleteFactoryProductSizeEndPoint(IMediator mediator) : ControllerBase
     {

@@ -14,7 +14,7 @@
         {
             var user = _httpContextAccessor.HttpContext!.User;
 
-            var isSuperAdmin = user.IsSuperAdmin();
+            var isAdmin = user.IsSuperAdmin() || user.IsCatalogAdmin();
             var userFactoryId = user.GetFactoryId();
 
             var imageData = await _context.DesignedProductImages
@@ -31,12 +31,12 @@
                 return Result.Failure(FactoryProductImageErrors.ImageNotFound);
             }
 
-            if (!isSuperAdmin && imageData.FactoryId != userFactoryId)
+            if (!isAdmin && imageData.FactoryId != userFactoryId)
             {
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
-            await _imageService.DeleteAsync(imageData.Entity.ImageUrl);
+            //  await _imageService.DeleteAsync(imageData.Entity.ImageUrl);
 
             imageData.Entity.IsDeleted = true;
 

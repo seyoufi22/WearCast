@@ -25,7 +25,7 @@ namespace WearCast.Api.Features.Factories.FactoryManagers.CreateFactoryManager
 
             int targetFactoryId;
 
-            if (currentUser.IsSuperAdmin())
+            if (currentUser.IsSuperAdmin() || currentUser.IsVendorAdmin())
             {
                 if (!request.ProvidedFactoryId.HasValue)
                 {
@@ -105,7 +105,7 @@ namespace WearCast.Api.Features.Factories.FactoryManagers.CreateFactoryManager
 
             try
             {
-                await _emailHelper.SendConfirmationEmail(newManagerUser, code);
+                await _emailHelper.SendFactoryManagerConfirmationEmail(newManagerUser, code);
             }
             catch (Exception ex)
             {

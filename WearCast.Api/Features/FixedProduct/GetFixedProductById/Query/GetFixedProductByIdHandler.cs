@@ -1,23 +1,29 @@
-using WearCast.Api.Common.Repository;
-using WearCast.Api.Abstractions;
+using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Features.FixedProduct.Errors;
 using WearCast.Api.Features.FixedProduct.GetFixedProductById.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.GetFixedProductById.Query;
 
-public class GetFixedProductByIdHandler : IRequestHandler<GetFixedProductByIdQuery, Result<GetFixedProductByIdResponseDto>>
+public class GetFixedProductByIdHandler(ApplicationDbContext context,
+        ITrackingService trackingService,
+        IHttpContextAccessor httpContextAccessor,
+        IRepository<Entities.FixedProduct.FixedProduct> productRepo) : IRequestHandler<GetFixedProductByIdQuery, Result<GetFixedProductByIdResponseDto>>
 {
-    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
-
-    public GetFixedProductByIdHandler(IRepository<Entities.FixedProduct.FixedProduct> productRepo)
-    {
-        _productRepo = productRepo;
-    }
+    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo = productRepo;
+    private readonly ApplicationDbContext _context = context;
+    private readonly ITrackingService _trackingService = trackingService;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<Result<GetFixedProductByIdResponseDto>> Handle(GetFixedProductByIdQuery request, CancellationToken cancellationToken)
     {
-        var product = await _productRepo.GetAsync(p => p.Id == request.Id, useNoTracking: true);
-        
+        //var product = await _productRepo.GetAsync(p => p.Id == request.Id, useNoTracking: true);
+        var product = await _productRepo.Get()
+            .Where(p => p.Id == request.Id && !p.IsDeleted && !p.Seller.IsDeleted)
+            .Include(p => p.Category)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (product == null)
         {
             return Result.Failure<GetFixedProductByIdResponseDto>(FixedProductErrors.ProductNotFound);
@@ -41,6 +47,30 @@ public class GetFixedProductByIdHandler : IRequestHandler<GetFixedProductByIdQue
                 C = sd.C
             }).ToList()
         };
+
+        var user = _httpContextAccessor.HttpContext!.User;
+        if (user.IsCustomer())
+        {
+            var userId = user.GetUserId();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var clickEvent = new ClickEvent
+                {
+                    UserId = userId,
+                    ProductDetails = new ProductDetails
+                    {
+                        Price = product.Price,
+                        TargetAudience = product.TargetAudience.ToString().Split(", ").ToList(),
+                        DressStyle = product.DressStyle.ToString(),
+                        CategoryName = product.Category?.Name,
+                        SellerId = product.Seller.Id
+                    }
+                };
+
+                _trackingService.TrackClick(clickEvent);
+            }
+        }
 
         return Result.Success(response);
     }

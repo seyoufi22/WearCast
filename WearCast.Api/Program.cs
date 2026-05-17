@@ -1,10 +1,16 @@
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
+using Microsoft.AspNetCore.Http.Connections;
 using WearCast.Api;
+using WearCast.Api.Common.Services.Notifications;
+using WearCast.Api.Features.NotificationManagement.NotificationHub;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependencies(builder.Configuration);
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
@@ -16,8 +22,8 @@ app.UseSwaggerUI(options =>
     options.EnablePersistAuthorization();
 });
 
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
@@ -29,20 +35,20 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
         }
     ],
-    DashboardTitle = "Survey Basket Dashboard",
+    DashboardTitle = "WearCast Background Jobs",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
+
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseExceptionHandler();
 
 app.MapControllers();
 
-app.UseStaticFiles();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<WearCast.Api.Persistence.ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
-}
+app.UseWebSockets();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

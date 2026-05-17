@@ -25,8 +25,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors
                 .IsFixedLength()
                 .IsUnicode(false);
 
-            builder.HasIndex(x => x.NationalId)
-                .IsUnique();
+            //builder.HasIndex(x => x.NationalId)
+            //    .IsUnique();
 
             builder.Property(x => x.Status)
                 .IsRequired()

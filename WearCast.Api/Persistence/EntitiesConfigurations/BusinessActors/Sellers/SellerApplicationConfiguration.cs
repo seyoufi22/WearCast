@@ -8,20 +8,20 @@
             builder.HasKey(x => x.Id);
 
 
-            builder.Property(x => x.ManagerFirstName).IsRequired().HasMaxLength(50);
-            builder.Property(x => x.ManagerLastName).IsRequired().HasMaxLength(50);
+            //builder.Property(x => x.ManagerFirstName).IsRequired().HasMaxLength(50);
+            //builder.Property(x => x.ManagerLastName).IsRequired().HasMaxLength(50);
 
-            builder.Property(x => x.ManagerEmail).IsRequired().HasMaxLength(256);
-            builder.HasIndex(x => x.ManagerEmail)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.Property(x => x.ManagerEmail).IsRequired().HasMaxLength(256);
+            //builder.HasIndex(x => x.ManagerEmail)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
-            builder.Property(x => x.ManagerPhoneNumber).IsRequired().HasMaxLength(11);
-            builder.HasIndex(x => x.ManagerPhoneNumber)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.Property(x => x.ManagerPhoneNumber).IsRequired().HasMaxLength(11);
+            //builder.HasIndex(x => x.ManagerPhoneNumber)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
-            builder.Property(x => x.ManagerPasswordHash).IsRequired();
+            //builder.Property(x => x.ManagerPasswordHash).IsRequired();
 
 
             builder.Property(x => x.ManagerEmailConfirmationCode)
@@ -31,34 +31,34 @@
             builder.Property(x => x.ManagerEmailConfirmed)
                 .HasDefaultValue(false);
 
-            builder.Property(x => x.CreatedOn).IsRequired();
+            //builder.Property(x => x.CreatedOn).IsRequired();
 
 
             builder.Property(x => x.SellerName).IsRequired().HasMaxLength(100);
 
-            builder.HasIndex(x => x.SellerName)
-               .IsUnique()
-               .HasFilter("[Status] != 3");
+            //builder.HasIndex(x => x.SellerName)
+            //   .IsUnique()
+            //   .HasFilter("[Status] != 3");
 
             builder.Property(x => x.SellerEmail).IsRequired().HasMaxLength(256);
-            builder.HasIndex(x => x.SellerEmail)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.HasIndex(x => x.SellerEmail)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
             builder.Property(x => x.SellerPhoneNumber).IsRequired().HasMaxLength(20);
-            builder.HasIndex(x => x.SellerPhoneNumber)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.HasIndex(x => x.SellerPhoneNumber)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
             builder.Property(x => x.CommercialRegisterNumber).IsRequired().HasMaxLength(20);
-            builder.HasIndex(x => x.CommercialRegisterNumber)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.HasIndex(x => x.CommercialRegisterNumber)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
             builder.Property(x => x.TaxIdNumber).IsRequired().HasMaxLength(9);
-            builder.HasIndex(x => x.TaxIdNumber)
-                .IsUnique()
-                .HasFilter("[Status] != 3");
+            //builder.HasIndex(x => x.TaxIdNumber)
+            //    .IsUnique()
+            //    .HasFilter("[Status] != 3");
 
             builder.Property(x => x.Description).IsRequired().HasMaxLength(500);
             builder.Property(x => x.LogoUrl).IsRequired().HasMaxLength(500);
@@ -72,7 +72,7 @@
             });
 
 
-            builder.Property(x => x.Status).IsRequired();
+            //builder.Property(x => x.Status).IsRequired();
             builder.Property(x => x.RejectionReason).IsRequired(false).HasMaxLength(500);
         }
     }

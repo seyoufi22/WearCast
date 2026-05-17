@@ -17,26 +17,29 @@ public class UpdateOrderStatusEndpoint : ControllerBase
         _sender = sender;
     }
 
-    /// <summary>
-    /// Updates order status.
-    /// Seller: Paid → Ready | Driver: Ready → PickedUp
-    /// </summary>
     [HttpPut("{orderId}/status")]
-    [Authorize(Roles = "Seller,Driver")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.FactoryManager},{DefaultRoles.Driver}")]
     public async Task<IActionResult> Update([FromRoute] int orderId, [FromBody] UpdateOrderStatusRequestDto requestDto, CancellationToken cancellationToken)
     {
         var role = User.FindFirstValue(ClaimTypes.Role);
 
         int? sellerId = null;
         int? driverId = null;
+        int? factoryId = null;
 
-        if (role == "Seller")
+        if (role == DefaultRoles.SellerManager)
         {
             sellerId = User.GetSellerId();
             if (sellerId is null)
                 return Unauthorized();
         }
-        else if (role == "Driver")
+        else if (role == DefaultRoles.FactoryManager)
+        {
+            factoryId = User.GetFactoryId();
+            if (factoryId is null)
+                return Unauthorized();
+        }
+        else if (role == DefaultRoles.Driver)
         {
             driverId = User.GetDriverId();
             if (driverId is null)
@@ -47,7 +50,7 @@ public class UpdateOrderStatusEndpoint : ControllerBase
             return Forbid();
         }
 
-        var command = new UpdateOrderStatusCommand(orderId, requestDto.NewStatus, sellerId, driverId);
+        var command = new UpdateOrderStatusCommand(orderId, requestDto.NewStatus, sellerId, driverId, factoryId);
         var result = await _sender.Send(command, cancellationToken);
 
         if (!result.IsSuccess)

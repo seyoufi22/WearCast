@@ -1,6 +1,6 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.ResendConfirmEmail
 {
-    public record ResendSellerConfirmEmailResponse(
+    public record ResendConfirmEmailResponse(
         string UserId
         );
 }

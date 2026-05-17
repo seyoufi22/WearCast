@@ -5,6 +5,9 @@
         public static readonly Error InvalidCredentials =
             new("User.InvalidCredentials", "Invalid email/password", StatusCodes.Status401Unauthorized);
 
+        public static readonly Error AccountDeleted =
+            new("User.AccountDeleted", "An account with this email was previously deleted.", StatusCodes.Status409Conflict);
+
         public static readonly Error DisabledUser =
             new("User.DisabledUser", "Disabled user, please contact your administrator", StatusCodes.Status401Unauthorized);
 

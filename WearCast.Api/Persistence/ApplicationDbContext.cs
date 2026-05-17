@@ -29,6 +29,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Entities.FixedProduct.FixedProductImage> FixedProductImages { get; set; }
     public DbSet<Entities.FixedProduct.Favourite> Favourites { get; set; }
     public DbSet<Entities.FixedProduct.FixedProductSize> FixedProductSizes { get; set; }
+    public DbSet<Entities.FixedProduct.FixedProductReview> FixedProductReviews { get; set; }
 
     public DbSet<DesignedProduct> DesignedProducts { get; set; }
     public DbSet<DesignedProductColor> DesignedProductColors { get; set; }
@@ -38,9 +39,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CustomerDesign> CustomerDesigns { get; set; }
     public DbSet<CustomerUploadedImage> CustomerUploadedImages { get; set; }
     public DbSet<DesignedProductSizeDetails> DesignedProductSizeDetails { get; set; }
+    public DbSet<DesignedProductReview> DesignedProductReviews { get; set; }
+
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Entities.Order.Order> Orders { get; set; }
     public DbSet<Entities.Order.FixedProductOrderItem> FixedProductOrderItems { get; set; }
+    public DbSet<UserActivityLog> UserActivityLogs { get; set; }
+    public DbSet<Entities.Order.CustomerDesignedOrderItem> CustomerDesignedOrderItems { get; set; }
+    public DbSet<Entities.PlatformSettings> PlatformSettings { get; set; }
+    public DbSet<Entities.Wallet.Wallet> Wallets { get; set; }
+    public DbSet<Entities.Wallet.WalletTransaction> WalletTransactions { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

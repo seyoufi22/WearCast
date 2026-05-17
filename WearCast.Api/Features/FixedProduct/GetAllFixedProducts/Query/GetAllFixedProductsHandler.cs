@@ -1,26 +1,43 @@
-using WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 using WearCast.Api.Common.Helper;
+using WearCast.Api.Common.Tracking;
+using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Common.Views;
+using WearCast.Api.Features.FixedProduct.GetAllFixedProducts.DTOs;
 
 namespace WearCast.Api.Features.FixedProduct.GetAllFixedProducts.Query;
 
-public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQuery, Result<PagingViewModel<GetAllFixedProductsResponseDto>>>
+public class GetAllFixedProductsHandler(ApplicationDbContext context,
+        ITrackingService trackingService,
+        IHttpContextAccessor httpContextAccessor,
+        IRepository<Entities.FixedProduct.FixedProduct> productRepo) : IRequestHandler<GetAllFixedProductsQuery, Result<PagingViewModel<GetAllFixedProductsResponseDto>>>
 {
-    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo;
-
-    public GetAllFixedProductsHandler(IRepository<Entities.FixedProduct.FixedProduct> productRepo)
-    {
-        _productRepo = productRepo;
-    }
+    private readonly IRepository<Entities.FixedProduct.FixedProduct> _productRepo=productRepo;
+    private readonly ApplicationDbContext _context = context;
+    private readonly ITrackingService _trackingService = trackingService;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<Result<PagingViewModel<GetAllFixedProductsResponseDto>>> Handle(GetAllFixedProductsQuery request, CancellationToken cancellationToken)
     {
         var query = _productRepo.Get()
         .AsNoTracking()
         .Where(p => p.Colors.Any(c => !c.IsDeleted));
+        if (!string.IsNullOrEmpty(request.SearchTerm))
+        {
+            var term = request.SearchTerm.Trim();
+            query = query.Where(p => p.Name.Contains(term) ||
+            p.Seller.Name.Contains(term) ||
+            p.Description.Contains(term));
+        }
 
-        if (!string.IsNullOrEmpty(request.Category))
-            query = query.Where(p => p.Category.Name == request.Category.Trim());
+        string? categoryNameToTrack = null;
+        if (request.CategoryId.HasValue)
+        {
+            query = query.Where(p => p.Category.Id == request.CategoryId.Value);
+            categoryNameToTrack = await _context.Categories
+                    .Where(c => c.Id == request.CategoryId.Value)
+                    .Select(c => c.Name)
+                    .FirstOrDefaultAsync(cancellationToken);
+        }
 
         if(request.DressStyle.HasValue)
             query = query.Where(p => p.DressStyle == request.DressStyle.Value);
@@ -73,22 +90,40 @@ public class GetAllFixedProductsHandler : IRequestHandler<GetAllFixedProductsQue
             CategoryId = x.Product.CategoryId,
             Name = x.Product.Name,
             Price = x.Product.Price,
-            Description = x.Product.Description,
             TargetAudience = x.Product.TargetAudience,
             colorId = x.FirstColor != null ? x.FirstColor.Id : 0,
-            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null,
-            SellerId = x.Product.SellerId,
-            SizeDetails = x.Product.SizeDetails.Select(sd => new ProductSizeDetailGetAllResponseDto
-            {
-                Size = sd.Size.ToString(),
-                A = sd.A,
-                B = sd.B,
-                C = sd.C
-            }).ToList()
+            MainImageUrl = x.FirstColor != null ? x.FirstColor.ImageUrl : null
         });
+        var user = _httpContextAccessor.HttpContext?.User;
+        if (user != null && user.IsCustomer())
+        {
+            var userId = user.GetUserId();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var filterEvent = new FilterEvent
+                {
+                    UserId = userId,
+                    Filters = new FilterDetails
+                    {
+                        SearchKey = request.SearchTerm,
+                        MinPrice = request.MinPrice,
+                        MaxPrice = request.MaxPrice,
+
+                        TargetAudience = request.TargetAudience?.ToString().Split(", ").ToList(),
+                        
+                        DressStyle = request.DressStyle?.ToString(),
+                        CategoryName = categoryNameToTrack,
+                        SellerId = null
+                    }
+                };
+
+                _trackingService.TrackFilter(filterEvent);
+            }
+        }
 
         var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
         return Result.Success(pagedResult);
     }
-}
+}     
