@@ -54,8 +54,9 @@ public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductR
             .IsInEnum().WithMessage("Invalid TargetAudience selected.");
 
         RuleFor(x => x.SizeDetails)
+            .NotEmpty().WithMessage("At least one size detail is required. Please add size measurements (A, B, C) for at least one size.")
             .Must(list => list.Select(d => d.Size).Distinct().Count() == list.Count)
-            .WithMessage("Duplicate sizes are not allowed.");
+            .WithMessage("Duplicate sizes are not allowed. Each size can only appear once.");
 
         RuleForEach(x => x.SizeDetails).ChildRules(detail =>
         {

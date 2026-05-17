@@ -4,17 +4,21 @@ using WearCast.Api.Features.Common.DTOs;
 namespace WearCast.Api.Features.ShippingCompanies.GetWallet;
 
 public class GetShippingCompanyWalletHandler(
-    ApplicationDbContext context,
-    IHttpContextAccessor httpContextAccessor
+    ApplicationDbContext context
 ) : IRequestHandler<GetShippingCompanyWalletRequest, Result<WalletResponse>>
 {
     public async Task<Result<WalletResponse>> Handle(GetShippingCompanyWalletRequest request, CancellationToken cancellationToken)
     {
-        var user = httpContextAccessor.HttpContext!.User;
-        var shippingCompanyId = user.GetShippingCompanyId();
+        var shippingCompanyId = await context.ShippingCompanies
+            .AsNoTracking()
+            .Where(x => !x.IsDeleted)
+            .Select(s => (int?)s.Id)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (shippingCompanyId == null)
-            return Result.Failure<WalletResponse>(new Error("ShippingCompany.NotFound", "Shipping company not found in token.", StatusCodes.Status404NotFound));
+        {
+            return Result.Failure<WalletResponse>(new Error("ShippingCompany.NotFound", "There is no shipping company yet.", StatusCodes.Status404NotFound));
+        }
 
         var wallet = await context.Wallets
             .AsNoTracking()

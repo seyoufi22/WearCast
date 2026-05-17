@@ -1,4 +1,6 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompanyImage
+﻿using WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager;
+
+namespace WearCast.Api.Features.ShippingCompanies.UpdateShippingCompanyImage
 {
     public class UpdateShippingCompanyImageHandler(
         ApplicationDbContext context,
@@ -11,23 +13,16 @@
         private readonly ImageService _imageService = imageService;
         public async Task<Result> Handle(UpdateShippingCompanyImageRequest request, CancellationToken cancellationToken)
         {
-            var user = _httpContextAccessor.HttpContext!.User;
+            var shippingCompanyId = await context.ShippingCompanies
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .Select(s => (int?)s.Id)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            int targetShippingCompanyId;
+            if (shippingCompanyId == null)
+                return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
 
-            if (user.IsSuperAdmin())
-            {
-                if (!request.ProvidedShippingCompanyId.HasValue)
-                {
-                    return Result.Failure(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
-                }
-
-                targetShippingCompanyId = request.ProvidedShippingCompanyId.Value;
-            }
-            else
-            {
-                targetShippingCompanyId = user.GetShippingCompanyId()!.Value;
-            }
+            var targetShippingCompanyId = shippingCompanyId.Value;
 
             var shippingCompany = await _context.ShippingCompanies
                 .FirstOrDefaultAsync(x => x.Id == targetShippingCompanyId, cancellationToken);
