@@ -1,9 +1,9 @@
 ﻿namespace WearCast.Api.Features.Drivers.CreateDriver
 {
+    [Tags("Drivers")]
     [Route("api/drivers")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
-    [Tags("Drivers")]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
     public class CreateDriverEndPoint(IMediator mediator) : ControllerBase
     {
         [HttpPost("create")]

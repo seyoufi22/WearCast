@@ -16,7 +16,7 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Update
 
             int targetManagerId;
 
-            if (user.IsSuperAdmin() || user.IsOperationsAdmin())
+            if (user.IsSuperAdmin())
             {
                 if (!request.ProvidedManagerId.HasValue)
                 {

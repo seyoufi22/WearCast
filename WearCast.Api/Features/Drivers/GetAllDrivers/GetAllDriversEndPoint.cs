@@ -3,10 +3,10 @@ using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers
 {
-    [Route("api/Drivers/GetAll")]
+   
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
     [Tags("Drivers")]
+    [Route("api/Drivers/GetAll")]
     public class GetAllDriversEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -16,6 +16,7 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers
             _sender = sender;
         }
 
+        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllDriversRequestDTO request, CancellationToken cancellationToken)
         {

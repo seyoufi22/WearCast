@@ -2,7 +2,7 @@
 {
     [Route("api/drivers/profile-image")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.Driver},{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.Driver},{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
     [Tags("Driver Profile")]
     [Consumes("multipart/form-data")]
     public class UpdateDriverImageEndPoint(IMediator mediator) : ControllerBase

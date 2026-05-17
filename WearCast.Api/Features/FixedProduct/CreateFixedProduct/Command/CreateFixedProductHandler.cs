@@ -27,31 +27,22 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
 
     public async Task<Result<CreateFixedProductResponseDto>> Handle(CreateFixedProductRequestDto request, CancellationToken cancellationToken)
     {
-        var errors = new List<Error>();
-
         var categoryExists = await _categoryRepo.GetAsync(c => c.Id == request.CategoryId, useNoTracking: true);
         if (categoryExists == null)
         {
-            errors.Add(FixedProductErrors.CategoryNotFound(request.CategoryId));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.CategoryNotFound);
         }
 
         var userExists = await _userManager.FindByIdAsync(request.CreatedById);
         if (userExists == null)
         {
-            errors.Add(FixedProductErrors.UserNotFound(request.CreatedById));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.UserNotFound);
         }
 
         var existingProduct = await _productRepo.GetAsync(p => p.Name == request.Name, useNoTracking: true);
         if (existingProduct != null)
         {
-            errors.Add(FixedProductErrors.DuplicateName(request.Name));
-        }
-
-        if (errors.Any())
-        {
-            var combinedMessage = string.Join("; ", errors.Select(e => e.Description));
-            return Result.Failure<CreateFixedProductResponseDto>(
-                new Error("FixedProduct.ValidationFailed", combinedMessage, StatusCodes.Status400BadRequest));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.DuplicateName);
         }
 
         var product = new Entities.FixedProduct.FixedProduct
