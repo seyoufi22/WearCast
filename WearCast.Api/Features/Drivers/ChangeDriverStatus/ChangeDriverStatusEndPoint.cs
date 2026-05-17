@@ -4,9 +4,10 @@ using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
 {
+    [Route("api/drivers")]
     [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin},{DefaultRoles.Driver}")]
     [Tags("Drivers")]
-    [Route("api/Drivers")]
     public class ChangeDriverStatusEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -16,7 +17,6 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpPatch("{id}/ChangeStatus")]
         public async Task<IActionResult> UpdateStatus(
             [FromRoute] int id,
