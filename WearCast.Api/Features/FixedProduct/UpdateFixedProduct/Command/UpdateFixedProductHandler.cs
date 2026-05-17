@@ -37,13 +37,13 @@ public class UpdateFixedProductHandler : IRequestHandler<UpdateFixedProductReque
         var categoryExists = await _categoryRepo.GetAsync(c => c.Id == request.CategoryId, useNoTracking: true);
         if (categoryExists == null)
         {
-            return Result.Failure<UpdateFixedProductResponseDto>(FixedProductErrors.CategoryNotFound(request.CategoryId));
+            return Result.Failure<UpdateFixedProductResponseDto>(FixedProductErrors.CategoryNotFound);
         }
 
         var existingProductWithSameName = await _productRepo.GetAsync(p => p.Name == request.Name && p.Id != request.Id, useNoTracking: true);
         if (existingProductWithSameName != null)
         {
-            return Result.Failure<UpdateFixedProductResponseDto>(FixedProductErrors.DuplicateName(request.Name));
+            return Result.Failure<UpdateFixedProductResponseDto>(FixedProductErrors.DuplicateName);
         }
 
         product.CategoryId = request.CategoryId;
