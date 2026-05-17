@@ -8,9 +8,9 @@
 
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
 
-            builder.HasIndex(x => x.Name)
-                .IsUnique()
-                .HasFilter("[IsDeleted] = 0");
+            //builder.HasIndex(x => x.Name)
+            //    .IsUnique()
+            //    .HasFilter("[IsDeleted] = 0");
         }
     }
 }

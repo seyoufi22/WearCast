@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Entities.DesignedProducts;
-
-namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
+﻿namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfiguration
 {
     public class CustomerUploadedImageConfiguration : BaseModelConfiguration<CustomerUploadedImage>
     {
@@ -8,7 +6,7 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
         {
             base.Configure(builder);
 
-            builder.Property(x => x.ImageUrl).IsRequired();
+            //builder.Property(x => x.ImageUrl).IsRequired();
 
             builder.HasOne(x => x.Customer)
                    .WithMany()

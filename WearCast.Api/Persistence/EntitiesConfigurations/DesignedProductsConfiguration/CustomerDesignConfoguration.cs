@@ -6,8 +6,8 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.DesignedProductsConfig
         {
             base.Configure(builder);
 
-            builder.Property(x => x.ViewDesignsJson)
-                   .IsRequired();
+            //builder.Property(x => x.ViewDesignsJson)
+            //       .IsRequired();
 
             builder.Property(x => x.TotalPrice)
                 .HasColumnType("decimal(18,2)");

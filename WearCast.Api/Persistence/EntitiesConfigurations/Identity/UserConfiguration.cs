@@ -20,8 +20,8 @@
                 .IsUnicode(false)
                 .IsRequired(true);
 
-            builder.HasIndex(x => x.Email).IsUnique();
-            builder.HasIndex(x => x.NormalizedEmail).IsUnique();
+            //builder.HasIndex(x => x.Email).IsUnique();
+            //builder.HasIndex(x => x.NormalizedEmail).IsUnique();
 
             builder.OwnsMany(x => x.RefreshTokens)
                 .ToTable("RefreshTokens")

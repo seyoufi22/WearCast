@@ -14,12 +14,12 @@
                    .IsRequired()
                    .HasMaxLength(10);
 
-            builder.Property(x => x.DesignedProductId)
-                  .IsRequired();
+            //builder.Property(x => x.DesignedProductId)
+            //      .IsRequired();
 
-            builder.HasIndex(x => new { x.DesignedProductId, x.HexCode })
-                   .IsUnique()
-                   .HasFilter("[IsDeleted] = 0");
+            //builder.HasIndex(x => new { x.DesignedProductId, x.HexCode })
+            //       .IsUnique()
+            //       .HasFilter("[IsDeleted] = 0");
 
             builder.HasOne(x => x.DesignedProduct)
                    .WithMany(p => p.Colors)

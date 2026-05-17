@@ -14,11 +14,11 @@
                    .IsRequired()
                    .HasMaxLength(1000);
 
-            builder.Property(x => x.WidthPx)
-                   .IsRequired();
+            //builder.Property(x => x.WidthPx)
+            //       .IsRequired();
 
-            builder.Property(x => x.HeightPx)
-                   .IsRequired();
+            //builder.Property(x => x.HeightPx)
+            //       .IsRequired();
 
             builder.HasOne(x => x.DesignAssetCategory)
                    .WithMany(c => c.Assets)

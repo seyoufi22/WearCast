@@ -18,9 +18,9 @@
                    .HasForeignKey(x => x.DesignedProductColorId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(x => new { x.DesignedProductColorId, x.ViewSide })
-                   .IsUnique()
-                   .HasFilter("[IsDeleted] = 0");
+            //builder.HasIndex(x => new { x.DesignedProductColorId, x.ViewSide })
+            //       .IsUnique()
+            //       .HasFilter("[IsDeleted] = 0");
         }
     }
 }
