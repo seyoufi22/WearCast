@@ -2,7 +2,7 @@
 {
     [Route("api/shipping-companies/profile-image")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
     [Tags("Shipping Company Profile")]
     [Consumes("multipart/form-data")]
     public class UpdateShippingCompanyImageEndPoint(IMediator mediator) : ControllerBase

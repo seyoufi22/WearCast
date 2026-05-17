@@ -2,7 +2,7 @@
 {
     [Route("api/drivers")]
     [ApiController]
-    [Authorize(Roles = $"{DefaultRoles.Driver},{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.Driver},{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
     [Tags("Driver Profile")]
     public class UpdateDriverProfileEndPoint(IMediator mediator) : ControllerBase
     {

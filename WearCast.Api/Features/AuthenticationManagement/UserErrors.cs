@@ -34,5 +34,5 @@
 
         public static readonly Error DublicatedConfirmation =
             new("User.DublicatedConfirmation", "Email already confirmed", StatusCodes.Status400BadRequest);
-   }
+    }
 }
