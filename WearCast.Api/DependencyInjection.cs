@@ -33,7 +33,7 @@ namespace WearCast.Api
                             if (kvp.Value?.Errors.Count > 0)
                             {
                                 var key = kvp.Key;
-                                
+
                                 // Clean up JSON path keys (e.g. "$.categoryId" -> "categoryId")
                                 if (key.StartsWith("$."))
                                 {
@@ -198,8 +198,8 @@ namespace WearCast.Api
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+            //services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            //services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
 
