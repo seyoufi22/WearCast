@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using WearCast.Api.Features.AuthenticationManagement;
 using WearCast.Api.Features.ShippingCompanies;
+using WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager;
 
 
 namespace WearCast.Api.Features.Drivers.CreateDriver
@@ -25,28 +26,17 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
         public async Task<Result<CreateDriverResponse>> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
-            var currentUser = _httpContextAccessor.HttpContext!.User;
-            int targetCompanyId;
+            var shippingCompanyId = await context.ShippingCompanies
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .Select(s => (int?)s.Id)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (currentUser.IsSuperAdmin())
-            {
-                if (!request.ProvidedShippingCompanyId.HasValue)
-                {
-                    return Result.Failure<CreateDriverResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target ShippingCompanyId.", StatusCodes.Status400BadRequest));
-                }
-                targetCompanyId = request.ProvidedShippingCompanyId.Value;
-            }
-            else
-            {
-                var companyIdFromToken = currentUser.GetShippingCompanyId();
-                if (!companyIdFromToken.HasValue)
-                {
-                    return Result.Failure<CreateDriverResponse>(new Error("User.InvalidToken", "Shipping Company ID not found in token.", StatusCodes.Status401Unauthorized));
-                }
-                targetCompanyId = companyIdFromToken.Value;
-            }
+            if (shippingCompanyId == null)
+                return Result.Failure<CreateDriverResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
 
-            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == targetCompanyId, cancellationToken);
+
+            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == shippingCompanyId.Value, cancellationToken);
             if (!companyExists)
                 return Result.Failure<CreateDriverResponse>(ShippingCompanyErrors.CompanyNotFound);
 
@@ -106,7 +96,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
                 driver.ProfileImageUrl = profileImageUrl;
                 driver.UserId = newDriverUser.Id;
-                driver.ShippingCompanyId = targetCompanyId;
+                driver.ShippingCompanyId = shippingCompanyId.Value;
 
 
                 await _context.Drivers.AddAsync(driver, cancellationToken);

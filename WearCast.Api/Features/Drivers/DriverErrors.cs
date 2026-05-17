@@ -26,5 +26,10 @@
           new("Driver.UnAuthorized",
               "You are not authorized to perform this action",
               StatusCodes.Status403Forbidden);
+    
+        public static readonly Error DeleteActiveDriver =
+          new("Driver.DeleteActiveDriver",
+              "This driver cannot be deleted because he has active shipments.",
+              StatusCodes.Status409Conflict);
     }
 }
