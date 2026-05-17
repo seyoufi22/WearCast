@@ -4,28 +4,23 @@ namespace WearCast.Api.Features.FixedProduct.Errors;
 
 public static class FixedProductErrors
 {
-    public static Error DuplicateName(string productName) => new(
+    public static readonly Error DuplicateName = new(
         "FixedProduct.DuplicateName",
-        $"A product with the name '{productName}' already exists. Please choose a different name.",
+        "A product with the same name already exists.",
         StatusCodes.Status409Conflict);
 
-    public static Error CategoryNotFound(int categoryId) => new(
+    public static readonly Error CategoryNotFound = new(
         "FixedProduct.CategoryNotFound",
-        $"Category with ID {categoryId} was not found. Please provide a valid CategoryId.",
+        "The specified Category was not found.",
         StatusCodes.Status404NotFound);
 
-    public static Error UserNotFound(string userId) => new(
+    public static readonly Error UserNotFound = new(
         "FixedProduct.UserNotFound",
-        $"User with ID '{userId}' was not found. Please ensure the user exists.",
+        "The specified User (CreatedById) was not found.",
         StatusCodes.Status404NotFound);
 
     public static readonly Error ProductNotFound = new(
         "FixedProduct.ProductNotFound",
         "The specified Product was not found.",
         StatusCodes.Status404NotFound);
-
-    public static readonly Error SizeDetailsEmpty = new(
-        "FixedProduct.SizeDetailsEmpty",
-        "At least one size detail is required. Please add size measurements (A, B, C) for at least one size.",
-        StatusCodes.Status400BadRequest);
 }

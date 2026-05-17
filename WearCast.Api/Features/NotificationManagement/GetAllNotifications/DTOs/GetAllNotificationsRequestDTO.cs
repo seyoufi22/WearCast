@@ -8,8 +8,6 @@ namespace WearCast.Api.Features.NotificationManagement.GetAllNotifications.DTOs
         public int PageSize { get; set; } = 100;
 
         public SortBy SortBy { get; set; } = SortBy.Newest;
-
-        public bool? IsRead { get; set; } = null;
         public NotificationType? NotificationType { get; set; } = null;
 
     }

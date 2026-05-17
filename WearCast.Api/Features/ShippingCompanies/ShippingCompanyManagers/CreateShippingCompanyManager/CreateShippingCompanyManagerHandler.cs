@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 
 using WearCast.Api.Features.AuthenticationManagement;
-using WearCast.Api.Features.Common.DTOs;
 
 
 namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager
@@ -24,16 +23,29 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Create
 
         public async Task<Result<CreateShippingCompanyManagerResponse>> Handle(CreateShippingCompanyManagerRequest request, CancellationToken cancellationToken)
         {
-            var shippingCompanyId = await context.ShippingCompanies
-                .AsNoTracking()
-                .Where(x => !x.IsDeleted)
-                .Select(s => (int?)s.Id)
-                .FirstOrDefaultAsync(cancellationToken);
+            var currentUser = _httpContextAccessor.HttpContext!.User;
+            int targetCompanyId;
 
-            if (shippingCompanyId == null)
-                return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
-
-            var targetCompanyId = shippingCompanyId.Value;
+            if (currentUser.IsSuperAdmin())
+            {
+                if (!request.ProvidedShippingCompanyId.HasValue)
+                {
+                    return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target ProviderId to delete.", StatusCodes.Status400BadRequest));
+                }
+                targetCompanyId = request.ProvidedShippingCompanyId.Value;
+            }
+            else
+            {
+                var companyIdFromToken = currentUser.GetShippingCompanyId();
+                if (!companyIdFromToken.HasValue)
+                {
+                    return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("User.InvalidToken", "Shipping Company ID not found in token.", StatusCodes.Status401Unauthorized));
+                }
+                targetCompanyId = companyIdFromToken.Value;
+            }
+            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == targetCompanyId, cancellationToken);
+            if (!companyExists)
+                return Result.Failure<CreateShippingCompanyManagerResponse>(ShippingCompanyErrors.CompanyNotFound);
 
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber)
