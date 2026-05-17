@@ -42,14 +42,7 @@ public class CreateFixedProductHandler : IRequestHandler<CreateFixedProductReque
         var existingProduct = await _productRepo.GetAsync(p => p.Name == request.Name, useNoTracking: true);
         if (existingProduct != null)
         {
-            errors.Add(FixedProductErrors.DuplicateName(request.Name));
-        }
-
-        if (errors.Any())
-        {
-            var combinedMessage = string.Join("; ", errors.Select(e => e.Description));
-            return Result.Failure<CreateFixedProductResponseDto>(
-                new Error("FixedProduct.ValidationFailed", combinedMessage, StatusCodes.Status400BadRequest));
+            return Result.Failure<CreateFixedProductResponseDto>(FixedProductErrors.DuplicateName);
         }
 
         var product = new Entities.FixedProduct.FixedProduct
