@@ -8,7 +8,5 @@
         string TaxIdNumber,
         string Description,
         decimal DeliveryFee,
-        AddressDto Address,
-        int? ProvidedCompanyId = null
-        ) : IRequest<Result>;
+        AddressDto Address) : IRequest<Result>;
 }

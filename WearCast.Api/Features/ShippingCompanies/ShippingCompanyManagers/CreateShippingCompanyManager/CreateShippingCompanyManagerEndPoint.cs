@@ -2,7 +2,7 @@
 {
     [ApiController]
     [Route("api/shipping-company-managers")]
-    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
     [Tags("Shipping Company Manager Profile")]
     public class CreateShippingCompanyManagerEndPoint(IMediator mediator) : ControllerBase
     {

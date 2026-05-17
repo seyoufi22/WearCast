@@ -6,8 +6,6 @@
         string LastName,
         string PhoneNumber,
         string Password,
-        string ConfirmPassword,
-
-        int? ProvidedShippingCompanyId = null
+        string ConfirmPassword
         ) : IRequest<Result<CreateShippingCompanyManagerResponse>>;
 }

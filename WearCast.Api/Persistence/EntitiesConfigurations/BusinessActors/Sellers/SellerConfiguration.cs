@@ -7,16 +7,16 @@ namespace WearCast.Api.Persistence.EntitiesConfigurations.BusinessActors.Sellers
         {
 
             builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
-            builder.HasIndex(x => x.Name).IsUnique();
+            //builder.HasIndex(x => x.Name).IsUnique();
 
             builder.Property(x => x.Email).IsRequired().HasMaxLength(256);
-            builder.HasIndex(x => x.Email).IsUnique();
+            //builder.HasIndex(x => x.Email).IsUnique();
 
             builder.Property(x => x.CommercialRegisterNumber).IsRequired().HasMaxLength(20);
-            builder.HasIndex(x => x.CommercialRegisterNumber).IsUnique();
+            //builder.HasIndex(x => x.CommercialRegisterNumber).IsUnique();
 
             builder.Property(x => x.TaxIdNumber).IsRequired().HasMaxLength(9);
-            builder.HasIndex(x => x.TaxIdNumber).IsUnique();
+            //builder.HasIndex(x => x.TaxIdNumber).IsUnique();
 
             builder.Property(x => x.PhoneNumber).IsRequired().HasMaxLength(20);
 

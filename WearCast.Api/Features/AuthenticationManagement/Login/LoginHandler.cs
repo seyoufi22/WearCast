@@ -29,10 +29,10 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
 
             if (result.Succeeded)
             {
-                var (role, userPermissions) = await GetUserRoleAndPermissions(user, cancellationToken);
+                var role = await GetUserRole(user, cancellationToken);
                 var profileClaims = await GetProfileClaimsAsync(user.Id, role, cancellationToken);
 
-                var (token, expiresIn) = _jwtProvider.GenerateToken(user, role, userPermissions, profileClaims);
+                var (token, expiresIn) = _jwtProvider.GenerateToken(user, role, profileClaims);
 
                 var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
                 var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
@@ -59,21 +59,13 @@ namespace WearCast.Api.Features.AuthenticationManagement.Login
             return Result.Failure<AuthResponse>(error);
         }
 
-        private async Task<(string role, IEnumerable<string> permissions)> GetUserRoleAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
+        private async Task<string> GetUserRole(ApplicationUser user, CancellationToken cancellationToken)
         {
             var userRoles = await _userManager.GetRolesAsync(user);
 
             var userRole = userRoles.FirstOrDefault() ?? string.Empty;
 
-            var userPermissions = await (from r in _context.Roles
-                                         join p in _context.RoleClaims
-                                         on r.Id equals p.RoleId
-                                         where r.Name == userRole
-                                         select p.ClaimValue!)
-                                        .Distinct()
-                                        .ToListAsync(cancellationToken);
-
-            return (userRole, userPermissions);
+            return userRole;
         }
 
         private async Task<Dictionary<string, string>> GetProfileClaimsAsync(string userId, string role, CancellationToken cancellationToken)
