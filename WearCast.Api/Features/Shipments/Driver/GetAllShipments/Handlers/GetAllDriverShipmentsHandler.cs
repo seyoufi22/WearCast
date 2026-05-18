@@ -1,6 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WearCast.Api.Common.Helper;
+﻿using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 

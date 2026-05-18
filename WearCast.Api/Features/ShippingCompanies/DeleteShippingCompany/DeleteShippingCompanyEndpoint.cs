@@ -8,7 +8,7 @@
     {
         private readonly IMediator _mediator = mediator;
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShippingCompany(
             [FromRoute] int id,
             [FromBody] DeleteShippingCompanyBody body,

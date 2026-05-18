@@ -22,7 +22,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.Handle
                 .Select(s => new GetShipmentByIdResponseDTO
                 {
                     Id = s.Id,
-                    IsDeleted = s.IsDeleted,
                     DeliveryAddress = s.DeliveryAddress,
                     Price = s.Price,
                     ShipmentStatus = s.ShipmentStatus,
@@ -43,14 +42,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.Handle
                     CustomerId = s.CustomerId,
                     CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
                     CustomerPhoneNumber=s.Customer.ApplicationUser.PhoneNumber,
-
-
-                    Orders = s.Orders.Select(o => new GetShipmentByIdOrderSummaryDTO
-                    {
-                        OrderId = o.Id,
-                        StoreName = o.Seller.Name,
-                        ItemsCount = o.FixedProductItems.Count()
-                    }).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
             if (shipment == null)

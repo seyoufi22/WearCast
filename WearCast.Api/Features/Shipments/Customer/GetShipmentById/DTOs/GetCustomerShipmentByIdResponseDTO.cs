@@ -13,14 +13,7 @@
         public DateTime? DeliveredAt { get; set; }
         public string? DriverName { get; set; }
         public string? DriverPhoneNumber { get; set; }
-        public List<GetCustomerShipmentByIdOrderSummaryDTO> Orders { get; set; }
         public string DeliveryCode { get; set; }
 
-    }
-    public class GetCustomerShipmentByIdOrderSummaryDTO
-    {
-        public int OrderId { get; set; }
-        public string StoreName { get; set; }
-        public int ItemsCount { get; set; }
     }
 }

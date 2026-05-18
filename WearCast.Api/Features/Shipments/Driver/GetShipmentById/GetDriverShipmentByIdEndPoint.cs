@@ -2,9 +2,10 @@
 
 namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/drivers")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.Driver}")]
+    [Tags("Shipments")]
     public class GetDriverShipmentByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -14,7 +15,6 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.Driver}")]
         [HttpGet("shipments/{ShipmentId}")]
         public async Task<IActionResult> GetById([FromRoute] int ShipmentId, CancellationToken cancellationToken)
         {

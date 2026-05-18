@@ -2,9 +2,10 @@
 
 namespace WearCast.Api.Features.Shipments.Customer.GetShipmentById
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/Customer")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.Customer}")]
+    [Tags("Shipments")]
     public class GetCustomerShipmentByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -14,7 +15,6 @@ namespace WearCast.Api.Features.Shipments.Customer.GetShipmentById
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.Customer}")]
         [HttpGet("shipments/{ShipmentId}")]
         public async Task<IActionResult> GetById([FromRoute] int ShipmentId, CancellationToken cancellationToken)
         {

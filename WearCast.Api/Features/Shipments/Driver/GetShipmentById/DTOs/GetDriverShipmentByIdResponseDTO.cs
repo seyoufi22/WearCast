@@ -12,14 +12,5 @@
         public DateTime? DeliveredAt { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhoneNumber { get; set; }
-        public List<GetDriverShipmentByIdOrderSummaryDTO> Orders { get; set; }
-    }
-    public class GetDriverShipmentByIdOrderSummaryDTO
-    {
-        public int OrderId { get; set; }
-        public string StoreName { get; set; } 
-        public int ItemsCount { get; set; } 
-
-        // pick up code
     }
 }

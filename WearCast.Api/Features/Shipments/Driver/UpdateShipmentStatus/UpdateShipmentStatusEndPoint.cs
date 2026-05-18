@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/Shipments")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver},{DefaultRoles.OperationsAdmin}")]
+    [Tags("Shipments")]
     public class UpdateShipmentStatusEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -15,7 +13,6 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus
         {
             _sender = sender;
         }
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpPut("{ShipmentId}/status")]
         public async Task<IActionResult> UpdateStatus(
             [FromRoute] int ShipmentId,

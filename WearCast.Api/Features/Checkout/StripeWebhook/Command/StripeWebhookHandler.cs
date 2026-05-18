@@ -195,7 +195,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             {
                 CustomerId = firstOrder.CustomerId,
                 DeliveryAddress = deliveryAddress,
-                ShipmentStatus = ShipmentStatus.Unassigned,
+                ShipmentStatus = ShipmentStatus.Pending,
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById,
                 Price = ordersTotal + shippingCompany.DeliveryFee,
