@@ -38,5 +38,24 @@
             "The specified seller was not found.",
             StatusCodes.Status404NotFound);
 
+        public static readonly Error ManagerNotFound =
+             new("SellerManager.NotFound",
+             "The specified manager was not found.",
+             StatusCodes.Status404NotFound);
+
+        public static readonly Error CannotDeleteYourself =
+             new("SellerManager.CannotDeleteYourself",
+             "You cannot delete your own manager account.",
+             StatusCodes.Status400BadRequest);
+
+        public static readonly Error CurrentManagerNotFound =
+             new("SellerManager.CurrentManagerNotFound",
+             "The current user's manager profile could not be found.",
+             StatusCodes.Status404NotFound);
+
+        public static readonly Error UnauthorizedToDeleteManager =
+             new("SellerManager.Unauthorized",
+             "You are not authorized to delete a manager from a different seller.",
+             StatusCodes.Status403Forbidden);
     }
 }
