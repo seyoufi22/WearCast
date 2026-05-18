@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using WearCast.Api;
 using WearCast.Api.Common.Services.Notifications;
 using WearCast.Api.Features.NotificationManagement.NotificationHub;
+using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,11 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseRouting();
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =
@@ -38,15 +44,10 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
     DashboardTitle = "WearCast Background Jobs",
     // IsReadOnlyFunc = (DashboardContext context) => true
 });
-
-app.UseCors("AllowAll");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseExceptionHandler();
 
 app.MapControllers();
+app.MapCarter();
 
 app.UseWebSockets();
 app.MapHub<NotificationHub>("/notificationHub");
