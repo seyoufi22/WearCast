@@ -57,5 +57,10 @@
              new("SellerManager.Unauthorized",
              "You are not authorized to delete a manager from a different seller.",
              StatusCodes.Status403Forbidden);
+
+        public static readonly Error CannotDeleteLastManager =
+            new("SellerManager.CannotDeleteLastManager",
+            "Cannot delete the last manager of this seller. A seller must have at least one active manager.",
+            StatusCodes.Status400BadRequest);
     }
 }

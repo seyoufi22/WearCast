@@ -12,9 +12,8 @@ public class DeleteSellerManagerHandler(
 
     public async Task<Result> Handle(DeleteSellerManagerRequest request, CancellationToken cancellationToken)
     {
-
         var targetManagerData = await _context.SellerManagers
-            .Where(m => m.Id == request.SellerManagerId && !m.IsDeleted) 
+            .Where(m => m.Id == request.SellerManagerId && !m.IsDeleted)
             .Select(m => new
             {
                 m.Id,
@@ -34,7 +33,15 @@ public class DeleteSellerManagerHandler(
             return Result.Failure(SellerErrors.CannotDeleteYourself);
         }
 
-        if (!request.IsSuperAdmin)
+        var activeManagersCount = await _context.SellerManagers
+            .CountAsync(m => m.SellerId == targetManagerData.SellerId && !m.IsDeleted, cancellationToken);
+
+        if (activeManagersCount <= 1)
+        {
+            return Result.Failure(SellerErrors.CannotDeleteLastManager);
+        }
+
+        if (!request.IsAdmin)
         {
             var currentManagerSellerId = await _context.SellerManagers
                 .Where(m => m.UserId == request.CurrentUserId && !m.IsDeleted)
