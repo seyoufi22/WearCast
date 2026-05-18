@@ -2,7 +2,7 @@
 {
     [Route("api/customers")]
     [ApiController]
-    [Authorize(Roles = DefaultRoles.SuperAdmin)]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.CustomerServiceAdmin}")]
     [Tags("Customer Profile")]
     public class DeleteCustomerEndpoint(IMediator mediator) : ControllerBase
     {

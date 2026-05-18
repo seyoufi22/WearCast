@@ -2,7 +2,7 @@ namespace WearCast.Api.Features.Factories.GetWallet;
 
 [Route("api/factories")]
 [ApiController]
-[Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.SuperAdmin}")]
+[Authorize(Roles = $"{DefaultRoles.FactoryManager},{DefaultRoles.SuperAdmin},{DefaultRoles.VendorAdmin}")]
 [Tags("Factory Profile")]
 public class GetFactoryWalletEndpoint(ISender sender) : ControllerBase
 {

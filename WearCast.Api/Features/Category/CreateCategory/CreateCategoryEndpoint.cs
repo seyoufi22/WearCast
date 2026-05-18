@@ -7,7 +7,7 @@ namespace WearCast.Api.Features.Category.CreateCategory;
 [ApiController]
 public class CreateCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpPost("CreateCategory", Name = "AddCategory")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status201Created)]
