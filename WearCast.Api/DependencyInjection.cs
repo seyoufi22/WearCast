@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Text;
 using WearCast.Api.Common.Tracking;
 using WearCast.Api.Common.Wallet;
+using Carter;
+using WearCast.Api.Common.ExternalServices;
+using System.Security.Claims;
 
 
 
@@ -71,6 +74,8 @@ namespace WearCast.Api
                     };
                 });
 
+            services.AddCarter();
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -90,6 +95,10 @@ namespace WearCast.Api
 
             services.AddScoped<ImageService>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            services
+                .AddHttpClient<IRecommendationServiceClient, RecommendationServiceClient>();
+            services.AddScoped<IRecommendationTrainingService, RecommendationTrainingService>();
 
             services
                 .AddSwaggerServices()
@@ -227,7 +236,9 @@ namespace WearCast.Api
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
                         ValidIssuer = jwtSettings?.Issuer,
-                        ValidAudience = jwtSettings?.Audience
+                        ValidAudience = jwtSettings?.Audience,
+                        RoleClaimType = ClaimTypes.Role,
+                        NameClaimType = ClaimTypes.NameIdentifier
                     };
                     o.Events = new JwtBearerEvents
                     {
