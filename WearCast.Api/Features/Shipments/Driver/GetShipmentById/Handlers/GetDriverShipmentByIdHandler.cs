@@ -29,8 +29,7 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById.Handlers
                     DeliveredAt = s.DeliveredAt,
 
                     CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
-                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber,
-
+                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber ?? string.Empty,
                     DeliveryAddress =s.DeliveryAddress,
                 })
                 .FirstOrDefaultAsync(cancellationToken);

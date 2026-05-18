@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Drivers.GetDriverOrders.DTOs;
+﻿using WearCast.Api.Features.Drivers.GetDriverOrders.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetDriverOrders
 {
     [Route("api/Driver/Orders")]
     [ApiController]
-    [Authorize(Roles = DefaultRoles.Driver)]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin},{DefaultRoles.Driver}")]
     [Tags("Driver Orders")]
     public class GetDriverOrdersEndPoint : ControllerBase
     {
@@ -22,13 +20,14 @@ namespace WearCast.Api.Features.Drivers.GetDriverOrders
             [FromQuery] GetDriverOrdersRequestDTO request,
             CancellationToken cancellationToken)
         {
-            var driverId = User.GetDriverId();
-            if (driverId == null)
+            if (User.IsDriver())
             {
-                return Unauthorized();
+                if (User.GetDriverId() != request.DriverId)
+                {
+                    return Unauthorized();
+                }
             }
-            request.DriverId = driverId.Value;
-
+            
             var result = await _sender.Send(request, cancellationToken);
 
             if (result.IsSuccess)

@@ -17,7 +17,7 @@ namespace WearCast.Api.Features.Drivers.GetDriverOrders.Handlers
             GetDriverOrdersRequestDTO request,
             CancellationToken cancellationToken)
         {
-            
+
             var query = _context.Orders
                 .Where(o => o.Shipment != null && o.Shipment.DriverId == request.DriverId)
                 .AsNoTracking();
@@ -43,18 +43,10 @@ namespace WearCast.Api.Features.Drivers.GetDriverOrders.Handlers
                 );
             }
 
-            query = request.SortBy switch
-            {
-                SortBy.NumberOfItemsAsc => query.OrderBy(o => o.DesignedProductItems.Count + o.FixedProductItems.Count),
-                SortBy.NumberOfItemsDesc => query.OrderByDescending(o => o.DesignedProductItems.Count + o.FixedProductItems.Count),
-                SortBy.Oldest => query.OrderBy(o => o.CreatedOn),
-                _ => query.OrderByDescending(o => o.CreatedOn)
-            };
-
             var projectedQuery = query.Select(o => new GetDriverOrdersResponseDTO
             {
                 OrderId = o.Id,
-                ShipmentId = o.ShipmentId ?? 0,
+                ShipmentId = o.ShipmentId!.Value,
                 OrderType = o.SellerId.HasValue ? OrderType.Fixed : OrderType.Designed,
 
                 VendorName = o.Seller != null ? o.Seller.Name : (o.Factory != null ? o.Factory.Name : string.Empty),
@@ -62,8 +54,17 @@ namespace WearCast.Api.Features.Drivers.GetDriverOrders.Handlers
                 VendorAddress = o.Seller != null ? o.Seller.Address : (o.Factory != null ? o.Factory.Address : new Address()),
 
                 OrderStatus = o.Status,
-                NumberOfItems = o.FixedProductItems.Count + o.DesignedProductItems.Count
+                NumberOfItems = o.FixedProductItems.Count + o.DesignedProductItems.Count,
+                CreatedOn = o.CreatedOn 
             });
+
+            projectedQuery = request.SortBy switch
+            {
+                SortBy.NumberOfItemsAsc => projectedQuery.OrderBy(o => o.NumberOfItems),
+                SortBy.NumberOfItemsDesc => projectedQuery.OrderByDescending(o => o.NumberOfItems),
+                SortBy.Oldest => projectedQuery.OrderBy(o => o.CreatedOn),
+                _ => projectedQuery.OrderByDescending(o => o.CreatedOn)
+            };
 
             var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 

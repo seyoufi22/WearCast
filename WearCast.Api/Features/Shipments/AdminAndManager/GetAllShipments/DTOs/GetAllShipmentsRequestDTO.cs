@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Common.Views;
-using WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs
 {

@@ -10,5 +10,6 @@
         public string VendorPhoneNumber { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public int NumberOfItems { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

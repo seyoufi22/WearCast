@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.Driver.UnAssignShipment.DTOs;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.UnAssignShipment.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment
 {

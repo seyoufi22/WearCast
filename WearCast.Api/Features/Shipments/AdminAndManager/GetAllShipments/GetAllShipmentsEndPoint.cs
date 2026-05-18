@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
-using WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs;
+﻿using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments
 {

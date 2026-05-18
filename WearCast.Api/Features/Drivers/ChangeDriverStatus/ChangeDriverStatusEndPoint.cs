@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
+﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus
 {

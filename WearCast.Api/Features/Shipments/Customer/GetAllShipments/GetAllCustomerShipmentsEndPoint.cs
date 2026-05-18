@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs;
-using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
+﻿using WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments
 {
@@ -23,7 +20,7 @@ namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments
         {
             if (User.IsCustomer() && User.GetCustomerId() != request.CustomerId)
             {
-                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
+                return Unauthorized();
             }
 
             var result = await _sender.Send(request, cancellationToken);

@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
-using WearCast.Api.Features.Shipments;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
 {

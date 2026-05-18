@@ -1,6 +1,4 @@
-﻿using Org.BouncyCastle.Cms;
-using System.Security.Claims;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
 {
@@ -18,10 +16,20 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
             UpdateShipmentStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
-            var shipment = await _context.Shipments
-                .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
+            var shipmentInfo = await _context.Shipments
+                .AsNoTracking()
+                .Where(s => s.Id == request.ShipmentId)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.ShipmentStatus,
+                    s.DriverId,
+                    s.DeliveryCode,
+                    CustomerUserId = s.Customer.UserId
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (shipment == null)
+            if (shipmentInfo == null)
             {
                 return Result.Failure(ShipmentErrors.NotFound);
             }
@@ -32,70 +40,79 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                      .Where(d => d.UserId == request.UpdaterId)
                      .Select(d => d.Id)
                      .FirstOrDefaultAsync(cancellationToken);
-                if (currentDriverId == 0 || shipment.DriverId != currentDriverId)
+                if (currentDriverId == 0 || shipmentInfo.DriverId != currentDriverId)
                 {
                     return Result.Failure(ShipmentErrors.UnAuthorized);
                 }
             }
 
-            if (shipment.ShipmentStatus == ShipmentStatus.PickingUp)
+            int rowsAffected = 0;
+
+            if (shipmentInfo.ShipmentStatus == ShipmentStatus.PickingUp)
             {
                 if (request.NewStatus != ShipmentStatus.OutForDelivery)
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
-                else
+
+                bool hasUnpickedOrders = await _context.Orders
+                    .AnyAsync(o => o.ShipmentId == shipmentInfo.Id && o.Status != OrderStatus.PickedUp, cancellationToken);
+
+                if (hasUnpickedOrders)
                 {
-                    bool hasUnpickedOrders = await _context.Orders
-                        .AnyAsync(o => o.ShipmentId == shipment.Id && o.Status != OrderStatus.PickedUp, cancellationToken);
-
-                    if (hasUnpickedOrders)
-                    {
-                        return Result.Failure(ShipmentErrors.NotPickedUp);
-                    }
-
-                    shipment.OutForDeliveryAt = DateTime.UtcNow;
+                    return Result.Failure(ShipmentErrors.NotPickedUp);
                 }
+
+                rowsAffected = await _context.Shipments
+                    .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.PickingUp)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.ShipmentStatus, request.NewStatus)
+                    .SetProperty(s => s.OutForDeliveryAt, DateTime.UtcNow)
+                    .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                    cancellationToken);
             }
-            else if (shipment.ShipmentStatus == ShipmentStatus.OutForDelivery)
+            else if (shipmentInfo.ShipmentStatus == ShipmentStatus.OutForDelivery)
             {
                 if (request.NewStatus != ShipmentStatus.Delivered)
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
                 if (string.IsNullOrWhiteSpace(request.DeliveryCode) ||
-                    !string.Equals(shipment.DeliveryCode, request.DeliveryCode))
+                    !string.Equals(shipmentInfo.DeliveryCode, request.DeliveryCode))
                 {
                     return Result.Failure(ShipmentErrors.WrongDeliveryCode);
                 }
-                shipment.DeliveredAt = DateTime.UtcNow;
+                rowsAffected = await _context.Shipments
+                    .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.OutForDelivery)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.ShipmentStatus, request.NewStatus)
+                    .SetProperty(s => s.DeliveredAt, DateTime.UtcNow)
+                    .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                    cancellationToken);
             }
             else
             {
                 return Result.Failure(ShipmentErrors.InvalidTransition);
             }
 
-            shipment.UpdatedById = request.UpdaterId;
-            shipment.UpdatedOn = DateTime.UtcNow;
-            shipment.ShipmentStatus = request.NewStatus;
+            if (rowsAffected == 0)
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
+            }
 
-            await _context.SaveChangesAsync(cancellationToken);
 
-            var customerUserId = await _context.Customers
-                .Where(c => c.Id == shipment.CustomerId) 
-                .Select(c => c.UserId)
-                .FirstOrDefaultAsync(cancellationToken);
+            if (!string.IsNullOrEmpty(shipmentInfo.CustomerUserId))
+            {
+                var notificationEvent = new ShipmentUpdateStatusEvent(
+                    RecipientIds: new List<string> { shipmentInfo.CustomerUserId },
+                    ShipmentId: shipmentInfo.Id,
+                    NewStatusName: request.NewStatus.ToString()
+                );
 
-            var recipients = new List<string> { customerUserId };
-
-            var notificationEvent = new ShipmentUpdateStatusEvent(
-                RecipientIds: recipients,
-                ShipmentId: shipment.Id,
-                NewStatusName: shipment.ShipmentStatus.ToString()
-            );
-
-            await _mediator.Publish(notificationEvent, cancellationToken);
-
+                await _mediator.Publish(notificationEvent, cancellationToken);
+            }
             return Result.Success();
         }
     }

@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.DTOs;
-using WearCast.Api.Features.Shipments.Customer.GetShipmentById.DTOs;
+﻿using WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById
 {

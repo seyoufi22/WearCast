@@ -20,6 +20,7 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
         {
 
             var shipment = await _context.Shipments
+                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
 
             if (shipment == null)
@@ -52,11 +53,20 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
                 return Result.Failure(DriverErrors.NotAvailable);
             }
 
-            shipment.DriverId = request.DriverId;
-            shipment.ShipmentStatus = ShipmentStatus.Assigned;
-            shipment.UpdatedById = request.AssignerId;
-            shipment.UpdatedOn = DateTime.UtcNow;
-            await _context.SaveChangesAsync(cancellationToken);
+            var rowsAffected = await _context.Shipments
+                .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.Unassigned)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.DriverId, request.DriverId)
+                    .SetProperty(s => s.ShipmentStatus, ShipmentStatus.Assigned)
+                    .SetProperty(s => s.UpdatedById, request.AssignerId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                cancellationToken);
+
+            if (rowsAffected == 0)
+            {
+                return Result.Failure(ShipmentErrors.AlreadyAssigned);
+            }
+
             var recipients = new List<string> { driver.UserId };
 
             var notificationEvent = new AssignShipmentEvent(

@@ -19,7 +19,7 @@ namespace WearCast.Api.Features.Drivers.GetDriverById
         {
             if (User.IsDriver() && User.GetDriverId() != id)
             {
-                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
+                return Unauthorized();
             }
 
             var result = await _sender.Send(new GetDriverByIdRequestDTO(id), cancellationToken);

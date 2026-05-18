@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WearCast.Api.Features.Drivers.DeleteDriver.DTOs
+﻿namespace WearCast.Api.Features.Drivers.DeleteDriver.DTOs
 {
     public class DeleteDriverRequestDTO : IRequest<Result>
     {

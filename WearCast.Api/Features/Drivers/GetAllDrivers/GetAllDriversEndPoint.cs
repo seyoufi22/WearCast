@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
-using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers
 {
