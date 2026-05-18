@@ -1,11 +1,5 @@
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Cms;
-using WearCast.Api.Abstractions;
-using WearCast.Api.Common.Enums;
 using WearCast.Api.Features.Orders.UpdateOrderStatus.DTOs;
 using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus;
-using WearCast.Api.Persistence;
 
 namespace WearCast.Api.Features.Orders.UpdateOrderStatus.Command;
 
@@ -55,11 +49,10 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
         // Driver: can only mark Ready -> PickedUp
         if (request.DriverId.HasValue)
         {
-            bool AssignedDriver = await dbContext.Orders
-                .AnyAsync(o => o.Id == order.Id && o.Shipment.DriverId == request.DriverId
-                , cancellationToken);
-
-            if (!AssignedDriver)
+            bool isAssigned = await dbContext.Shipments
+                .AnyAsync(s => s.Id == order.ShipmentId && s.DriverId == request.DriverId.Value, cancellationToken);
+            
+            if (!isAssigned)
             {
                 return Result.Failure<bool>(AuthErrors.Forbidden);
             }
@@ -74,6 +67,7 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
         }
 
         order.Status = request.NewStatus;
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         if (request.NewStatus == OrderStatus.Ready)
         {
@@ -81,6 +75,7 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
                 .AnyAsync(o => o.ShipmentId == order.ShipmentId
                      && o.Id != order.Id
                      && o.Status != OrderStatus.Ready, cancellationToken);
+
             if (!hasNotReadyOrders)
             {
                 await dbContext.Shipments
@@ -119,7 +114,7 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
                 .Select(s => new { s.ShipmentStatus })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (shipmentInfo != null && shipmentInfo.ShipmentStatus != ShipmentStatus.PickingUp)
+            if (shipmentInfo != null && shipmentInfo.ShipmentStatus != ShipmentStatus.PickingUp&& shipmentInfo.ShipmentStatus == ShipmentStatus.Assigned)
             {
                 await dbContext.Shipments
                     .Where(s => s.Id == order.ShipmentId)
@@ -145,8 +140,6 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
                 }
             }
         }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success(true);
     }

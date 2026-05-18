@@ -1,6 +1,4 @@
 ﻿using WearCast.Api.Features.Shipments.Driver.UnAssignShipment.DTOs;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.Handlers
 {
@@ -19,6 +17,7 @@ namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.Handlers
             CancellationToken cancellationToken)
         {
             var shipment = await _context.Shipments
+                .AsNoTracking()
                .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
             if (shipment == null)
             {
@@ -28,6 +27,7 @@ namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.Handlers
             if (!request.IsAdmin)
             {
                 var currentDriverId = await _context.Drivers
+                    .AsNoTracking()
                     .Where(d => d.UserId == request.UpdaterId)
                     .Select(d => d.Id)
                     .FirstOrDefaultAsync(cancellationToken);
@@ -40,12 +40,20 @@ namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.Handlers
             {
                 return Result.Failure(ShipmentErrors.InvalidTransition);
             }
-            shipment.DriverId = null;
-            shipment.UpdatedById = request.UpdaterId;
-            shipment.UpdatedOn = DateTime.UtcNow;
-            shipment.ShipmentStatus = ShipmentStatus.Unassigned;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            var rowsAffected = await _context.Shipments
+                .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.Assigned)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.DriverId, (int?)null)
+                    .SetProperty(s => s.ShipmentStatus, ShipmentStatus.Unassigned)
+                    .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                cancellationToken);
+
+            if (rowsAffected == 0)
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
+            }
 
             if (!request.IsAdmin)
             {
@@ -53,13 +61,15 @@ namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.Handlers
                   .Where(m => !m.IsDeleted)
                   .Select(m => m.UserId)
                   .ToListAsync(cancellationToken);
-
-                var notificationEvent = new UnAssignShipmentEvent(
+                if (managersUserIds.Any())
+                {
+                    var notificationEvent = new UnAssignShipmentEvent(
                     RecipientIds: managersUserIds,
                     ShipmentId: shipment.Id
-                );
+                    );
 
-                await _mediator.Publish(notificationEvent, cancellationToken);
+                    await _mediator.Publish(notificationEvent, cancellationToken);
+                }
             }
             return Result.Success();
         }

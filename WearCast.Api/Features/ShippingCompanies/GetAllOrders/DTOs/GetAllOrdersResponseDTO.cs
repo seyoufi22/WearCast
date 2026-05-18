@@ -11,5 +11,6 @@
         public OrderStatus OrderStatus { get; set; }
         public int NumberOfItems { get; set; }
         public ShipmentStatus ShipmentStatus { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

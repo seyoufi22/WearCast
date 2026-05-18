@@ -2,7 +2,7 @@
 
 namespace WearCast.Api.Features.Shipments.GetShipmentOrders
 {
-    [Route("api/ShipmentOrders")]
+    [Route("api/Shipments")]
     [ApiController]
     [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin},{DefaultRoles.Driver}")]
     [Tags("Shipments")]
@@ -15,17 +15,20 @@ namespace WearCast.Api.Features.Shipments.GetShipmentOrders
             _sender = sender;
         }
 
-        [HttpGet("{ShipmentId}")]
-        public async Task<IActionResult> Get([FromRoute] int ShipmentId, CancellationToken cancellationToken)
+        [HttpGet("{ShipmentId}/Orders")]
+        public async Task<IActionResult> Get([FromRoute] int ShipmentId,
+            [FromQuery] GetShipmentOrdersRequestDTO request,
+            CancellationToken cancellationToken)
         {
-            var request = new GetShipmentOrdersRequestDTO
-            {
-                ShipmentId = ShipmentId,
-                DriverId=User.GetDriverId(),
-            };
+
+            request.ShipmentId = ShipmentId;
+            request.DriverId = User.IsDriver() ? User.GetDriverId() : null;
+
             var result = await _sender.Send(request, cancellationToken);
 
-            return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+            return result.IsSuccess
+                ? Ok(result.Value)
+                : StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
         }
     }
 }

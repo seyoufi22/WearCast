@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UnAssignShipment.DTOs
 {

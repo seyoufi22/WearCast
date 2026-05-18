@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.DTOs;
-using WearCast.Api.Features.Shipments.Customer.GetShipmentById.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.Handlers
 {
@@ -41,7 +40,7 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.Handle
 
                     CustomerId = s.CustomerId,
                     CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
-                    CustomerPhoneNumber=s.Customer.ApplicationUser.PhoneNumber,
+                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber ?? string.Empty,
                 })
                 .FirstOrDefaultAsync(cancellationToken);
             if (shipment == null)

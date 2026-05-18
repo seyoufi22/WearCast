@@ -20,7 +20,7 @@ namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments
         {
             if (User.IsDriver() && User.GetDriverId() != request.DriverId)
             {
-                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
+                return Unauthorized();
             }
 
             var result = await _sender.Send(request, cancellationToken);

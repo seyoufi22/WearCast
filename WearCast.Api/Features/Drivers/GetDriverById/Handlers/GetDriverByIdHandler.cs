@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
+﻿using WearCast.Api.Features.Drivers.GetDriverById.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetDriverById.Handlers
 {

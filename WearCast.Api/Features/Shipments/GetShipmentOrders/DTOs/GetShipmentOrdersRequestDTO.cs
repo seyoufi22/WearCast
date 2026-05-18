@@ -1,10 +1,14 @@
-﻿namespace WearCast.Api.Features.Shipments.GetShipmentOrders.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace WearCast.Api.Features.Shipments.GetShipmentOrders.DTOs
 {
     public class GetShipmentOrdersRequestDTO : IRequest<Result<List<GetShipmentOrdersResponseDTO>>>
     {
+        [JsonIgnore]
         public int ShipmentId { get; set; }
+        [JsonIgnore]
         public int? DriverId { get; set; }
-        public OrderType? orderType { get; set; }
+        public OrderType? OrderType { get; set; }
         public OrderStatus? OrderStatus { get; set; }
     }
     public class GetShipmentOrdersValidator : AbstractValidator<GetShipmentOrdersRequestDTO>
@@ -20,9 +24,9 @@
                 .When(x => x.DriverId.HasValue)
                 .WithMessage("Driver ID must be valid.");
 
-            RuleFor(x => x.orderType)
+            RuleFor(x => x.OrderType)
                 .IsInEnum()
-                .When(x => x.orderType.HasValue)
+                .When(x => x.OrderType.HasValue)
                 .WithMessage("Order type must be valid.");
 
             RuleFor(x => x.OrderStatus)
