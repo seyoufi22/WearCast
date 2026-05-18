@@ -1,21 +1,23 @@
 ﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
-using WearCast.Api.Features.Shipments;
 
 namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
 {
     public class UpdateDriverStatusHandler : IRequestHandler<UpdateDriverStatusRequestDTO, Result>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMediator _mediator;
 
-        public UpdateDriverStatusHandler(ApplicationDbContext context)
+        public UpdateDriverStatusHandler(ApplicationDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
         public async Task<Result> Handle(
             UpdateDriverStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
             var driver = await _context.Drivers
+                .Include(d => d.ApplicationUser)
                 .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
             if (driver == null)
             {
@@ -34,6 +36,9 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
             {
                 return Result.Success();
             }
+
+            int affectedShipmentsCount = 0;
+
             if (request.NewStatus == DriverStatus.NotAvailable)
             {
                 var hasActiveShipments = await _context.Shipments
@@ -47,7 +52,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
                     return Result.Failure(DriverErrors.HasActiveShipments);
                 }
 
-                await _context.Shipments
+                affectedShipmentsCount = await _context.Shipments
                     .Where(s => s.DriverId == request.DriverId &&
                                 s.ShipmentStatus == ShipmentStatus.Assigned)
                     .ExecuteUpdateAsync(setters => setters
@@ -60,7 +65,26 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
             driver.Status = request.NewStatus;
 
             await _context.SaveChangesAsync(cancellationToken);
+            if (affectedShipmentsCount>0)
+            {
+                var managersUserIds = await _context.ShippingCompanyManagers
+                    .Where(m => m.ShippingCompanyId == driver.ShippingCompanyId && !m.IsDeleted)
+                    .Select(m => m.UserId)
+                    .ToListAsync(cancellationToken);
 
+                if (managersUserIds.Any())
+                {
+                    var driverName = $"{driver.ApplicationUser?.FirstName} {driver.ApplicationUser?.LastName}".Trim();
+
+                    var notificationEvent = new UpdateDriverStatusEvent(
+                        RecipientIds: managersUserIds,
+                        DriverName: string.IsNullOrEmpty(driverName) ? "Unknown Driver" : driverName,
+                        AffectedShipmentsCount: affectedShipmentsCount
+                    );
+
+                    await _mediator.Publish(notificationEvent, cancellationToken);
+                }
+            }
             return Result.Success();
         }
     }

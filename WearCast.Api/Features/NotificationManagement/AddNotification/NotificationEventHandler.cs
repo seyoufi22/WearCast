@@ -43,7 +43,6 @@ namespace WearCast.Api.Features.NotificationManagement.AddNotification
                 Message = n.Message,
                 IsRead = n.IsRead,
                 IsDelivered = n.IsDelivered,
-                IsDeleted = n.IsDeleted,
                 IncrementCount = 1,
                 CreatedOn = n.CreatedOn,
                 UserId = n.UserId,

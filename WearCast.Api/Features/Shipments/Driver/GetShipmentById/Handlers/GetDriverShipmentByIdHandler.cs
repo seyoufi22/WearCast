@@ -29,16 +29,8 @@ namespace WearCast.Api.Features.Shipments.Driver.GetShipmentById.Handlers
                     DeliveredAt = s.DeliveredAt,
 
                     CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
-                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber,
-
+                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber ?? string.Empty,
                     DeliveryAddress =s.DeliveryAddress,
- 
-                    Orders = s.Orders.Select(o => new GetDriverShipmentByIdOrderSummaryDTO
-                    {
-                        OrderId = o.Id,
-                        StoreName = o.Seller.Name,
-                        ItemsCount = o.FixedProductItems.Count() 
-                    }).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
             if (shipment == null)

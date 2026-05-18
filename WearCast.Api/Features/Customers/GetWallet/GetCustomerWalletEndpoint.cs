@@ -2,7 +2,7 @@ namespace WearCast.Api.Features.Customers.GetWallet;
 
 [Route("api/customers")]
 [ApiController]
-[Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin}")]
+[Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.CustomerServiceAdmin}")]
 [Tags("Customer Profile")]
 public class GetCustomerWalletEndpoint(ISender sender) : ControllerBase
 {

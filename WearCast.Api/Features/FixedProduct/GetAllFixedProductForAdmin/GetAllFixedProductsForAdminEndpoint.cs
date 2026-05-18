@@ -14,7 +14,7 @@ public class GetAllFixedProductsForAdminEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = "SuperAdmin")] 
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpGet("GetAllForAdmin")]
     public async Task<IActionResult> GetAll([FromQuery] GetAllFixedProductsForAdminRequestDto request, CancellationToken cancellationToken)
     {

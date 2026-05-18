@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.DTOs;
-using WearCast.Api.Features.Shipments.Customer.GetShipmentById.DTOs;
+﻿using WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/Shipments")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Tags("Shipments")]
     public class GetShipmentByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -17,7 +15,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetShipmentById
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpGet("{ShipmentId}")]
         public async Task<IActionResult> GetById([FromRoute] int ShipmentId, CancellationToken cancellationToken)
         {

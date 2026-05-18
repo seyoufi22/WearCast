@@ -6,10 +6,12 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
     public class AssignShipmentHandler : IRequestHandler<AssignShipmentRequestDTO, Result>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMediator _mediator;
 
-        public AssignShipmentHandler(ApplicationDbContext context)
+        public AssignShipmentHandler(ApplicationDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(
@@ -18,6 +20,7 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
         {
 
             var shipment = await _context.Shipments
+                .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
 
             if (shipment == null)
@@ -37,8 +40,8 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
                 }
             }
             var driver = await _context.Drivers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
 
             if (driver == null)
             {
@@ -50,12 +53,29 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
                 return Result.Failure(DriverErrors.NotAvailable);
             }
 
-            shipment.DriverId = request.DriverId;
-            shipment.ShipmentStatus = ShipmentStatus.Assigned;
-            shipment.UpdatedById = request.AssignerId;
-            shipment.UpdatedOn = DateTime.UtcNow;
-            await _context.SaveChangesAsync(cancellationToken);
+            var rowsAffected = await _context.Shipments
+                .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.Unassigned)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.DriverId, request.DriverId)
+                    .SetProperty(s => s.ShipmentStatus, ShipmentStatus.Assigned)
+                    .SetProperty(s => s.UpdatedById, request.AssignerId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                cancellationToken);
 
+            if (rowsAffected == 0)
+            {
+                return Result.Failure(ShipmentErrors.AlreadyAssigned);
+            }
+
+            var recipients = new List<string> { driver.UserId };
+
+            var notificationEvent = new AssignShipmentEvent(
+                RecipientIds: recipients,
+                ShipmentId: shipment.Id,
+                DestinationCity: shipment.DeliveryAddress?.City ?? "Unknown City"
+            );
+
+            await _mediator.Publish(notificationEvent, cancellationToken);
             return Result.Success();
         }
     }

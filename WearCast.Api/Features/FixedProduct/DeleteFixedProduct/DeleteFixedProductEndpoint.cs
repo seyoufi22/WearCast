@@ -15,12 +15,12 @@ public class DeleteFixedProductEndpoint : ControllerBase
         _sender = sender;
     }
 
-    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin}")]
+    [Authorize(Roles = $"{DefaultRoles.SellerManager},{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] DeleteFixedProductRequest request, CancellationToken cancellationToken)
     {
         var Role = User.FindFirstValue(ClaimTypes.Role);
-        if (Role == DefaultRoles.SuperAdmin)
+        if (Role == DefaultRoles.SuperAdmin || Role == DefaultRoles.CatalogAdmin)
             request.isAdminRequest = true;
         else
         {
@@ -32,7 +32,7 @@ public class DeleteFixedProductEndpoint : ControllerBase
         }
 
         var result = await _sender.Send(request, cancellationToken);
-        
+
         return result.IsSuccess ? NoContent() : BadRequest(result.Error);
     }
 }

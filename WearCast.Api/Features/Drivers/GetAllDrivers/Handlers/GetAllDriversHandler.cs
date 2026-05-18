@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using WearCast.Api.Common.Helper;
+﻿using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Drivers.GetAllDrivers.DTOs;
 
@@ -18,11 +17,9 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
             GetAllDriversRequestDTO request,
             CancellationToken cancellationToken)
         {
-            var query = _context.Drivers.AsNoTracking();
-            if (request.IsDeleted.HasValue)
-            {
-                query = query.Where(d => d.IsDeleted == request.IsDeleted);
-            }
+            var query = _context.Drivers.AsNoTracking()
+                .Where(d => d.ApplicationUser.EmailConfirmed);
+
             if (!string.IsNullOrWhiteSpace(request.DriverCity))
             {
                 query = query.Where(d => d.Address.City.Contains(request.DriverCity.Trim()));
@@ -41,38 +38,37 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.Handlers
             }
             if (request.DriverStatus.HasValue)
             {
-                query = query.Where(d=>d.Status == request.DriverStatus);
+                query = query.Where(d => d.Status == request.DriverStatus);
             }
             if (request.VehicleType.HasValue)
             {
                 query = query.Where(d => d.VehicleType == request.VehicleType);
             }
-            query = request.SortBy switch
-            {
-                SortBy.NumberOfAssignedShipmentsAsc => query.OrderBy(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned)),
-                SortBy.NumberOfAssignedShipmentsDesc => query.OrderByDescending(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned)),
-                SortBy.NumberOfDeliveredShipmentsAsc => query.OrderBy(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)),
-                SortBy.NumberOfDeliveredShipmentsDesc => query.OrderByDescending(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)),
-                SortBy.NumberOfActiveShipmentsAsc => query.OrderBy(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery)),
-                SortBy.NumberOfActiveShipmentsDesc => query.OrderByDescending(d => d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery)),
 
-                _ => query.OrderBy(d => d.Id)
+            var projectedQuery = query.Select(d => new GetAllDriversResponseDTO
+            {
+                Id = d.Id,
+                DriverName = d.ApplicationUser!.FirstName + " " + d.ApplicationUser.LastName,
+                VehicleType = d.VehicleType,
+                Status = d.Status,
+                DriverCity = d.Address.City,
+                NumberOfAssignedShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned),
+                NumberOfActiveShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery),
+                NumberOfDeliveredShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)
+            });
+
+            projectedQuery = request.SortBy switch
+            {
+                SortBy.NumberOfAssignedShipmentsAsc => projectedQuery.OrderBy(d => d.NumberOfAssignedShipments),
+                SortBy.NumberOfAssignedShipmentsDesc => projectedQuery.OrderByDescending(d => d.NumberOfAssignedShipments),
+                SortBy.NumberOfDeliveredShipmentsAsc => projectedQuery.OrderBy(d => d.NumberOfDeliveredShipments),
+                SortBy.NumberOfDeliveredShipmentsDesc => projectedQuery.OrderByDescending(d => d.NumberOfDeliveredShipments),
+                SortBy.NumberOfActiveShipmentsAsc => projectedQuery.OrderBy(d => d.NumberOfActiveShipments),
+                SortBy.NumberOfActiveShipmentsDesc => projectedQuery.OrderByDescending(d => d.NumberOfActiveShipments),
+                _ => projectedQuery.OrderByDescending(d => d.Id)
             };
-            query = query.Where(d => d.ApplicationUser.EmailConfirmed);
-            var driverssquery = query
-                .Select(d => new GetAllDriversResponseDTO
-                {
-                    Id = d.Id,
-                    DriverName = d.ApplicationUser!.FirstName + " " + d.ApplicationUser.LastName,
-                    VehicleType = d.VehicleType,
-                    Status = d.Status,
-                    DriverCity = d.Address.City,
-                    IsDeleted = d.IsDeleted,
-                    NumberOfAssignedShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Assigned),
-                    NumberOfActiveShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.PickingUp || s.ShipmentStatus == ShipmentStatus.OutForDelivery),
-                    NumberOfDeliveredShipments = d.Shipments.Count(s => s.ShipmentStatus == ShipmentStatus.Delivered)
-                });
-            var pagedResult = await PagingHelper.CreateAsync(driverssquery, request.PageIndex, request.PageSize);
+
+            var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
             return Result.Success(pagedResult);
         }

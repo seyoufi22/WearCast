@@ -2,9 +2,10 @@
 
 namespace WearCast.Api.Features.Drivers.GetDriverById
 {
-    [ApiController]
-    [Tags("Drivers")]
     [Route("api/Drivers")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver},{DefaultRoles.OperationsAdmin}")]
+    [Tags("Drivers")]
     public class GetDriverByIdEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -13,13 +14,12 @@ namespace WearCast.Api.Features.Drivers.GetDriverById
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Driver}")]
         [HttpGet("{id}/GetById")]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
             if (User.IsDriver() && User.GetDriverId() != id)
             {
-                return (IActionResult)Result.Failure(AuthErrors.Forbidden);
+                return Unauthorized();
             }
 
             var result = await _sender.Send(new GetDriverByIdRequestDTO(id), cancellationToken);

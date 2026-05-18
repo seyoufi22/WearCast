@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.DTOs;
+﻿using WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.DTOs;
 
 namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/Shipments")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+    [Tags("Shipments")]
     public class AssignShipmentEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -15,7 +14,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment
         {
             _sender = sender;
         }
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin}")]
         [HttpPut("{ShipmentId}/assign")]
         public async Task<IActionResult> AssignDriver(
             [FromRoute] int ShipmentId,

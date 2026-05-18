@@ -7,7 +7,7 @@ namespace WearCast.Api.Features.Category.DeleteCategory;
 [ApiController]
 public class DeleteCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpDelete("DeleteCategory/{id:int}", Name = "DeleteCategory")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
