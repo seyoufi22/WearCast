@@ -1,13 +1,15 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Cms;
 using WearCast.Api.Abstractions;
 using WearCast.Api.Common.Enums;
 using WearCast.Api.Features.Orders.UpdateOrderStatus.DTOs;
+using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus;
 using WearCast.Api.Persistence;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Orders.UpdateOrderStatus.Command;
 
-public class UpdateOrderStatusHandler(ApplicationDbContext dbContext)
+public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator _mediator)
     : IRequestHandler<UpdateOrderStatusCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -53,6 +55,15 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext)
         // Driver: can only mark Ready -> PickedUp
         if (request.DriverId.HasValue)
         {
+            bool AssignedDriver = await dbContext.Orders
+                .AnyAsync(o => o.Id == order.Id && o.Shipment.DriverId == request.DriverId
+                , cancellationToken);
+
+            if (!AssignedDriver)
+            {
+                return Result.Failure<bool>(AuthErrors.Forbidden);
+            }
+
             if (request.NewStatus != OrderStatus.PickedUp)
                 return Result.Failure<bool>(new Error("Orders.InvalidTransition",
                     "Drivers can only mark orders as PickedUp.", StatusCodes.Status400BadRequest));
@@ -63,6 +74,78 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext)
         }
 
         order.Status = request.NewStatus;
+
+        if (request.NewStatus == OrderStatus.Ready)
+        {
+            bool hasNotReadyOrders = await dbContext.Orders
+                .AnyAsync(o => o.ShipmentId == order.ShipmentId
+                     && o.Id != order.Id
+                     && o.Status != OrderStatus.Ready, cancellationToken);
+            if (!hasNotReadyOrders)
+            {
+                await dbContext.Shipments
+                    .Where(s => s.Id == order.ShipmentId)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.ShipmentStatus, ShipmentStatus.Unassigned)
+                    .SetProperty(s => s.ReadyForPickupAt, DateTime.UtcNow),
+                    cancellationToken);
+
+                var recipients = await dbContext.ShippingCompanyManagers
+                    .Where(m => !m.IsDeleted)
+                    .Select(m => m.UserId)
+                    .ToListAsync(cancellationToken);
+
+                var customerUserId = await dbContext.Customers
+                    .Where(c => c.Id == order.CustomerId)
+                    .Select(c => c.UserId)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (!string.IsNullOrEmpty(customerUserId))
+                {
+                    recipients.Add(customerUserId);
+                }
+
+                var notificationEvent = new ShipmentReadyEvent(
+                    RecipientIds: recipients,
+                    ShipmentId: order.ShipmentId.Value
+                );
+                await _mediator.Publish(notificationEvent, cancellationToken);
+            }
+        }
+        else if (request.NewStatus == OrderStatus.PickedUp)
+        {
+            var shipmentInfo = await dbContext.Shipments
+                .Where(s => s.Id == order.ShipmentId)
+                .Select(s => new { s.ShipmentStatus })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (shipmentInfo != null && shipmentInfo.ShipmentStatus != ShipmentStatus.PickingUp)
+            {
+                await dbContext.Shipments
+                    .Where(s => s.Id == order.ShipmentId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(s => s.ShipmentStatus, ShipmentStatus.PickingUp)
+                        .SetProperty(s => s.TripStartedAt, DateTime.UtcNow),
+                        cancellationToken);
+
+                var customerUserId = await dbContext.Customers
+                                    .Where(c => c.Id == order.CustomerId)
+                                    .Select(c => c.UserId)
+                                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (!string.IsNullOrEmpty(customerUserId))
+                {
+
+                    var notificationEvent = new ShipmentUpdateStatusEvent(
+                        RecipientIds: new List<string> { customerUserId },
+                        ShipmentId: order.ShipmentId.Value,
+                        NewStatusName: "Picking Up"
+                        );
+                    await _mediator.Publish(notificationEvent, cancellationToken);
+                }
+            }
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success(true);

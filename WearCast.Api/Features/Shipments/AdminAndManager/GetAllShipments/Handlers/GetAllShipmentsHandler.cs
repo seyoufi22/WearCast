@@ -20,10 +20,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.Handle
         {
             var query = _context.Shipments.AsNoTracking();
 
-            if (request.IsDeleted.HasValue)
-            {
-                query = query.Where(s => s.IsDeleted == request.IsDeleted);
-            }
             if (request.ShipmentStatus.HasValue)
             {
                 query = query.Where(s => s.ShipmentStatus == request.ShipmentStatus);
@@ -99,7 +95,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.Handle
                .Select(s => new GetAllShipmentsResponseDTO
                {
                    Id = s.Id,
-                   IsDeleted = s.IsDeleted,
                    OrderTime = s.CreatedOn,
                    ShipmentStatus = s.ShipmentStatus,
                    Price = s.Price,

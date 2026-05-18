@@ -37,14 +37,6 @@ namespace WearCast.Api.Features.Shipments.Customer.GetShipmentById.Handlers
                     : null,
 
                     DeliveryAddress = s.DeliveryAddress,
-
-                    Orders = s.Orders.Select(o => new GetCustomerShipmentByIdOrderSummaryDTO
-                    {
-                        OrderId = o.Id,
-                        StoreName = o.Seller.Name,
-                        ItemsCount = o.FixedProductItems.Count()
-                    }).ToList(),
-
                     DeliveryCode = s.DeliveryCode,
                 })
                 .FirstOrDefaultAsync(cancellationToken);

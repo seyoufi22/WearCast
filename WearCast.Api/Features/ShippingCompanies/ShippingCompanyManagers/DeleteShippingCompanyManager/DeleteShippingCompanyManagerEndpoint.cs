@@ -1,6 +1,4 @@
-﻿using WearCast.Api.Features.Admins.DeleteAdmin.DTOs;
-
-namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.DeleteShippingCompanyManager
+﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.DeleteShippingCompanyManager
 {
     [ApiController]
     [Route("api/shipping-company-managers/Delete")]

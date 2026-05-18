@@ -6,10 +6,12 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
     public class AssignShipmentHandler : IRequestHandler<AssignShipmentRequestDTO, Result>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMediator _mediator;
 
-        public AssignShipmentHandler(ApplicationDbContext context)
+        public AssignShipmentHandler(ApplicationDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(
@@ -37,8 +39,8 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
                 }
             }
             var driver = await _context.Drivers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == request.DriverId, cancellationToken);
 
             if (driver == null)
             {
@@ -55,7 +57,15 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.AssignShipment.Handler
             shipment.UpdatedById = request.AssignerId;
             shipment.UpdatedOn = DateTime.UtcNow;
             await _context.SaveChangesAsync(cancellationToken);
+            var recipients = new List<string> { driver.UserId };
 
+            var notificationEvent = new AssignShipmentEvent(
+                RecipientIds: recipients,
+                ShipmentId: shipment.Id,
+                DestinationCity: shipment.DeliveryAddress?.City ?? "Unknown City"
+            );
+
+            await _mediator.Publish(notificationEvent, cancellationToken);
             return Result.Success();
         }
     }

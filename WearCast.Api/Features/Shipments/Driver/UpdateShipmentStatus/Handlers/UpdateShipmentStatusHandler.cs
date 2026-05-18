@@ -19,9 +19,6 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
             CancellationToken cancellationToken)
         {
             var shipment = await _context.Shipments
-                .Include(s => s.Driver)
-                .Include(s => s.Orders)
-                .Include(s => s.Customer)
                 .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
 
             if (shipment == null)
@@ -31,39 +28,16 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
 
             if (!request.IsAdmin)
             {
-                if (shipment.Driver == null || shipment.Driver.UserId != request.UpdaterId)
+                var currentDriverId = await _context.Drivers
+                     .Where(d => d.UserId == request.UpdaterId)
+                     .Select(d => d.Id)
+                     .FirstOrDefaultAsync(cancellationToken);
+                if (currentDriverId == 0 || shipment.DriverId != currentDriverId)
                 {
                     return Result.Failure(ShipmentErrors.UnAuthorized);
                 }
             }
 
-            if (shipment.ShipmentStatus == ShipmentStatus.Delivered
-              || shipment.ShipmentStatus == ShipmentStatus.Unassigned
-              || shipment.ShipmentStatus == ShipmentStatus.Pending)
-            {
-                return Result.Failure(ShipmentErrors.InvalidTransition);
-            }
-
-            if (shipment.ShipmentStatus == ShipmentStatus.Assigned)
-            {
-                if (request.NewStatus == ShipmentStatus.Unassigned)
-                {
-                    shipment.DriverId = null;
-                }
-                else if (request.NewStatus != ShipmentStatus.PickingUp)
-                {
-                    return Result.Failure(ShipmentErrors.InvalidTransition);
-                }
-                else
-                {
-                    bool Ready = shipment.Orders.All(o => o.Status == OrderStatus.Ready);
-                    if (!Ready)
-                    {
-                        return Result.Failure(ShipmentErrors.NotReady);
-                    }
-                    shipment.TripStartedAt = DateTime.UtcNow;
-                }
-            }
             if (shipment.ShipmentStatus == ShipmentStatus.PickingUp)
             {
                 if (request.NewStatus != ShipmentStatus.OutForDelivery)
@@ -72,26 +46,33 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
                 }
                 else
                 {
-                    bool PickedUp = shipment.Orders.All(o => o.Status == OrderStatus.PickedUp);
-                    if (!PickedUp)
+                    bool hasUnpickedOrders = await _context.Orders
+                        .AnyAsync(o => o.ShipmentId == shipment.Id && o.Status != OrderStatus.PickedUp, cancellationToken);
+
+                    if (hasUnpickedOrders)
                     {
                         return Result.Failure(ShipmentErrors.NotPickedUp);
                     }
+
                     shipment.OutForDeliveryAt = DateTime.UtcNow;
                 }
-
             }
-            if (shipment.ShipmentStatus == ShipmentStatus.OutForDelivery)
+            else if (shipment.ShipmentStatus == ShipmentStatus.OutForDelivery)
             {
                 if (request.NewStatus != ShipmentStatus.Delivered)
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
-                if (string.IsNullOrWhiteSpace(request.DeliveryCode) || shipment.DeliveryCode != request.DeliveryCode)
+                if (string.IsNullOrWhiteSpace(request.DeliveryCode) ||
+                    !string.Equals(shipment.DeliveryCode, request.DeliveryCode))
                 {
                     return Result.Failure(ShipmentErrors.WrongDeliveryCode);
                 }
                 shipment.DeliveredAt = DateTime.UtcNow;
+            }
+            else
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
             }
 
             shipment.UpdatedById = request.UpdaterId;
@@ -100,7 +81,12 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            var recipients = new List<string> { shipment.Customer.UserId };
+            var customerUserId = await _context.Customers
+                .Where(c => c.Id == shipment.CustomerId) 
+                .Select(c => c.UserId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var recipients = new List<string> { customerUserId };
 
             var notificationEvent = new ShipmentUpdateStatusEvent(
                 RecipientIds: recipients,

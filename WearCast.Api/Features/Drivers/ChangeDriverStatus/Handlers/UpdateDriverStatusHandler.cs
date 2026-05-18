@@ -69,7 +69,7 @@ namespace WearCast.Api.Features.Drivers.ChangeDriverStatus.Handlers
             if (affectedShipmentsCount>0)
             {
                 var managersUserIds = await _context.ShippingCompanyManagers
-                    .Where(m => m.ShippingCompanyId == driver.ShippingCompanyId&&!m.IsDeleted)
+                    .Where(m => m.ShippingCompanyId == driver.ShippingCompanyId && !m.IsDeleted)
                     .Select(m => m.UserId)
                     .ToListAsync(cancellationToken);
 

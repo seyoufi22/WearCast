@@ -15,5 +15,7 @@ public enum SortBy
     NumberOfDeliveredShipmentsDesc,
     PriceAsc,
     PriceDesc,
-    BestSeller
+    BestSeller,
+    NumberOfItemsAsc,
+    NumberOfItemsDesc
 }

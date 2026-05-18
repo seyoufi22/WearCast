@@ -5,9 +5,10 @@ using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments
 {
-    [ApiController]
-    [Tags("Shipments")]
     [Route("api/CustomerShipments")]
+    [ApiController]
+    [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Customer},{DefaultRoles.OperationsAdmin}")]
+    [Tags("Shipments")]
     public class GetAllCustomerShipmentsEndPoint : ControllerBase
     {
         private readonly ISender _sender;
@@ -17,7 +18,6 @@ namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.Customer}")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllCustomerShipmentsRequestDTO request, CancellationToken cancellationToken)
         {

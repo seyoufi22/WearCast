@@ -10,7 +10,6 @@ namespace WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs
         public int PageSize { get; set; } = 100;
 
         public SortBy SortBy { get; set; } = SortBy.Newest;
-        public bool? IsDeleted { get; set; }
         public ShipmentStatus? ShipmentStatus { get; set; } = null;
 
         public DateOnly? StartDate { get; set; } = null;

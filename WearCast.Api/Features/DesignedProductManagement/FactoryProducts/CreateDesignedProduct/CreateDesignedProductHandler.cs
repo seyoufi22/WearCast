@@ -1,14 +1,18 @@
-﻿namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.CreateDesignedProduct
+﻿using WearCast.Api.Features.FixedProduct.CreateFixedProduct.Notifications;
+
+namespace WearCast.Api.Features.DesignedProductManagement.FactoryProducts.CreateDesignedProduct
 {
     public class CreateDesignedProductHandler(
         ApplicationDbContext context,
         IMapper mapper,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        IMediator mediator
         ) : IRequestHandler<CreateDesignedProductRequest, Result<CreateDesignedProductResponse>>
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IMediator _mediator = mediator;
 
         public async Task<Result<CreateDesignedProductResponse>> Handle(CreateDesignedProductRequest request, CancellationToken cancellationToken)
         {
@@ -62,6 +66,22 @@
 
             _context.DesignedProducts.Add(product);
             await _context.SaveChangesAsync(cancellationToken);
+
+
+            var catalogAdminUserIds = await (from adminUser in _context.Users
+                                             join ur in _context.UserRoles on adminUser.Id equals ur.UserId
+                                             join r in _context.Roles on ur.RoleId equals r.Id
+                                             where r.Name == DefaultRoles.CatalogAdmin && !adminUser.IsDeleted
+                                             select adminUser.Id).ToListAsync(cancellationToken);
+            if (catalogAdminUserIds.Any())
+            {
+                var notificationEvent = new NewProductEvent(
+                    RecipientIds: catalogAdminUserIds,
+                    ProductId: product.Id,
+                    ProductName: product.Name,
+                    ProductType: "Designed Product");
+                await _mediator.Publish(notificationEvent, cancellationToken);
+            }
 
             return Result.Success(new CreateDesignedProductResponse(product.Id));
         }
