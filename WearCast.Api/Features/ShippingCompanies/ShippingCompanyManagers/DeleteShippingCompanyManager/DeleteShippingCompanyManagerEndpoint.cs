@@ -1,26 +1,32 @@
-﻿namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.DeleteShippingCompanyManager
+﻿using System.Security.Claims;
+
+namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.DeleteShippingCompanyManager
 {
     [ApiController]
-    [Route("api/shipping-company-managers/Delete")]
+    [Route("api/shipping-company-managers")] 
     [Authorize(Roles = $"{DefaultRoles.ShippingCompanyManager},{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
     [Tags("Shipping Company Manager Profile")]
-    public class DeleteShippingCompanyManagerEndpoint : ControllerBase
+    public class DeleteShippingCompanyManagerEndpoint(IMediator mediator) : ControllerBase
     {
-        private readonly ISender _sender;
+        private readonly IMediator _mediator = mediator;
 
-        public DeleteShippingCompanyManagerEndpoint(ISender sender)
+        [HttpDelete("{shippingCompanyManagerId:int}")]
+        public async Task<IActionResult> Delete(
+            [FromRoute] int shippingCompanyManagerId,
+            [FromBody] DeleteShippingCompanyManagerBody body,
+            CancellationToken cancellationToken)
         {
-            _sender = sender;
-        }
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
-        {
-            var request = new DeleteShippingCompanyManagerRequest { Id = id };
-            var result = await _sender.Send(request, cancellationToken);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Unauthorized();
 
-            return result.IsSuccess ? NoContent() :
-                StatusCode(result.Error.StatusCode ?? StatusCodes.Status400BadRequest, result.Error);
+            bool isAdmin = User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.OperationsAdmin);
+
+            var request = new DeleteShippingCompanyManagerRequest(shippingCompanyManagerId, currentUserId, isAdmin, body.Reason);
+            var result = await _mediator.Send(request, cancellationToken);
+
+            return result.ToResponse();
         }
     }
 }

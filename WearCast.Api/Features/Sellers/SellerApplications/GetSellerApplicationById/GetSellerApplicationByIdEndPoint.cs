@@ -14,7 +14,7 @@ namespace WearCast.Api.Features.SellerApplications.AdminAndManager.GetSellerAppl
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.SuperAdmin}")]
+        [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.VendorAdmin}")]
         [HttpGet("{ApplicationId}")]
         public async Task<IActionResult> GetById([FromRoute] int ApplicationId, CancellationToken cancellationToken)
         {

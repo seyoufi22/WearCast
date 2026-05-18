@@ -7,7 +7,7 @@ namespace WearCast.Api.Features.Category.UpdateCategory;
 [ApiController]
 public class UpdateCategoryEndPoint(ISender sender) : ControllerBase
 {
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.CatalogAdmin}")]
     [HttpPut("UpdateCategory", Name = "UpdateCategory")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(204)]

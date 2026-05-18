@@ -5,7 +5,7 @@ namespace WearCast.Api.Features.Sellers.GetSeller;
 
 [Route("api/sellers")]
 [ApiController]
-[Authorize(Roles = DefaultRoles.SuperAdmin)]
+[Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.VendorAdmin}")]
 [Tags("Seller Profile")]
 public class SellersManagementEndpoint(IMediator mediator) : ControllerBase
 {
