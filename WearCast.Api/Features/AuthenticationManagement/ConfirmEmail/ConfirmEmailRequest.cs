@@ -1,7 +1,7 @@
 ﻿namespace WearCast.Api.Features.AuthenticationManagement.ConfirmEmail
 {
     public record ConfirmEmailRequest(
-        string UserId,
+        string Email,
         string Code
         ) : IRequest<Result>;
 }

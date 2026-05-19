@@ -10,7 +10,7 @@ namespace WearCast.Api.Features.AuthenticationManagement.ConfirmEmail
 
         public async Task<Result> Handle(ConfirmEmailRequest request, CancellationToken cancellationToken)
         {
-            if (await _userManager.FindByIdAsync(request.UserId) is not { } user)
+            if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
                 return Result.Failure(UserErrors.InvalidCode);
 
             if (user.EmailConfirmed)
