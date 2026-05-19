@@ -1,5 +1,3 @@
-using WearCast.Api.Abstractions;
-using WearCast.Api.Common.Repository;
 using WearCast.Api.Common.Tracking;
 using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Features.FixedProduct.Errors;
@@ -20,9 +18,9 @@ public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
 
     public async Task<Result<GetFixedProductDetailsByIdResponseDto>> Handle(GetFixedProductDetailsByIdQuery request, CancellationToken cancellationToken)
     {
+        // 1. Fetching product without checking Seller status and without including Seller entity
         var product = await _productRepo.Get()
-            .Where(p => p.Id == request.Id && !p.IsDeleted && !p.Seller.IsDeleted)
-            .Include(p => p.Seller)
+            .Where(p => p.Id == request.Id && !p.IsDeleted)
             .Include(p => p.Category)
             .Include(p => p.Colors.Where(c => !c.IsDeleted))
                 .ThenInclude(c => c.Images)
@@ -75,6 +73,7 @@ public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
                 C = sd.C
             }).ToList() ?? new()
         };
+
         var user = _httpContextAccessor.HttpContext!.User;
         if (user.IsCustomer())
         {
@@ -91,7 +90,8 @@ public class GetFixedProductDetailsByIdHandler(ApplicationDbContext context,
                         TargetAudience = product.TargetAudience.ToString().Split(", ").ToList(),
                         DressStyle = product.DressStyle.ToString(),
                         CategoryName = product.Category?.Name,
-                        SellerId = product.Seller.Id
+                        // 2. Used product.SellerId directly instead of product.Seller.Id
+                        SellerId = product.SellerId
                     }
                 };
 
