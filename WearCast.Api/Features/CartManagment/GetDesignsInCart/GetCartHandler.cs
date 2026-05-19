@@ -1,43 +1,79 @@
 ﻿using WearCast.Api.Features.CartManagment.GetDesignsInCart.DTOs;
-
 namespace WearCast.Api.Features.CartManagment.GetDesignsInCart;
 
-
-public class GetCartHandler(IRepository<CartItem> cartItemRepository)
-    : IRequestHandler<GetCartRequestDto, List<GetCartItemResponseDto>>
+public class GetCartHandler(
+    IRepository<CartItem> cartItemRepository,
+    ApplicationDbContext dbContext) // حقنا الـ DbContext عشان نجيب الـ Delivery Fee
+    : IRequestHandler<GetCartRequestDto, CartSummaryResponseDto>
 {
-    public async Task<List<GetCartItemResponseDto>> Handle(GetCartRequestDto request, CancellationToken cancellationToken)
+    public async Task<CartSummaryResponseDto> Handle(GetCartRequestDto request, CancellationToken cancellationToken)
     {
         var cartItems = await cartItemRepository.Get()
-        .Where(c => c.CustomerId == request.CustomerId
-                 && c.CustomerDesignId != null)
-        .Include(c => c.Sizes)
-        .Include(c => c.DesignedCustomer!)
-            .ThenInclude(d => d.DesignedProduct)
-        .Include(c => c.DesignedCustomer!)
-            .ThenInclude(d => d.DesignedProductColor)
-        .AsNoTracking()
-        .ToListAsync(cancellationToken);
+            .Where(c => c.CustomerId == request.CustomerId
+                     && c.CustomerDesignId != null)
+            .Include(c => c.Sizes)
+            .Include(c => c.DesignedCustomer!)
+                .ThenInclude(d => d.DesignedProduct)
+                    .ThenInclude(p => p.Factory)
+            .Include(c => c.DesignedCustomer!)
+                .ThenInclude(d => d.DesignedProductColor)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
 
-        return cartItems.Select(c => new GetCartItemResponseDto
+        // 1. تجهيز لستة المنتجات مع تفاصيل الاسترنج
+        var mappedItems = cartItems.Select(c =>
         {
-            unavailable = (c.DesignedCustomer?.DesignedProductColor?.IsDeleted ?? false) ||
-              (c.DesignedCustomer?.DesignedProduct?.IsDeleted ?? false) ||
-              !(c.DesignedCustomer?.DesignedProduct?.IsActive ?? true) ||
-              (c.DesignedCustomer?.DesignedProduct?.Factory?.IsDeleted ?? false),
-            CartItemId = c.Id,
-            CustomerDesignedId = c.CustomerDesignId,
-            ProductName = c.DesignedCustomer?.DesignedProduct?.Name,
-            Price = c.DesignedCustomer?.DesignedProduct?.Price ?? 0,
-            Image = c.DesignedCustomer?.FrontImageUrl
-                             ?? c.DesignedCustomer?.BackImageUrl
-                             ?? c.DesignedCustomer?.LeftImageUrl
-                             ?? c.DesignedCustomer?.RightImageUrl
-                             ?? c.DesignedCustomer?.DesignedProductColor?.MainImageUrl
-                                    ,
-            Sizes = c.Sizes
-                            .Select(s => new SizeDto(s.Size, s.Quantity))
-                            .ToList()
+            var design = c.DesignedCustomer;
+            var product = design?.DesignedProduct;
+            var color = design?.DesignedProductColor;
+
+            if (design != null && product != null)
+            {
+                design.CalculateAndSetTotalPrice(product.Price, design.AssetCount);
+            }
+
+            decimal templatePrice = product?.Price ?? 0;
+            decimal totalPrice = design?.TotalPrice ?? templatePrice;
+            decimal assetsPrice = totalPrice - templatePrice;
+            int assetCount = design?.AssetCount ?? 0;
+
+            // الاسترنج التفصيلي
+            string priceDescription = $"[Template: {templatePrice:0.##} EGP + {assetCount} Assets: {assetsPrice:0.##} EGP = {totalPrice:0.##} EGP]";
+
+            return new GetCartItemResponseDto
+            {
+                unavailable = (color?.IsDeleted ?? false) ||
+                              (product?.IsDeleted ?? false) ||
+                              !(product?.IsActive ?? true) ||
+                              (product?.Factory?.IsDeleted ?? false),
+                CartItemId = c.Id,
+                CustomerDesignedId = c.CustomerDesignId,
+                ProductName = product?.Name,
+                Price = totalPrice, // السعر النهائي للقطعة الواحدة
+                PriceDescription = priceDescription,
+                Image = design?.FrontImageUrl
+                         ?? design?.BackImageUrl
+                         ?? design?.LeftImageUrl
+                         ?? design?.RightImageUrl
+                         ?? color?.MainImageUrl,
+                Sizes = c.Sizes.Select(s => new SizeDto(s.Size, s.Quantity)).ToList()
+            };
         }).ToList();
+
+        // 2. حساب الـ SubTotal 
+        // بنضرب سعر القطعة في مجموع الكميات المطلوبة من كل المقاسات لنفس التصميم
+        decimal subTotal = mappedItems.Sum(item => item.Price * item.Sizes.Sum(s => s.QuantityInCart));
+
+        // 3. جلب مصاريف الشحن (بنفس طريقتك في الـ Checkout)
+        var shippingCompany = await dbContext.ShippingCompanies.FirstOrDefaultAsync(cancellationToken);
+        decimal deliveryFee = shippingCompany?.DeliveryFee ?? 0;
+
+        return new CartSummaryResponseDto
+        {
+            Items = mappedItems,
+            SubTotal = subTotal,
+            DeliveryFee = deliveryFee,
+            GrandTotal = subTotal + deliveryFee
+        };
     }
 }
