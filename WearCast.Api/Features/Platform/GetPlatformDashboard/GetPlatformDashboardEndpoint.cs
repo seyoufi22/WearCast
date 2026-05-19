@@ -4,7 +4,7 @@ namespace WearCast.Api.Features.Platform.GetPlatformDashboard;
 
 [Route("api/platform")]
 [ApiController]
-[Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}")]
+[Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.OperationsAdmin}, {DefaultRoles.VendorAdmin}, {DefaultRoles.CatalogAdmin}, {DefaultRoles.CustomerServiceAdmin}")]
 [Tags("Platform")]
 public class GetPlatformDashboardEndpoint(ISender sender) : ControllerBase
 {
