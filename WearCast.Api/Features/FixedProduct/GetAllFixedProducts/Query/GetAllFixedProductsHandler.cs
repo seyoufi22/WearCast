@@ -70,9 +70,10 @@ public class GetAllFixedProductsHandler(ApplicationDbContext context,
         {
             SortBy.PriceAsc => query.OrderBy(p => p.Price),
             SortBy.PriceDesc => query.OrderByDescending(p => p.Price),
-            //SortBy.MostPopular => query.OrderByDescending(p => p.SalesCount),
-            SortBy.Newest => query.OrderByDescending(p => p.CreatedOn),
-            _ => query
+            SortBy.BestSeller => query.OrderByDescending(p => p.SalesCount),
+            SortBy.MostPopular => query.OrderByDescending(p => p.AverageRating)
+                                       .ThenByDescending(p => p.ReviewCount),
+            _ => query.OrderByDescending(p => p.CreatedOn)
         };
 
         var projectedQuery = query.Select(product => new

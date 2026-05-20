@@ -11,7 +11,7 @@ public record GetAllFixedProductsQuery(
     decimal? MaxPrice = null,
     DressStyle? DressStyle = null,
     TargetAudience? TargetAudience = null,
-    List<Size>? Sizes = null,
+    Size[]? Sizes = null,
     SortBy SortBy = SortBy.Newest
 ) : IRequest<Result<PagingViewModel<GetAllFixedProductsResponseDto>>>;
 public class GetAllFixedProductsQueryValidator : AbstractValidator<GetAllFixedProductsQuery>

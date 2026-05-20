@@ -236,7 +236,8 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                             UnitAmountDecimal = design.TotalPrice * 100,
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = $"{product.Name} - {color.Name} ({size.Size}) [Template: {product.Price:C} + {design.AssetCount} Assets: {design.TotalPrice - product.Price:C} = {design.TotalPrice:C}]"
+                                //Name = $"{product.Name} - {color.Name} ({size.Size}) [Template: {product.Price:C} + {design.AssetCount} Assets: {design.TotalPrice - product.Price:C} = {design.TotalPrice:C}]"
+                                Name = $"{product.Name} - {color.Name} ({size.Size}) [Template: {product.Price:0.##} EGP + {design.AssetCount} Assets: {design.TotalPrice - product.Price:0.##} EGP = {design.TotalPrice:0.##} EGP]"
                             }
                         },
                         Quantity = size.Quantity
