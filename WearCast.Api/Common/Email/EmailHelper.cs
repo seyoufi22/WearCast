@@ -130,26 +130,46 @@ namespace WearCast.Api.Common.Email
             await Task.CompletedTask;
         }
 
-        public async Task SendConfirmationEmailForSellerManager(SellerApplication app, string code)
+        public Task SendConfirmationEmailForSellerManager(SellerApplication app, string code)
         {
             var emailBody = EmailBodyBuilder.GenerateEmailBody(
                 "EmailConfirmationForSellerManager",
                 _webHostEnvironment.ContentRootPath,
                 templateModel: new Dictionary<string, string>
                 {
-                    { "{{managerName}}", app.ManagerFirstName },
-                    { "{{sellerName}}", app.SellerName },
-                    { "{{code}}", code }
+            { "{{managerName}}", app.ManagerFirstName },
+            { "{{sellerName}}", app.SellerName },
+            { "{{code}}", code }
                 }
             );
 
-            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
+            BackgroundJob.Enqueue<IEmailSender>(sender => sender.SendEmailAsync(
                 app.ManagerEmail!,
                 "🔐 WearCast App: Email Confirmation",
                 emailBody
             ));
 
-            await Task.CompletedTask;
+            return Task.CompletedTask;
+        }
+        public Task SendSellerManagerConfirmationEmail(ApplicationUser user, string code)
+        {
+            var emailBody = EmailBodyBuilder.GenerateEmailBody(
+                "EmailConfirmationForNewManager",
+                _webHostEnvironment.ContentRootPath,
+                templateModel: new Dictionary<string, string>
+                {
+            { "{{managerName}}", user.FirstName },
+            { "{{code}}", code }
+                }
+            );
+
+            BackgroundJob.Enqueue<IEmailSender>(sender => sender.SendEmailAsync(
+                user.Email!,
+                "🔐 WearCast App: Welcome to your Manager Account",
+                emailBody
+            ));
+
+            return Task.CompletedTask;
         }
 
         public async Task SendSellerApplicationApprovedEmail(SellerApplication app)

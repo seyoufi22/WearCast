@@ -1,12 +1,16 @@
-﻿namespace WearCast.Api.Features.Admins.CreateAdmin
+﻿using WearCast.Api.Features.AuthenticationManagement;
+
+namespace WearCast.Api.Features.Admins.CreateAdmin
 {
     public class CreateAdminHandler(
         UserManager<ApplicationUser> userManager,
-        ILogger<CreateAdminHandler> logger
+        ILogger<CreateAdminHandler> logger,
+        ApplicationDbContext context
     ) : IRequestHandler<CreateAdminRequest, Result<CreateAdminResponse>>
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly ILogger<CreateAdminHandler> _logger = logger;
+        private readonly ApplicationDbContext _context = context;
 
         public async Task<Result<CreateAdminResponse>> Handle(CreateAdminRequest request, CancellationToken cancellationToken)
         {
@@ -23,6 +27,16 @@
                 return Result.Failure<CreateAdminResponse>(new("Admin.PhoneExists", "This phone number is already registered.", 400));
             }
 
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.Email &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateAdminResponse>(UserErrors.DublicatedEmail);
+            }
             var newAdmin = new ApplicationUser
             {
                 UserName = request.Email,

@@ -43,6 +43,18 @@ namespace WearCast.Api.Features.Factories.FactoryManagers.CreateFactoryManager
             if (!factoryExists)
                 return Result.Failure<CreateFactoryManagerResponse>(FactoryErrors.FactoryNotFound);
 
+
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.Email &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateFactoryManagerResponse>(UserErrors.DublicatedEmail);
+            }
+
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.Email || u.PhoneNumber == request.PhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })
