@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 using WearCast.Api.Features.AuthenticationManagement;
 using WearCast.Api.Features.ShippingCompanies;
-using WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager;
 
 
 namespace WearCast.Api.Features.Drivers.CreateDriver
@@ -39,6 +38,18 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
             var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == shippingCompanyId.Value, cancellationToken);
             if (!companyExists)
                 return Result.Failure<CreateDriverResponse>(ShippingCompanyErrors.CompanyNotFound);
+
+
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.Email &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateDriverResponse>(UserErrors.DublicatedEmail);
+            }
 
             var existingUser = await _userManager.Users
                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)

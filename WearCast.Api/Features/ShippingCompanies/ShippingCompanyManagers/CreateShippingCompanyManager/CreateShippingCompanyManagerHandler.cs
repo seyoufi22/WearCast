@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
 
 using WearCast.Api.Features.AuthenticationManagement;
-using WearCast.Api.Features.Common.DTOs;
 
 
 namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.CreateShippingCompanyManager
@@ -32,6 +31,17 @@ namespace WearCast.Api.Features.ShippingCompanies.ShippingCompanyManagers.Create
 
             if (shippingCompanyId == null)
                 return Result.Failure<CreateShippingCompanyManagerResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
+
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.Email &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateShippingCompanyManagerResponse>(UserErrors.DublicatedEmail);
+            }
 
             var targetCompanyId = shippingCompanyId.Value;
 

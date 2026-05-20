@@ -21,6 +21,18 @@ namespace WearCast.Api.Features.AuthenticationManagement.Register
 
         public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerRequest request, CancellationToken cancellationToken)
         {
+
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                            .AnyAsync(app =>
+                                app.ManagerEmail == request.Email &&
+                                (app.Status == Status.Pending || app.Status == Status.Approved),
+                                cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<RegisterCustomerResponse>(UserErrors.DublicatedEmail);
+            }
+
             var existingUsers = await _userManager.Users
                  .IgnoreQueryFilters()
                  .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)

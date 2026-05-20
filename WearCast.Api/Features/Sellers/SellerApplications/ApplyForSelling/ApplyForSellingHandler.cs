@@ -20,6 +20,9 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
 
         public async Task<Result> Handle(ApplyForSellingRequest request, CancellationToken cancellationToken)
         {
+
+
+
             var userConflict = await _context.Users
                .Where(u => u.Email == request.SellerManagerEmail || u.PhoneNumber == request.SellerManagerPhoneNumber)
                .Select(u => new { u.Email, u.PhoneNumber })
