@@ -7,13 +7,24 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
 {
     public async Task<Result> Handle(AddOrUpdateDesignedToCartCommand command, CancellationToken cancellationToken)
     {
+        // 1. Fetch the design, including the DesignedProductColor
         var design = await _designedRepository.Get()
             .Include(c => c.DesignedProduct)
-            .ThenInclude(c => c.SizeDetails)
-            .FirstOrDefaultAsync(c => c.Id == command.Request.DesignId && !c.IsDeleted && !c.DesignedProduct.IsDeleted && c.DesignedProduct.IsActive && !c.DesignedProduct!.Factory!.IsDeleted, cancellationToken);
+                .ThenInclude(c => c.SizeDetails)
+            .Include(c => c.DesignedProductColor) // 👈 Added: Include the linked color
+            .FirstOrDefaultAsync(c =>
+                c.Id == command.Request.DesignId &&
+                !c.IsDeleted, cancellationToken);
 
         if (design == null)
             return Result.Failure(new Error("Design.NotFound", "The specified Design does not exist.", 404));
+
+        // 2. 👈 Added: Check if the associated color is deleted
+        // Note: Ensure the navigation property name matches your actual entity (e.g., DesignedProductColor)
+        if (design.DesignedProductColor != null && design.DesignedProductColor.IsDeleted)
+        {
+            return Result.Failure(new Error("Design.ColorUnavailable", "The selected color for this product is no longer available.", 400));
+        }
 
         if (design.CustomerId != command.CustomerId)
             return Result.Failure(AuthErrors.Forbidden);

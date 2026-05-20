@@ -12,10 +12,13 @@ public class AddOrUpdateFixedColorToCartHandler(
     {
         var color = await _colorRepository.Get()
          .Include(c => c.Sizes)
-         .FirstOrDefaultAsync(c => c.Id == command.Request.ColorId && !c.IsDeleted && !c.Product.IsDeleted&& !c.Product.Seller.IsDeleted, cancellationToken);
+         .FirstOrDefaultAsync(c => c.Id == command.Request.ColorId, cancellationToken);
 
         if (color == null)
             return Result.Failure(new Error("Color.NotFound", "The specified color does not exist.", 404));
+
+        if (color.IsDeleted)
+            return Result.Failure(new Error("Color.Unavailable", "The selected color is no longer available.", 400));
 
         var requestedSizes = command.Request.Sizes.Select(s => s.Size).ToList();
         var availableSizes = color.Sizes.Select(s => s.Size).ToList();

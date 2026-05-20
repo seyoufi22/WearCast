@@ -11,4 +11,5 @@ public interface IRepository<T>
     public Task HardDeleteAsync(T dbRecord);
     public Task SoftDeleteAsync(int entityId);
     public IQueryable<T> Get(bool withDeleted = false);
+    Task SoftDeleteByConditionAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
 }
