@@ -1,4 +1,4 @@
-﻿using WearCast.Api.Features.CartManagment.GetMyCart.DTOs;
+using WearCast.Api.Features.CartManagment.GetMyCart.DTOs;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 
@@ -62,10 +62,7 @@ public class GetCartHandler(
             var product = c.Product;
             var color = c.Color;
 
-            if (design != null && product != null)
-            {
-                design.CalculateAndSetTotalPrice(product.Price, design.AssetCount);
-            }
+
 
             decimal templatePrice = product?.Price ?? 0;
             decimal totalPrice = design?.TotalPrice ?? templatePrice;
