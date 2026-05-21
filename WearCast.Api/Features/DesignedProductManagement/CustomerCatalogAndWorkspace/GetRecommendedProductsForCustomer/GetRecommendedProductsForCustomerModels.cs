@@ -12,5 +12,6 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
         public decimal Price { get; set; }
         public string? CategoryName { get; set; }
         public string? MainImageUrl { get; set; }
+        public string Type { get; set; } = string.Empty;
     }
 }
