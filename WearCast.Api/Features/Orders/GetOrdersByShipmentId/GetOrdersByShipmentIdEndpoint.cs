@@ -20,9 +20,10 @@ public class GetOrdersByShipmentIdEndpoint : ControllerBase
     public async Task<IActionResult> Get([FromRoute] int shipmentId)
     {
         var customerId = User.GetCustomerId();
+        var driverId = User.GetDriverId();
         var isAdmin = User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.ShippingCompanyManager) || User.IsInRole(DefaultRoles.OperationsAdmin);
 
-        var request = new GetOrdersByShipmentIdQuery(shipmentId, customerId, isAdmin);
+        var request = new GetOrdersByShipmentIdQuery(shipmentId, customerId, driverId, isAdmin);
         var result = await _sender.Send(request);
 
         if (result.IsFailure)

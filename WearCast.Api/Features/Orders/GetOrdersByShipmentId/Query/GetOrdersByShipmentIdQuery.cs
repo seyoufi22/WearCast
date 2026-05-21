@@ -4,4 +4,4 @@ using MediatR;
 
 namespace WearCast.Api.Features.Orders.GetOrdersByShipmentId.Query;
 
-public record GetOrdersByShipmentIdQuery(int ShipmentId, int? CustomerId, bool IsAdmin) : IRequest<Result<GetOrdersByShipmentIdResponseDto>>;
+public record GetOrdersByShipmentIdQuery(int ShipmentId, int? CustomerId, int? DriverId, bool IsAdmin) : IRequest<Result<GetOrdersByShipmentIdResponseDto>>;

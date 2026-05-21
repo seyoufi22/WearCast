@@ -30,8 +30,9 @@ public class GetOrdersByShipmentIdQueryHandler(ApplicationDbContext dbContext)
                 new Error("Shipments.NotFound", $"Shipment with ID {request.ShipmentId} not found.",
                     Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
 
-        // Security check: if not an admin, only the customer who owns this shipment can view it
-        if (!request.IsAdmin && shipment.CustomerId != request.CustomerId)
+        // Security check: admins, the customer who owns the shipment, or the assigned driver can view it
+        var isAssignedDriver = request.DriverId.HasValue && shipment.DriverId == request.DriverId;
+        if (!request.IsAdmin && shipment.CustomerId != request.CustomerId && !isAssignedDriver)
             return Result.Failure<GetOrdersByShipmentIdResponseDto>(
                 new Error("Shipments.Forbidden", "You do not have permission to view this shipment.",
                     Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden));
