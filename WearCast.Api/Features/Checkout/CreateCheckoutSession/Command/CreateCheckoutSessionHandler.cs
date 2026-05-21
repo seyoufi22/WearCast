@@ -207,8 +207,6 @@ public class CreateCheckoutSessionHandler : IRequestHandler<CreateCheckoutSessio
                 var product = design.DesignedProduct;
                 var color = design.DesignedProductColor;
 
-                design.CalculateAndSetTotalPrice(product.Price, design.AssetCount);
-                
                 foreach (var size in cartItem.Sizes)
                 {
                     var orderItem = new CustomerDesignedOrderItem
