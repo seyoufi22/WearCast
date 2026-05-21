@@ -1,4 +1,4 @@
-﻿using WearCast.Api.Features.CartManagment.GetDesignsInCart.DTOs;
+using WearCast.Api.Features.CartManagment.GetDesignsInCart.DTOs;
 namespace WearCast.Api.Features.CartManagment.GetDesignsInCart;
 
 public class GetCartHandler(
@@ -27,10 +27,7 @@ public class GetCartHandler(
             var product = design?.DesignedProduct;
             var color = design?.DesignedProductColor;
 
-            if (design != null && product != null)
-            {
-                design.CalculateAndSetTotalPrice(product.Price, design.AssetCount);
-            }
+
 
             decimal templatePrice = product?.Price ?? 0;
             decimal totalPrice = design?.TotalPrice ?? templatePrice;
