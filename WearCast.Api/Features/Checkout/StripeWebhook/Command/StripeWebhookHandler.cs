@@ -267,25 +267,21 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
                 DeliveryFee: shippingCompany.DeliveryFee);
              await mediator.Publish(shipmentNotificationEvent, cancellationToken);
 
-        }
-        else
-        {
-            return Result.Failure<bool>(new Error("ShippingCompany.NotFound", "No shipping company found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
-        }
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        // Credit the shipping company's wallet AFTER SaveChanges so shipment.Id is the real DB-generated ID
-        if (shippingCompany != null)
-        {
+            // Credit the shipping company's wallet AFTER SaveChanges so shipment.Id is the real DB-generated ID
             await walletService.CreditAsync(
                 WalletOwnerType.ShippingCompany,
                 shippingCompany.Id,
                 shippingCompany.DeliveryFee,
-                $"Delivery fee for shipment #{shipment!.Id}",
-                firstOrder!.Id,
+                $"Delivery fee for shipment #{shipment.Id}",
+                firstOrder.Id,
                 firstOrder.CreatedById,
                 cancellationToken);
+        }
+        else
+        {
+            return Result.Failure<bool>(new Error("ShippingCompany.NotFound", "No shipping company found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
         }
 
         return Result<bool>.Success(true);
