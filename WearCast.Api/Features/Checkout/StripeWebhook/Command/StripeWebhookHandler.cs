@@ -210,16 +210,6 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             
             dbContext.Shipments.Add(shipment);
 
-            // Credit the shipping company's wallet with the delivery fee
-            await walletService.CreditAsync(
-                WalletOwnerType.ShippingCompany,
-                shippingCompany.Id,
-                shippingCompany.DeliveryFee,
-                $"Delivery fee for shipment #{shipment.Id}",
-                null,
-                firstOrder.CreatedById,
-                cancellationToken);
-
 
             var ordersBySeller = paidOrders.Where(o => o.SellerId.HasValue).GroupBy(o => o.SellerId);
             foreach (var sellerGroup in ordersBySeller)
@@ -284,6 +274,20 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Credit the shipping company's wallet AFTER SaveChanges so shipment.Id is the real DB-generated ID
+        if (shippingCompany != null)
+        {
+            await walletService.CreditAsync(
+                WalletOwnerType.ShippingCompany,
+                shippingCompany.Id,
+                shippingCompany.DeliveryFee,
+                $"Delivery fee for shipment #{shipment!.Id}",
+                firstOrder!.Id,
+                firstOrder.CreatedById,
+                cancellationToken);
+        }
+
         return Result<bool>.Success(true);
     }
 }
