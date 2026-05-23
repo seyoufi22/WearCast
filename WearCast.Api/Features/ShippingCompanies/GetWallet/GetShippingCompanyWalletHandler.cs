@@ -9,11 +9,20 @@ public class GetShippingCompanyWalletHandler(
 {
     public async Task<Result<WalletResponse>> Handle(GetShippingCompanyWalletRequest request, CancellationToken cancellationToken)
     {
-        var shippingCompanyId = await context.ShippingCompanies
-            .AsNoTracking()
-            .Where(x => !x.IsDeleted)
-            .Select(s => (int?)s.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+        int? shippingCompanyId;
+
+        if (request.AdminOverrideId.HasValue)
+        {
+            shippingCompanyId = request.AdminOverrideId.Value;
+        }
+        else
+        {
+            shippingCompanyId = await context.ShippingCompanies
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .Select(s => (int?)s.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
 
         if (shippingCompanyId == null)
         {

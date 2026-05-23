@@ -11,7 +11,8 @@ public class GetSellerWalletHandler(
     public async Task<Result<WalletResponse>> Handle(GetSellerWalletRequest request, CancellationToken cancellationToken)
     {
         var user = httpContextAccessor.HttpContext!.User;
-        var sellerId = user.GetSellerId();
+
+        int? sellerId = request.AdminOverrideId ?? user.GetSellerId();
 
         if (sellerId == null)
             return Result.Failure<WalletResponse>(new Error("Seller.NotFound", "Seller not found in token.", StatusCodes.Status404NotFound));
