@@ -47,14 +47,17 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
         }
 
         // Driver: can only mark Ready -> PickedUp
-        if (request.DriverId.HasValue)
+        if (request.DriverId.HasValue || request.IsShippingCompanyManager)
         {
-            bool isAssigned = await dbContext.Shipments
-                .AnyAsync(s => s.Id == order.ShipmentId && s.DriverId == request.DriverId.Value, cancellationToken);
-            
-            if (!isAssigned)
+            if (!request.IsShippingCompanyManager)
             {
-                return Result.Failure<bool>(AuthErrors.Forbidden);
+                bool isAssigned = await dbContext.Shipments
+                    .AnyAsync(s => s.Id == order.ShipmentId && s.DriverId == request.DriverId.Value, cancellationToken);
+
+                if (!isAssigned)
+                {
+                    return Result.Failure<bool>(AuthErrors.Forbidden);
+                }
             }
 
             if (request.NewStatus != OrderStatus.PickedUp)
@@ -114,7 +117,7 @@ public class UpdateOrderStatusHandler(ApplicationDbContext dbContext, IMediator 
                 .Select(s => new { s.ShipmentStatus })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (shipmentInfo != null && shipmentInfo.ShipmentStatus != ShipmentStatus.PickingUp&& shipmentInfo.ShipmentStatus == ShipmentStatus.Assigned)
+            if (shipmentInfo != null && shipmentInfo.ShipmentStatus != ShipmentStatus.PickingUp && shipmentInfo.ShipmentStatus == ShipmentStatus.Assigned)
             {
                 await dbContext.Shipments
                     .Where(s => s.Id == order.ShipmentId)
