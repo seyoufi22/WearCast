@@ -28,6 +28,6 @@ public class CreateFixedProductEndpoint : ControllerBase
         request.SellerId = sellerId.Value;
 
         var result = await _sender.Send(request, cancellationToken);
-        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+        return result.ToResponse();
     }
 }
