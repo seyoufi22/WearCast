@@ -27,6 +27,6 @@
         List<ImageResponse> Images
     );
 
-    public record ImageResponse(string ImageUrl, string ViewSide);
+    public record ImageResponse(int ImageId, string ImageUrl, string ViewSide);
     public record CategoryResponse(string Name, string ImageUrl);
 }
