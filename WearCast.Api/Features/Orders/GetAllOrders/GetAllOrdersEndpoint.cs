@@ -38,7 +38,7 @@ public class GetAllOrdersEndpoint : ControllerBase
         {
             resolvedFactoryId = User.GetFactoryId();
         }
-        else if (User.IsInRole(DefaultRoles.SuperAdmin))
+        else if (User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.CustomerServiceAdmin))
         {
             // Admin can query by any seller or factory
             resolvedSellerId = sellerId;
