@@ -45,7 +45,8 @@ public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductR
             .GreaterThan(0).WithMessage("Valid CategoryId is required.");
 
         RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Description is required.");
+            .NotEmpty().WithMessage("Description is required.")
+            .MaximumLength(1000).WithMessage("Description must not exceed 1000 characters.");
 
         RuleFor(x => x.DressStyle)
         .IsInEnum().WithMessage("Invalid DressStyle selected.");

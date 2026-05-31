@@ -15,7 +15,7 @@ public class GetAllSellerManagersHandler(
         var user = _httpContextAccessor.HttpContext!.User;
         int targetSellerId;
 
-        if (user.IsSuperAdmin())
+        if (user.IsSuperAdmin()||user.IsVendorAdmin())
         {
             if (!request.ProvidedSellerId.HasValue)
                 return Result.Failure<List<GetSellerManagerResponse>>(new Error(

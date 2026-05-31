@@ -13,7 +13,7 @@ public class GetSellerManagerHandler(
         var user = _httpContextAccessor.HttpContext!.User;
         int targetManagerId;
 
-        if (user.IsSuperAdmin())
+        if (user.IsSuperAdmin()||user.IsVendorAdmin())
         {
             if (!request.ProvidedManagerId.HasValue)
             {

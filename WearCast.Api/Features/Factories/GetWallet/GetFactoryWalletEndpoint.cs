@@ -7,9 +7,10 @@ namespace WearCast.Api.Features.Factories.GetWallet;
 public class GetFactoryWalletEndpoint(ISender sender) : ControllerBase
 {
     [HttpGet("wallet")]
-    public async Task<IActionResult> GetWallet(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetWallet([FromQuery] int? id, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetFactoryWalletRequest(), cancellationToken);
+        var isAdmin = User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.VendorAdmin);
+        var result = await sender.Send(new GetFactoryWalletRequest { AdminOverrideId = isAdmin ? id : null }, cancellationToken);
         return result.ToResponse();
     }
 }
