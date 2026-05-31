@@ -16,7 +16,7 @@ public class GetOrdersByShipmentIdEndpoint : ControllerBase
     }
 
     [HttpGet("shipment/{shipmentId}")]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.ShippingCompanyManager}, {DefaultRoles.Driver}")]
+    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.ShippingCompanyManager}, {DefaultRoles.Driver}, {DefaultRoles.OperationsAdmin}")]
     public async Task<IActionResult> Get([FromRoute] int shipmentId)
     {
         var customerId = User.GetCustomerId();
