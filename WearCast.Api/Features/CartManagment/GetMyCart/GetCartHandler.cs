@@ -26,7 +26,8 @@ public class GetCartHandler(
                 ProductName = c.FixedColor.Product.Name,
                 Price = c.FixedColor.Product.Price,
                 Image = c.FixedColor.ImageUrl,
-                Sizes = c.Sizes.Select(s => new FixedSizeDto(
+                Sizes = c.Sizes.OrderBy(s => s.Size)
+                .Select(s => new FixedSizeDto(
                     s.Size,
                     s.Quantity,
                     c.FixedColor.Sizes
@@ -52,7 +53,7 @@ public class GetCartHandler(
                 Design = c.DesignedCustomer,
                 Product = c.DesignedCustomer!.DesignedProduct,
                 Color = c.DesignedCustomer!.DesignedProductColor,
-                Sizes = c.Sizes.Select(s => new DesignedSizeDto(s.Size, s.Quantity)).ToList()
+                Sizes = c.Sizes.OrderBy(s => s.Size).Select(s => new DesignedSizeDto(s.Size, s.Quantity)).ToList()
             })
             .ToListAsync(cancellationToken);
 
