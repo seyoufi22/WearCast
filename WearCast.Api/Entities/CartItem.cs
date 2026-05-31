@@ -12,8 +12,9 @@ public class CartItem : BaseModel
     public ICollection<FixedProductSize> Sizes { get; set; } = new List<FixedProductSize>();
     public record SizeUpdateDto(Size SizeName, int QuantityChange, int? AvailableStock);
 
-    public void AddOrUpdateSizes(IEnumerable<SizeUpdateDto> sizeUpdates)
+    public Result AddOrUpdateSizes(IEnumerable<SizeUpdateDto> sizeUpdates)
     {
+        // Loop 1: Validation and stock check
         foreach (var update in sizeUpdates)
         {
             var existingSize = Sizes.FirstOrDefault(s => s.Size == update.SizeName);
@@ -25,18 +26,21 @@ public class CartItem : BaseModel
                 if (update.QuantityChange > 0 && requestedQuantity > update.AvailableStock.Value)
                 {
                     string cleanSizeName = update.SizeName.ToString().TrimStart('_').Replace("_", " ");
+
+                    // Return Result.Failure instead of throwing an Exception to avoid breaking control flow
                     if (update.AvailableStock.Value == 0)
                     {
-                        throw new InvalidOperationException($"Size {cleanSizeName} is currently out of stock.");
+                        return Result.Failure(new Error("Cart.OutOfStock", $"Size {cleanSizeName} is currently out of stock.", 400));
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Only {update.AvailableStock.Value} item(s) available in stock for size {cleanSizeName}.");
+                        return Result.Failure(new Error("Cart.StockExceeded", $"Only {update.AvailableStock.Value} item(s) available in stock for size {cleanSizeName}.", 400));
                     }
                 }
             }
         }
 
+        // Loop 2: Apply changes to the tracked instances
         foreach (var update in sizeUpdates)
         {
             var existingSize = Sizes.FirstOrDefault(s => s.Size == update.SizeName);
@@ -56,6 +60,7 @@ public class CartItem : BaseModel
                 }
                 else
                 {
+                    // Update the existing tracked instance directly
                     existingSize.Quantity = requestedQuantity;
                 }
             }
@@ -69,15 +74,7 @@ public class CartItem : BaseModel
             }
         }
 
-        if (sizeUpdates.Any())
-        {
-            var sortedSizes = Sizes.OrderBy(s => s.Size).ToList();
-            Sizes.Clear();
-            foreach (var size in sortedSizes)
-            {
-                Sizes.Add(size);
-            }
-        }
+        return Result.Success();
     }
 
     public void RemoveSize(Size size)
