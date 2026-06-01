@@ -1,5 +1,6 @@
 ﻿using WearCast.Api.Features.CartManagment.AddOrUpdateDesignedToCart.DTOs;
 using static WearCast.Api.Entities.CartItem;
+
 namespace WearCast.Api.Features.CartManagment.AddOrUpdateDesignedColorToCart;
 
 public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRepository, IRepository<CustomerDesign> _designedRepository)
@@ -11,7 +12,7 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
         var design = await _designedRepository.Get()
             .Include(c => c.DesignedProduct)
                 .ThenInclude(c => c.SizeDetails)
-            .Include(c => c.DesignedProductColor) // 👈 Added: Include the linked color
+            .Include(c => c.DesignedProductColor)
             .FirstOrDefaultAsync(c =>
                 c.Id == command.Request.DesignId &&
                 !c.IsDeleted, cancellationToken);
@@ -19,8 +20,7 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
         if (design == null)
             return Result.Failure(new Error("Design.NotFound", "The specified Design does not exist.", 404));
 
-        // 2. 👈 Added: Check if the associated color is deleted
-        // Note: Ensure the navigation property name matches your actual entity (e.g., DesignedProductColor)
+        // 2. Check if the associated color is deleted
         if (design.DesignedProductColor != null && design.DesignedProductColor.IsDeleted)
         {
             return Result.Failure(new Error("Design.ColorUnavailable", "The selected color for this product is no longer available.", 400));
@@ -46,50 +46,55 @@ public class AddOrUpdateDesignedToCartHandler(IRepository<CartItem> _cartItemRep
                 c.CustomerId == command.CustomerId,
                 cancellationToken);
 
-        try
+        // ❌ The try-catch block was completely removed ❌
+
+        if (cartItem == null)
         {
-            if (cartItem == null)
+            var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+
+            if (!validInitialSizes.Any())
+                return Result.Success();
+
+            cartItem = new CartItem
             {
-                var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+                CustomerId = command.CustomerId,
+                CustomerDesignId = command.Request.DesignId
+            };
 
-                if (!validInitialSizes.Any())
-                    return Result.Success();
+            var updates = validInitialSizes.Select(item =>
+                new SizeUpdateDto(item.Size, item.Quantity, null) // Stock is null for designed items
+            ).ToList();
 
-                cartItem = new CartItem
-                {
-                    CustomerId = command.CustomerId,
-                    CustomerDesignId = command.Request.DesignId
-                };
+            // Handle the Result instead of catching exceptions
+            var result = cartItem.AddOrUpdateSizes(updates);
+            if (result.IsFailure)
+            {
+                return result;
+            }
 
-                var updates = validInitialSizes.Select(item =>
-                    new SizeUpdateDto(item.Size, item.Quantity, null)
-                ).ToList();
+            await _cartItemRepository.CreateAsync(cartItem);
+        }
+        else
+        {
+            var updates = command.Request.Sizes.Select(item =>
+                new SizeUpdateDto(item.Size, item.Quantity, null) // Stock is null for designed items
+            ).ToList();
 
-                cartItem.AddOrUpdateSizes(updates);
+            // Handle the Result instead of catching exceptions
+            var result = cartItem.AddOrUpdateSizes(updates);
+            if (result.IsFailure)
+            {
+                return result;
+            }
 
-                await _cartItemRepository.CreateAsync(cartItem);
+            if (!cartItem.Sizes.Any())
+            {
+                await _cartItemRepository.HardDeleteAsync(cartItem);
             }
             else
             {
-                var updates = command.Request.Sizes.Select(item =>
-                    new SizeUpdateDto(item.Size, item.Quantity, null)
-                ).ToList();
-
-                cartItem.AddOrUpdateSizes(updates);
-
-                if (!cartItem.Sizes.Any())
-                {
-                    await _cartItemRepository.HardDeleteAsync(cartItem);
-                }
-                else
-                {
-                    await _cartItemRepository.UpdateAsync(cartItem);
-                }
+                await _cartItemRepository.UpdateAsync(cartItem);
             }
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure(new Error("Cart.OperationFailed", ex.Message, 400));
         }
 
         return Result.Success();
