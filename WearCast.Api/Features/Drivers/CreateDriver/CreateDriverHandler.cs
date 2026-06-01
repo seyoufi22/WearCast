@@ -25,30 +25,31 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
         public async Task<Result<CreateDriverResponse>> Handle(CreateDriverRequest request, CancellationToken cancellationToken)
         {
-            var currentUser = _httpContextAccessor.HttpContext!.User;
-            int targetCompanyId;
+            var shippingCompanyId = await context.ShippingCompanies
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .Select(s => (int?)s.Id)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (currentUser.IsSuperAdmin())
-            {
-                if (!request.ProvidedShippingCompanyId.HasValue)
-                {
-                    return Result.Failure<CreateDriverResponse>(new Error("Validation.MissingId", "SuperAdmin must provide a target ShippingCompanyId.", StatusCodes.Status400BadRequest));
-                }
-                targetCompanyId = request.ProvidedShippingCompanyId.Value;
-            }
-            else
-            {
-                var companyIdFromToken = currentUser.GetShippingCompanyId();
-                if (!companyIdFromToken.HasValue)
-                {
-                    return Result.Failure<CreateDriverResponse>(new Error("User.InvalidToken", "Shipping Company ID not found in token.", StatusCodes.Status401Unauthorized));
-                }
-                targetCompanyId = companyIdFromToken.Value;
-            }
+            if (shippingCompanyId == null)
+                return Result.Failure<CreateDriverResponse>(new Error("ShippingCompany.NotFound", "Thier is no shipping company yet.", StatusCodes.Status404NotFound));
 
-            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == targetCompanyId, cancellationToken);
+
+            var companyExists = await _context.ShippingCompanies.AnyAsync(x => x.Id == shippingCompanyId.Value, cancellationToken);
             if (!companyExists)
                 return Result.Failure<CreateDriverResponse>(ShippingCompanyErrors.CompanyNotFound);
+
+
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.Email &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateDriverResponse>(UserErrors.DublicatedEmail);
+            }
 
             var existingUser = await _userManager.Users
                 .Where(x => x.Email == request.Email || x.PhoneNumber == request.PhoneNumber)
@@ -106,7 +107,7 @@ namespace WearCast.Api.Features.Drivers.CreateDriver
 
                 driver.ProfileImageUrl = profileImageUrl;
                 driver.UserId = newDriverUser.Id;
-                driver.ShippingCompanyId = targetCompanyId;
+                driver.ShippingCompanyId = shippingCompanyId.Value;
 
 
                 await _context.Drivers.AddAsync(driver, cancellationToken);

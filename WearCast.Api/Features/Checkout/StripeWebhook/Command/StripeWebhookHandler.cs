@@ -1,9 +1,11 @@
 using WearCast.Api.Abstractions;
+using WearCast.Api.Common.Consts;
 using WearCast.Api.Common.Enums;
 using WearCast.Api.Common.Tracking;
 using WearCast.Api.Common.Tracking.Models;
 using WearCast.Api.Common.Wallet;
 using WearCast.Api.Features.Checkout.StripeWebhook.DTOs;
+using WearCast.Api.Features.Checkout.StripeWebhook.Notifications;
 using WearCast.Api.Persistence;
 using WearCast.Api.Entities.Shipping;
 using WearCast.Api.Entities.BusinessActors;
@@ -12,13 +14,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WearCast.Api.Features.Checkout.StripeWebhook.Command;
 
-public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingService trackingService, IWalletService walletService) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
+public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingService trackingService, IWalletService walletService, IMediator mediator) : IRequestHandler<StripeWebhookRequestDto, Result<bool>>
 {
     public async Task<Result<bool>> Handle(StripeWebhookRequestDto request, CancellationToken cancellationToken)
     {
         var orders = await dbContext.Orders
             .Include(o => o.FixedProductItems)
             .Include(o => o.DesignedProductItems)
+            .Include(o => o.Seller).ThenInclude(s => s.Managers)
+            .Include(o => o.Factory).ThenInclude(f => f.Managers)
             .Where(o => o.StripeSessionId == request.StripeSessionId)
             .ToListAsync(cancellationToken);
 
@@ -172,6 +176,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
         
         // Find a default shipping company
         var shippingCompany = await dbContext.ShippingCompanies
+            .Include(sc => sc.Managers)
             .Where(sc=>sc.IsDeleted==false).
             FirstOrDefaultAsync(cancellationToken);
         if (shippingCompany != null)
@@ -195,7 +200,7 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             {
                 CustomerId = firstOrder.CustomerId,
                 DeliveryAddress = deliveryAddress,
-                ShipmentStatus = ShipmentStatus.Unassigned,
+                ShipmentStatus = ShipmentStatus.Pending,
                 ShippingCompanyId = shippingCompany.Id,
                 CreatedById = firstOrder.CreatedById,
                 Price = ordersTotal + shippingCompany.DeliveryFee,
@@ -205,13 +210,72 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             
             dbContext.Shipments.Add(shipment);
 
-            // Credit the shipping company's wallet with the delivery fee
+
+            var ordersBySeller = paidOrders.Where(o => o.SellerId.HasValue).GroupBy(o => o.SellerId);
+            foreach (var sellerGroup in ordersBySeller)
+            {
+                if (sellerGroup.Key.HasValue)
+                {
+                    var seller = sellerGroup.First().Seller;
+                    if (seller != null && seller.Managers.Any())
+                    {
+                        var managerUserIds = seller.Managers.Where(m => !m.IsDeleted).Select(m => m.UserId).ToList();
+                        foreach (var order in sellerGroup)
+                        {
+                            var notificationEvent = new NewOrderEvent(
+                                RecipientIds: managerUserIds,
+                                OrderId: order.Id,
+                                PayoutAmount: order.Payout);
+                            await mediator.Publish(notificationEvent, cancellationToken);
+                        }
+                    }
+                }
+            }
+
+            var factoryOrder = paidOrders.FirstOrDefault(o => o.FactoryId.HasValue);
+            if (factoryOrder != null)
+            {
+                var factory = factoryOrder.Factory;
+                if (factory != null && factory.Managers.Any())
+                {
+                    var managerUserIds = factory.Managers.Where(m => !m.IsDeleted).Select(m => m.UserId).ToList();
+                    var notificationEvent = new NewOrderEvent(
+                        RecipientIds: managerUserIds,
+                        OrderId: factoryOrder.Id,
+                        PayoutAmount: factoryOrder.Payout);
+                    await mediator.Publish(notificationEvent, cancellationToken);
+                }
+            }
+
+            List<string> ShipmentReceipnts = new List<string>();            
+            if (shippingCompany.Managers.Any())
+            {
+                var shippingCompanyManagerUserIds = shippingCompany.Managers.Where(m => !m.IsDeleted).Select(m => m.UserId).ToList();
+                ShipmentReceipnts.AddRange(shippingCompanyManagerUserIds);
+            }
+
+            var Admins = await (from user in dbContext.Users
+                                                join ur in dbContext.UserRoles on user.Id equals ur.UserId
+                                                join r in dbContext.Roles on ur.RoleId equals r.Id
+                                                where (r.Name == DefaultRoles.OperationsAdmin || r.Name == DefaultRoles.CustomerServiceAdmin) && !user.IsDeleted
+                                                select user.Id).ToListAsync(cancellationToken);
+            ShipmentReceipnts.AddRange(Admins);
+             var shipmentNotificationEvent = new NewShipmentEvent(
+                RecipientIds: ShipmentReceipnts,
+                ShipmentId: shipment.Id,
+                OrderCount: paidOrders.Count,
+                DeliveryFee: shippingCompany.DeliveryFee);
+             await mediator.Publish(shipmentNotificationEvent, cancellationToken);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            // Credit the shipping company's wallet AFTER SaveChanges so shipment.Id is the real DB-generated ID
             await walletService.CreditAsync(
                 WalletOwnerType.ShippingCompany,
                 shippingCompany.Id,
                 shippingCompany.DeliveryFee,
                 $"Delivery fee for shipment #{shipment.Id}",
-                null,
+                firstOrder.Id,
                 firstOrder.CreatedById,
                 cancellationToken);
         }
@@ -220,7 +284,6 @@ public class StripeWebhookHandler(ApplicationDbContext dbContext, ITrackingServi
             return Result.Failure<bool>(new Error("ShippingCompany.NotFound", "No shipping company found.", Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound));
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
         return Result<bool>.Success(true);
     }
 }

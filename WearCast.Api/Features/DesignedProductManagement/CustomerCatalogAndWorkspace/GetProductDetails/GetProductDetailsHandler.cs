@@ -45,7 +45,7 @@ namespace WearCast.Api.Features.DesignedProductManagement.CustomerCatalogAndWork
                     c.Name,
                     c.HexCode,
                     c.MainImageUrl,
-                    c.Images.Select(img => new ImageResponse(img.ImageUrl, img.ViewSide.ToString())).ToList()
+                    c.Images.Select(img => new ImageResponse(img.Id, img.ImageUrl, img.ViewSide.ToString())).ToList()
                 )).ToList();
 
             var response = new GetProductDetailsResponse(

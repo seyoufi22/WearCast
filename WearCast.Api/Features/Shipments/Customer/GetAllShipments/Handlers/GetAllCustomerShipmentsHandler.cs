@@ -1,7 +1,6 @@
 ﻿using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs;
-using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments.Handlers
 {
@@ -41,30 +40,29 @@ namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments.Handlers
                 query=query.Where(s=>s.Price<=request.MaxPrice);
             }
 
-            query = request.SortBy switch
+            var projectedQuery = query.Select(s => new GetAllCustomerShipmentsResponseDTO
             {
-                SortBy.Oldest => query.OrderBy(s => s.CreatedOn),
-                SortBy.NumberOfOrdersAsc => query.OrderBy(s => s.Orders.Count()),
-                SortBy.NumberOfOrdersDesc => query.OrderByDescending(s => s.Orders.Count()),
-                SortBy.PriceAsc => query.OrderBy(s => s.Price),
-                SortBy.PriceDesc => query.OrderByDescending(s => s.Price),
-                _ => query.OrderByDescending(s => s.CreatedOn)
+                Id = s.Id,
+                OrderTime = s.CreatedOn,
+                ShipmentStatus = s.ShipmentStatus,
+                Price = s.Price,
+                NumberOfOrders = s.Orders.Count(), 
+                DeliveryCity = s.DeliveryAddress.City,
+                DeliveryStreet = s.DeliveryAddress.Street,
+                DeliveryCode = s.DeliveryCode
+            });
+
+            projectedQuery = request.SortBy switch
+            {
+                SortBy.Oldest => projectedQuery.OrderBy(s => s.OrderTime),
+                SortBy.NumberOfOrdersAsc => projectedQuery.OrderBy(s => s.NumberOfOrders),
+                SortBy.NumberOfOrdersDesc => projectedQuery.OrderByDescending(s => s.NumberOfOrders),
+                SortBy.PriceAsc => projectedQuery.OrderBy(s => s.Price),
+                SortBy.PriceDesc => projectedQuery.OrderByDescending(s => s.Price),
+                _ => projectedQuery.OrderByDescending(s => s.OrderTime)
             };
 
-            var shipmentsquery = query
-                .Select(s => new GetAllCustomerShipmentsResponseDTO
-                {
-                    Id = s.Id,
-                    OrderTime = s.CreatedOn,
-                    ShipmentStatus = s.ShipmentStatus,
-                    Price = s.Price,
-                    NumberOfOrders = s.Orders.Count(),
-
-                    DeliveryCity = s.DeliveryAddress.City,
-                    DeliveryStreet = s.DeliveryAddress.Street,
-                    DeliveryCode=s.DeliveryCode
-                });
-            var pagedResult = await PagingHelper.CreateAsync(shipmentsquery, request.PageIndex, request.PageSize);
+            var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
             return Result.Success(pagedResult);
         }

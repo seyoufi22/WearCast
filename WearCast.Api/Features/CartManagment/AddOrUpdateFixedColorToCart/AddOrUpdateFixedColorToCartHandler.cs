@@ -1,5 +1,6 @@
 ﻿using WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart.DTOs;
 using static WearCast.Api.Entities.CartItem;
+
 namespace WearCast.Api.Features.CartManagment.AddOrUpdateFixedColorToCart;
 
 public class AddOrUpdateFixedColorToCartHandler(
@@ -12,10 +13,13 @@ public class AddOrUpdateFixedColorToCartHandler(
     {
         var color = await _colorRepository.Get()
          .Include(c => c.Sizes)
-         .FirstOrDefaultAsync(c => c.Id == command.Request.ColorId && !c.IsDeleted && !c.Product.IsDeleted&& !c.Product.Seller.IsDeleted, cancellationToken);
+         .FirstOrDefaultAsync(c => c.Id == command.Request.ColorId, cancellationToken);
 
         if (color == null)
             return Result.Failure(new Error("Color.NotFound", "The specified color does not exist.", 404));
+
+        if (color.IsDeleted)
+            return Result.Failure(new Error("Color.Unavailable", "The selected color is no longer available.", 400));
 
         var requestedSizes = command.Request.Sizes.Select(s => s.Size).ToList();
         var availableSizes = color.Sizes.Select(s => s.Size).ToList();
@@ -34,55 +38,58 @@ public class AddOrUpdateFixedColorToCartHandler(
             c.CustomerId == command.CustomerId,
             cancellationToken);
 
-        try
+        if (cartItem == null)
         {
-            if (cartItem == null)
+            var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+
+            if (!validInitialSizes.Any())
+                return Result.Success();
+
+            cartItem = new CartItem
             {
-                var validInitialSizes = command.Request.Sizes.Where(s => s.Quantity > 0).ToList();
+                CustomerId = command.CustomerId,
+                FixedColorId = command.Request.ColorId
+            };
 
-                if (!validInitialSizes.Any())
-                    return Result.Success();
+            var updates = validInitialSizes.Select(req =>
+            {
+                var stock = color.Sizes.First(s => s.Size == req.Size).Quantity;
+                return new SizeUpdateDto(req.Size, req.Quantity, stock);
+            }).ToList();
 
-                cartItem = new CartItem
-                {
-                    CustomerId = command.CustomerId,
-                    FixedColorId = command.Request.ColorId
-                };
+            // Handle the Result instead of catching exceptions
+            var result = cartItem.AddOrUpdateSizes(updates);
+            if (result.IsFailure)
+            {
+                return result;
+            }
 
-                var updates = validInitialSizes.Select(req =>
-                {
-                    var stock = color.Sizes.First(s => s.Size == req.Size).Quantity;
-                    return new SizeUpdateDto(req.Size, req.Quantity, stock);
-                }).ToList();
+            await _cartItemRepository.CreateAsync(cartItem);
+        }
+        else
+        {
+            var updates = command.Request.Sizes.Select(req =>
+            {
+                var stock = color.Sizes.First(s => s.Size == req.Size).Quantity;
+                return new SizeUpdateDto(req.Size, req.Quantity, stock);
+            }).ToList();
 
-                cartItem.AddOrUpdateSizes(updates);
+            // Handle the Result instead of catching exceptions
+            var result = cartItem.AddOrUpdateSizes(updates);
+            if (result.IsFailure)
+            {
+                return result;
+            }
 
-                await _cartItemRepository.CreateAsync(cartItem);
+            if (!cartItem.Sizes.Any())
+            {
+                await _cartItemRepository.HardDeleteAsync(cartItem);
             }
             else
             {
-                var updates = command.Request.Sizes.Select(req =>
-                {
-                    var stock = color.Sizes.First(s => s.Size == req.Size).Quantity;
-                    return new SizeUpdateDto(req.Size, req.Quantity, stock);
-                }).ToList();
-
-                cartItem.AddOrUpdateSizes(updates);
-
-                if (!cartItem.Sizes.Any())
-                {
-                    await _cartItemRepository.HardDeleteAsync(cartItem);
-                }
-                else
-                {
-                    _dbContext.Entry(cartItem).State = EntityState.Modified;
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                }
+                _dbContext.Entry(cartItem).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure(new Error("Cart.StockExceeded", ex.Message, 400));
         }
 
         return Result.Success();

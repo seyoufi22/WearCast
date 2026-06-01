@@ -9,4 +9,5 @@ public record UpdateOrderStatusCommand(
     OrderStatus NewStatus,
     int? SellerId = null,
     int? DriverId = null,
-    int? FactoryId = null) : IRequest<Result<bool>>;
+    int? FactoryId = null,
+    bool IsShippingCompanyManager = false) : IRequest<Result<bool>>;

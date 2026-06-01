@@ -1,6 +1,4 @@
-﻿using Org.BouncyCastle.Cms;
-using System.Security.Claims;
-using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
+﻿using WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.DTOs;
 
 namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
 {
@@ -18,98 +16,103 @@ namespace WearCast.Api.Features.Shipments.Driver.UpdateShipmentStatus.Handlers
             UpdateShipmentStatusRequestDTO request,
             CancellationToken cancellationToken)
         {
-            var shipment = await _context.Shipments
-                .Include(s => s.Driver)
-                .Include(s => s.Orders)
-                .Include(s => s.Customer)
-                .FirstOrDefaultAsync(s => s.Id == request.ShipmentId, cancellationToken);
+            var shipmentInfo = await _context.Shipments
+                .AsNoTracking()
+                .Where(s => s.Id == request.ShipmentId)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.ShipmentStatus,
+                    s.DriverId,
+                    s.DeliveryCode,
+                    CustomerUserId = s.Customer.UserId
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (shipment == null)
+            if (shipmentInfo == null)
             {
                 return Result.Failure(ShipmentErrors.NotFound);
             }
 
             if (!request.IsAdmin)
             {
-                if (shipment.Driver == null || shipment.Driver.UserId != request.UpdaterId)
+                var currentDriverId = await _context.Drivers
+                     .Where(d => d.UserId == request.UpdaterId)
+                     .Select(d => d.Id)
+                     .FirstOrDefaultAsync(cancellationToken);
+                if (currentDriverId == 0 || shipmentInfo.DriverId != currentDriverId)
                 {
                     return Result.Failure(ShipmentErrors.UnAuthorized);
                 }
             }
 
-            if (shipment.ShipmentStatus == ShipmentStatus.Delivered
-              || shipment.ShipmentStatus == ShipmentStatus.Unassigned
-              || shipment.ShipmentStatus == ShipmentStatus.Pending)
-            {
-                return Result.Failure(ShipmentErrors.InvalidTransition);
-            }
+            int rowsAffected = 0;
 
-            if (shipment.ShipmentStatus == ShipmentStatus.Assigned)
-            {
-                if (request.NewStatus == ShipmentStatus.Unassigned)
-                {
-                    shipment.DriverId = null;
-                }
-                else if (request.NewStatus != ShipmentStatus.PickingUp)
-                {
-                    return Result.Failure(ShipmentErrors.InvalidTransition);
-                }
-                else
-                {
-                    bool Ready = shipment.Orders.All(o => o.Status == OrderStatus.Ready);
-                    if (!Ready)
-                    {
-                        return Result.Failure(ShipmentErrors.NotReady);
-                    }
-                    shipment.TripStartedAt = DateTime.UtcNow;
-                }
-            }
-            if (shipment.ShipmentStatus == ShipmentStatus.PickingUp)
+            if (shipmentInfo.ShipmentStatus == ShipmentStatus.PickingUp)
             {
                 if (request.NewStatus != ShipmentStatus.OutForDelivery)
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
-                else
+
+                bool hasUnpickedOrders = await _context.Orders
+                    .AnyAsync(o => o.ShipmentId == shipmentInfo.Id && o.Status != OrderStatus.PickedUp, cancellationToken);
+
+                if (hasUnpickedOrders)
                 {
-                    bool PickedUp = shipment.Orders.All(o => o.Status == OrderStatus.PickedUp);
-                    if (!PickedUp)
-                    {
-                        return Result.Failure(ShipmentErrors.NotPickedUp);
-                    }
-                    shipment.OutForDeliveryAt = DateTime.UtcNow;
+                    return Result.Failure(ShipmentErrors.NotPickedUp);
                 }
 
+                rowsAffected = await _context.Shipments
+                    .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.PickingUp)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.ShipmentStatus, request.NewStatus)
+                    .SetProperty(s => s.OutForDeliveryAt, DateTime.UtcNow)
+                    .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                    cancellationToken);
             }
-            if (shipment.ShipmentStatus == ShipmentStatus.OutForDelivery)
+            else if (shipmentInfo.ShipmentStatus == ShipmentStatus.OutForDelivery)
             {
                 if (request.NewStatus != ShipmentStatus.Delivered)
                 {
                     return Result.Failure(ShipmentErrors.InvalidTransition);
                 }
-                if (string.IsNullOrWhiteSpace(request.DeliveryCode) || shipment.DeliveryCode != request.DeliveryCode)
+                if (string.IsNullOrWhiteSpace(request.DeliveryCode) ||
+                    !string.Equals(shipmentInfo.DeliveryCode, request.DeliveryCode))
                 {
                     return Result.Failure(ShipmentErrors.WrongDeliveryCode);
                 }
-                shipment.DeliveredAt = DateTime.UtcNow;
+                rowsAffected = await _context.Shipments
+                    .Where(s => s.Id == request.ShipmentId && s.ShipmentStatus == ShipmentStatus.OutForDelivery)
+                    .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.ShipmentStatus, request.NewStatus)
+                    .SetProperty(s => s.DeliveredAt, DateTime.UtcNow)
+                    .SetProperty(s => s.UpdatedById, request.UpdaterId)
+                    .SetProperty(s => s.UpdatedOn, DateTime.UtcNow),
+                    cancellationToken);
+            }
+            else
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
             }
 
-            shipment.UpdatedById = request.UpdaterId;
-            shipment.UpdatedOn = DateTime.UtcNow;
-            shipment.ShipmentStatus = request.NewStatus;
+            if (rowsAffected == 0)
+            {
+                return Result.Failure(ShipmentErrors.InvalidTransition);
+            }
 
-            await _context.SaveChangesAsync(cancellationToken);
 
-            var recipients = new List<string> { shipment.Customer.UserId };
+            if (!string.IsNullOrEmpty(shipmentInfo.CustomerUserId))
+            {
+                var notificationEvent = new ShipmentUpdateStatusEvent(
+                    RecipientIds: new List<string> { shipmentInfo.CustomerUserId },
+                    ShipmentId: shipmentInfo.Id,
+                    NewStatusName: request.NewStatus.ToString()
+                );
 
-            var notificationEvent = new ShipmentUpdateStatusEvent(
-                RecipientIds: recipients,
-                ShipmentId: shipment.Id,
-                NewStatusName: shipment.ShipmentStatus.ToString()
-            );
-
-            await _mediator.Publish(notificationEvent, cancellationToken);
-
+                await _mediator.Publish(notificationEvent, cancellationToken);
+            }
             return Result.Success();
         }
     }

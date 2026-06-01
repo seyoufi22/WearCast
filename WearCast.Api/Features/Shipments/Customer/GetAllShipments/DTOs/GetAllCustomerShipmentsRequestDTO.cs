@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using WearCast.Api.Common.Views;
-using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
+﻿using WearCast.Api.Common.Views;
 
 namespace WearCast.Api.Features.Shipments.Customer.GetAllShipments.DTOs
 {

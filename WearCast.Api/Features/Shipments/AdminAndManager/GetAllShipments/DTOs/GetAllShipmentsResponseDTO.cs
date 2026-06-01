@@ -3,7 +3,6 @@
     public class GetAllShipmentsResponseDTO
     {
         public int Id { get; set; }
-        public bool IsDeleted { get; set; } 
         public DateTime OrderTime { get; set; }
         public ShipmentStatus ShipmentStatus { get; set; }
         public decimal Price { get; set; }

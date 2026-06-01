@@ -45,7 +45,7 @@ namespace WearCast.Api.Authentication
                 signingCredentials: signingCredentials
             );
 
-            return (token: new JwtSecurityTokenHandler().WriteToken(token), expiresIn: _jwtOptions.ExpiryMinutes * 60);
+            return (token: new JwtSecurityTokenHandler().WriteToken(token), expiresIn: _jwtOptions.ExpiryMinutes * 60 * 1000);
         }
 
         public string? ValidateToken(string token)

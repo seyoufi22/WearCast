@@ -61,4 +61,12 @@ public class Repository<T> : IRepository<T> where T : BaseModel, new()
         entity.IsDeleted = true;
         await _context.SaveChangesAsync();
     }
+    public async Task SoftDeleteByConditionAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        // Note: If you use a different property name for soft deletion (e.g., "IsActive"), change "IsDeleted" below.
+        // This executes a direct UPDATE query to the database for high performance.
+        await _context.Set<T>()
+            .Where(predicate)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => EF.Property<bool>(x, "IsDeleted"), true), cancellationToken);
+    }
 }

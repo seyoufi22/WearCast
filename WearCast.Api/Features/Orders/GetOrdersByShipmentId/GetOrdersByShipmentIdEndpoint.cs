@@ -16,13 +16,14 @@ public class GetOrdersByShipmentIdEndpoint : ControllerBase
     }
 
     [HttpGet("shipment/{shipmentId}")]
-    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.ShippingCompanyManager}")]
+    [Authorize(Roles = $"{DefaultRoles.Customer},{DefaultRoles.SuperAdmin},{DefaultRoles.ShippingCompanyManager}, {DefaultRoles.Driver}, {DefaultRoles.OperationsAdmin}")]
     public async Task<IActionResult> Get([FromRoute] int shipmentId)
     {
         var customerId = User.GetCustomerId();
-        var isAdmin = User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.ShippingCompanyManager);
+        var driverId = User.GetDriverId();
+        var isAdmin = User.IsInRole(DefaultRoles.SuperAdmin) || User.IsInRole(DefaultRoles.ShippingCompanyManager) || User.IsInRole(DefaultRoles.OperationsAdmin);
 
-        var request = new GetOrdersByShipmentIdQuery(shipmentId, customerId, isAdmin);
+        var request = new GetOrdersByShipmentIdQuery(shipmentId, customerId, driverId, isAdmin);
         var result = await _sender.Send(request);
 
         if (result.IsFailure)

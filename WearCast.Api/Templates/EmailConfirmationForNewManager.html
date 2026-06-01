@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to WearCast - Manager Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #f4f4f5;
+            padding: 40px 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            background-color: #1f2937;
+            padding: 25px;
+            text-align: center;
+        }
+
+            .email-header h1 {
+                color: #ffffff;
+                margin: 0;
+                font-size: 24px;
+                letter-spacing: 1px;
+            }
+
+        .email-body {
+            padding: 30px;
+            color: #374151;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+
+        .code-container {
+            background-color: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .verification-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+            letter-spacing: 6px;
+            margin: 0;
+        }
+
+        .warning-text {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        .email-footer {
+            background-color: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+            .email-footer p {
+                margin: 0;
+                color: #9ca3af;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <div class="email-header">
+                <h1>WearCast</h1>
+            </div>
+
+            <div class="email-body">
+                <div class="greeting">Hello {{managerName}},</div>
+
+                <p>You have been added as a <strong>Manager</strong> for a brand on <strong>WearCast</strong>. We're excited to have you on the team!</p>
+                <p>To activate your account and verify your email address, please use the following verification code:</p>
+
+                <div class="code-container">
+                    <p class="verification-code">{{code}}</p>
+                </div>
+
+                <p>Please enter this code in the app to complete your setup.</p>
+
+                <p class="warning-text">
+                    * If you did not expect this invitation, you can safely ignore this email.
+                </p>
+
+                <br>
+                <p>Best regards,<br><strong>The WearCast Support Team</strong></p>
+            </div>
+
+            <div class="email-footer">
+                <p>&copy; 2026 WearCast. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

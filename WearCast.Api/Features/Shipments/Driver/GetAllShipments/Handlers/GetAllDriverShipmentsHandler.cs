@@ -1,6 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WearCast.Api.Common.Helper;
+﻿using WearCast.Api.Common.Helper;
 using WearCast.Api.Common.Views;
 using WearCast.Api.Features.Shipments.Driver.GetAllShipments.DTOs;
 
@@ -41,31 +39,31 @@ namespace WearCast.Api.Features.Shipments.Driver.GetAllShipments.Handlers
             {
                 query = query.Where(s => s.Customer.ApplicationUser.LastName.Contains(request.CustomerLastName.Trim()));
             }
-            query = request.SortBy switch
+
+            var projectedQuery = query.Select(s => new GetAllDriverShipmentsResponseDTO
             {
-                SortBy.Oldest => query.OrderBy(s => s.CreatedOn),
-                SortBy.NumberOfOrdersAsc => query.OrderBy(s => s.Orders.Count()),
-                SortBy.NumberOfOrdersDesc => query.OrderByDescending(s => s.Orders.Count()),
-                _ => query.OrderByDescending(s => s.CreatedOn)
+                Id = s.Id,
+                OrderTime = s.CreatedOn,
+                ShipmentStatus = s.ShipmentStatus,
+
+                CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
+                CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber ?? string.Empty, // 👈 الحماية هنا
+
+                NumberOfOrders = s.Orders.Count(), 
+
+                DeliveryCity = s.DeliveryAddress.City,
+                DeliveryStreet = s.DeliveryAddress.Street
+            });
+
+            projectedQuery = request.SortBy switch
+            {
+                SortBy.Oldest => projectedQuery.OrderBy(s => s.OrderTime),
+                SortBy.NumberOfOrdersAsc => projectedQuery.OrderBy(s => s.NumberOfOrders),
+                SortBy.NumberOfOrdersDesc => projectedQuery.OrderByDescending(s => s.NumberOfOrders),
+                _ => projectedQuery.OrderByDescending(s => s.OrderTime)
             };
 
-            var shipmentsquery = query
-                .Select(s => new GetAllDriverShipmentsResponseDTO
-                {
-                    Id = s.Id,
-                    OrderTime = s.CreatedOn,
-                    ShipmentStatus = s.ShipmentStatus,
-
-                    CustomerName = s.Customer.ApplicationUser.FirstName + " " + s.Customer.ApplicationUser.LastName,
-
-                    CustomerPhoneNumber = s.Customer.ApplicationUser.PhoneNumber,
-
-                    NumberOfOrders = s.Orders.Count(),
-
-                    DeliveryCity = s.DeliveryAddress.City,
-                    DeliveryStreet = s.DeliveryAddress.Street
-                });
-            var pagedResult = await PagingHelper.CreateAsync(shipmentsquery, request.PageIndex, request.PageSize);
+            var pagedResult = await PagingHelper.CreateAsync(projectedQuery, request.PageIndex, request.PageSize);
 
             return Result.Success(pagedResult);
         }

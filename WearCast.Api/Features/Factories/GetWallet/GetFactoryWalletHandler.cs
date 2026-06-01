@@ -11,7 +11,8 @@ public class GetFactoryWalletHandler(
     public async Task<Result<WalletResponse>> Handle(GetFactoryWalletRequest request, CancellationToken cancellationToken)
     {
         var user = httpContextAccessor.HttpContext!.User;
-        var factoryId = user.GetFactoryId();
+
+        int? factoryId = request.AdminOverrideId ?? user.GetFactoryId();
 
         if (factoryId == null)
             return Result.Failure<WalletResponse>(new Error("Factory.NotFound", "Factory not found in token.", StatusCodes.Status404NotFound));

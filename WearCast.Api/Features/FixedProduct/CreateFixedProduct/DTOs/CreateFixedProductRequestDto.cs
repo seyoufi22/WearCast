@@ -45,7 +45,8 @@ public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductR
             .GreaterThan(0).WithMessage("Valid CategoryId is required.");
 
         RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Description is required.");
+            .NotEmpty().WithMessage("Description is required.")
+            .MaximumLength(1000).WithMessage("Description must not exceed 1000 characters.");
 
         RuleFor(x => x.DressStyle)
         .IsInEnum().WithMessage("Invalid DressStyle selected.");
@@ -54,8 +55,9 @@ public class CreateFixedProductValidator : AbstractValidator<CreateFixedProductR
             .IsInEnum().WithMessage("Invalid TargetAudience selected.");
 
         RuleFor(x => x.SizeDetails)
+            .NotEmpty().WithMessage("At least one size detail is required. Please add size measurements (A, B, C) for at least one size.")
             .Must(list => list.Select(d => d.Size).Distinct().Count() == list.Count)
-            .WithMessage("Duplicate sizes are not allowed.");
+            .WithMessage("Duplicate sizes are not allowed. Each size can only appear once.");
 
         RuleForEach(x => x.SizeDetails).ChildRules(detail =>
         {

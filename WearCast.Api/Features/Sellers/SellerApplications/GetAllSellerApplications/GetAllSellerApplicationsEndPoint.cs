@@ -14,7 +14,7 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.GetAllSellerApplicati
             _sender = sender;
         }
 
-        [Authorize(Roles = $"{DefaultRoles.SuperAdmin}")]
+        [Authorize(Roles = $"{DefaultRoles.SuperAdmin},{DefaultRoles.VendorAdmin}")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetAllSellerApplicationsRequestDTO request, CancellationToken cancellationToken)
         {

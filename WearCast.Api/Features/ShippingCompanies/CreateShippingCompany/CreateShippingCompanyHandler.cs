@@ -29,6 +29,17 @@ namespace WearCast.Api.Features.ShippingCompanies.CreateShippingCompany
                 );
             }
 
+            bool isEmailUsedInSellerApplication = await _context.SellerApplications
+                .AnyAsync(app =>
+                    app.ManagerEmail == request.ManagerEmail &&
+                    (app.Status == Status.Pending || app.Status == Status.Approved),
+                    cancellationToken);
+
+            if (isEmailUsedInSellerApplication)
+            {
+                return Result.Failure<CreateShippingCompanyResponse>(UserErrors.DublicatedEmail);
+            }
+
             var existingUser = await _userManager.Users
                 .Where(u => u.Email == request.ManagerEmail || u.PhoneNumber == request.ManagerPhoneNumber)
                 .Select(u => new { u.Email, u.PhoneNumber })

@@ -53,6 +53,14 @@
                 return Result.Failure(AuthErrors.Forbidden);
             }
 
+            await _context.DesignedProductImages
+                    .Where(img => img.DesignedProductColorId == request.ColorId)
+                    .ExecuteUpdateAsync(img => img.SetProperty(x => x.IsDeleted, true), cancellationToken);
+
+            await _context.CustomerDesigns
+                .Where(cd => cd.DesignedProductColorId == request.ColorId)
+                .ExecuteUpdateAsync(cd => cd.SetProperty(x => x.IsDeleted, true), cancellationToken);
+
             color.IsDeleted = true;
 
             await _context.SaveChangesAsync(cancellationToken);

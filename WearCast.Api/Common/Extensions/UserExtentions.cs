@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 namespace WearCast.Api.Common.Extensions
 {
@@ -38,7 +38,7 @@ namespace WearCast.Api.Common.Extensions
             user.IsInRole(DefaultRoles.SellerManager);
 
         public static bool IsCustomer(this ClaimsPrincipal user) =>
-            user.IsInRole(DefaultRoles.Customer);
+            user.IsInRole(DefaultRoles.Customer) || user.HasClaim(c => c.Type == "CustomerID");
 
         public static bool IsDriver(this ClaimsPrincipal user) =>
             user.IsInRole(DefaultRoles.Driver);

@@ -1,10 +1,5 @@
 ﻿using System.Security.Cryptography;
 
-
-
-
-// تأكد من استدعاء مسارات الـ Errors والـ Enums بتاعتك
-
 namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
 {
     public class ApplyForSellingHandler(
@@ -12,7 +7,8 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
         IMapper mapper,
         EmailHelper emailHelper,
         ImageService imageService,
-        IPasswordHasher<SellerApplication> passwordHasher)
+        IPasswordHasher<SellerApplication> passwordHasher,
+        IMediator mediator)
         : IRequestHandler<ApplyForSellingRequest, Result>
     {
         private readonly ApplicationDbContext _context = context;
@@ -20,9 +16,13 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
         private readonly EmailHelper _emailHelper = emailHelper;
         private readonly ImageService _imageService = imageService;
         private readonly IPasswordHasher<SellerApplication> _passwordHasher = passwordHasher;
+        private readonly IMediator _mediator = mediator;
 
         public async Task<Result> Handle(ApplyForSellingRequest request, CancellationToken cancellationToken)
         {
+
+
+
             var userConflict = await _context.Users
                .Where(u => u.Email == request.SellerManagerEmail || u.PhoneNumber == request.SellerManagerPhoneNumber)
                .Select(u => new { u.Email, u.PhoneNumber })
@@ -78,6 +78,19 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
                 .Where(x => x.ManagerEmail == request.SellerManagerEmail && x.Status == Status.Rejected)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            var adminRoles = new[] { DefaultRoles.SuperAdmin, DefaultRoles.VendorAdmin };
+
+            var roleIds = await _context.Roles
+                .Where(r => adminRoles.Contains(r.Name))
+                .Select(r => r.Id)
+                .ToListAsync(cancellationToken);
+
+            var adminIds = await _context.UserRoles
+                .Where(ur => roleIds.Contains(ur.RoleId))
+                .Select(ur => ur.UserId.ToString())
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
             if (existingRejectedApp != null)
             {
                 var oldLogoUrl = existingRejectedApp.LogoUrl;
@@ -100,6 +113,16 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
 
                 await _emailHelper.SendConfirmationEmailForSellerManager(existingRejectedApp, confirmCode);
 
+                if (adminIds.Any())
+                {
+                    var notificationEvent = new NewSellerApplicationEvent(
+                        RecipientIds: adminIds,
+                        ApplicationId: existingRejectedApp.Id,
+                        SellerName: request.SellerName
+                    );
+                    await _mediator.Publish(notificationEvent, cancellationToken);
+                }
+
                 return Result.Success();
             }
 
@@ -115,6 +138,16 @@ namespace WearCast.Api.Features.Sellers.SellerApplications.ApplyForSelling
             await _context.SaveChangesAsync(cancellationToken);
 
             await _emailHelper.SendConfirmationEmailForSellerManager(newApp, confirmationCode);
+
+            if (adminIds.Any())
+            {
+                var notificationEvent = new NewSellerApplicationEvent(
+                    RecipientIds: adminIds,
+                    ApplicationId: newApp.Id,
+                    SellerName: request.SellerName
+                );
+                await _mediator.Publish(notificationEvent, cancellationToken);
+            }
 
             return Result.Success();
         }

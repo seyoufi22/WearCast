@@ -1,3 +1,6 @@
-﻿namespace WearCast.Api.Features.CartManagment.GetFixedProductsInCart.DTOs;
+﻿using MediatR;
 
-public record GetCartRequestDto(int CustomerId) : IRequest<List<GetCartItemResponseDto>>;
+namespace WearCast.Api.Features.CartManagment.GetFixedProductsInCart.DTOs;
+
+// The return type has been changed to the new wrapper DTO
+public record GetCartRequestDto(int CustomerId) : IRequest<FixedCartSummaryDto>;

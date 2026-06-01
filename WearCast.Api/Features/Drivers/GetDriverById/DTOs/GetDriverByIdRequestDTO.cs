@@ -1,5 +1,4 @@
-﻿using WearCast.Api.Features.Drivers.ChangeDriverStatus.DTOs;
-
+﻿
 namespace WearCast.Api.Features.Drivers.GetDriverById.DTOs
 {
     public class GetDriverByIdRequestDTO : IRequest<Result<GetDriverByIdResponseDTO>>

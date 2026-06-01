@@ -1,5 +1,4 @@
 ﻿using WearCast.Api.Common.Views;
-using WearCast.Api.Features.Shipments.AdminAndManager.GetAllShipments.DTOs;
 
 namespace WearCast.Api.Features.Drivers.GetAllDrivers.DTOs
 {
@@ -15,7 +14,6 @@ namespace WearCast.Api.Features.Drivers.GetAllDrivers.DTOs
         public DeliveryVehicleType? VehicleType { get; set; }
         public DriverStatus? DriverStatus { get; set; }
         public string? DriverCity { get; set; }
-        public bool? IsDeleted { get; set; }
     }
     public class GetAllDriversValidator : AbstractValidator<GetAllDriversRequestDTO>
     {
